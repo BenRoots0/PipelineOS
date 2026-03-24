@@ -2782,7 +2782,7 @@ function _sessRenderLabels(){
   let h='';
   labels.forEach(l=>{
     const cnt=artists.filter(a=>a.labelId===l.id).length;
-    h+=`<div class="sess-item" oncontextmenu="sessContextMenu(event,'label','${l.id}')" onclick="sessGoArtist('${l.id}')">
+    h+=`<div class="sess-item" oncontextmenu="sessContextMenu(event,'label','${l.id}')" onmousedown="sessHoldStart(event,'label','${l.id}')" onmouseup="sessHoldEnd()" onmouseleave="sessHoldEnd()" onclick="if(_holdFired){_holdFired=false;return;}sessGoArtist('${l.id}')">
       <div class="sess-item-avatar">${esc(l.name.charAt(0).toUpperCase())}</div>
       <div class="sess-item-info"><div class="sess-item-name">${esc(l.name)}</div><div class="sess-item-meta">${cnt} artist${cnt!==1?'s':''}</div></div>
       <div class="sess-item-actions"><button class="sess-item-btn danger" title="Delete label" onclick="event.stopPropagation();sessDelLabel('${l.id}')">✕</button></div>
@@ -2812,7 +2812,7 @@ function _sessRenderArtists(labelId){
   artists.forEach(a=>{
     const tracks=getProjects(a.id);
     const nm=a.name||'(Unnamed)';
-    h+=`<div class="sess-item" oncontextmenu="sessContextMenu(event,'artist','${a.id}')" onclick="sessGoTrack('${a.id}')">
+    h+=`<div class="sess-item" oncontextmenu="sessContextMenu(event,'artist','${a.id}')" onmousedown="sessHoldStart(event,'artist','${a.id}')" onmouseup="sessHoldEnd()" onmouseleave="sessHoldEnd()" onclick="if(_holdFired){_holdFired=false;return;}sessGoTrack('${a.id}')">
       <div class="sess-item-avatar">${esc(nm.charAt(0).toUpperCase())}</div>
       <div class="sess-item-info"><div class="sess-item-name">${esc(nm)}</div><div class="sess-item-meta">${tracks.length} track${tracks.length!==1?'s':''}${a.stylePrompt?' · style ✓':''}</div></div>
       <div class="sess-item-actions"><button class="sess-item-btn" title="Edit" onclick="event.stopPropagation();editArtist('${a.id}')">✏</button><button class="sess-item-btn danger" onclick="event.stopPropagation();delArtist('${a.id}')">✕</button></div>
@@ -2837,7 +2837,7 @@ function _sessRenderTracks(artistId){
     const nm=t.name||t.track||'(Unnamed)';
     const dt=t.savedAt||t.createdAt?new Date(t.savedAt||t.createdAt).toLocaleDateString():'';
     const isSuno=t.fromSuno||false;
-    h+=`<div class="sess-item" oncontextmenu="sessContextMenu(event,'track','${esc(nm)}')" onclick="openTrack('${artistId}','${esc(nm)}')">
+    h+=`<div class="sess-item" oncontextmenu="sessContextMenu(event,'track','${esc(nm)}')" onmousedown="sessHoldStart(event,'track','${esc(nm)}')" onmouseup="sessHoldEnd()" onmouseleave="sessHoldEnd()" onclick="if(_holdFired){_holdFired=false;return;}openTrack('${artistId}','${esc(nm)}')">
       <div class="sess-item-avatar" style="font-size:8px${isSuno?';color:var(--accent)':''}">▶</div>
       <div class="sess-item-info"><div class="sess-item-name">${esc(nm)}</div><div class="sess-item-meta">${isSuno?'<span style="color:var(--accent)">✓ from suno</span>'+(dt?' · '+dt:''): dt}</div></div>
       <div class="sess-item-actions"><button class="sess-item-btn${isSuno?' active':''}" title="Toggle from Suno (loads locked)" onclick="event.stopPropagation();sessToggleSuno('${artistId}',${ti})" style="${isSuno?'color:var(--accent);border-color:rgba(200,255,87,.35)':''}">suno</button><button class="sess-item-btn danger" onclick="event.stopPropagation();delTrack('${artistId}',${ti})">✕</button></div>
