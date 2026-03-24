@@ -16,6 +16,11 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh;}
+#topbar,#pipeline,#toolbox-toggle,#toolbox-panel{display:none;}
+body.ws-ready #topbar{display:flex;}
+body.ws-ready #pipeline{display:block;}
+body.ws-ready #toolbox-toggle{display:flex;}
+body.ws-ready #toolbox-panel{display:block;}
 #topbar{position:sticky;top:0;z-index:200;background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;gap:12px;}
 #topbar h1{font-family:'Syne',sans-serif;font-weight:800;font-size:14px;letter-spacing:-.3px;color:var(--accent);white-space:nowrap;}
 .v-badge{font-size:9px;color:var(--muted);border:1px solid var(--border2);padding:2px 7px;border-radius:10px;font-family:'Syne',sans-serif;font-weight:700;letter-spacing:.06em;}
@@ -2936,6 +2941,7 @@ function openTrack(artistId,trackName){
   const tracks=getProjects(artistId);const trackMeta=tracks.find(t=>(t.name||t.track)===trackName);
   const saved=dbGet('pipeline_track_state_'+artistId+'_'+trackName);
   getEl('session-modal').classList.remove('open');
+  document.body.classList.add('ws-ready');
   activeSession={artistId,artistName:a.name,track:trackName,persona:'',fromSuno:trackMeta?.fromSuno||false};localStorage.setItem('om35_last_session',JSON.stringify({artistId,track:trackName}));
   if(saved){
     if(saved.lyricInput)Object.assign(LI,saved.lyricInput);
@@ -2998,6 +3004,7 @@ function doCloseSession(){
     const tracks=getProjects(activeSession.artistId);const t=tracks.find(x=>x.name===activeSession.track);if(t)t.savedAt=new Date().toISOString();saveProjects(activeSession.artistId,tracks);
     logEntry(activeSession.artistId,activeSession.track,{event:'session_close'});
   }
+  document.body.classList.remove('ws-ready');
   activeSession=null;Object.assign(LI,{rawLyrics:'',promptOverall:'',locked:false,collapsed:false,sectionPrompts:{},sectionTechniques:{},bpm:'',bpmBypass:false,featName:'',globalInstructions:'',negNobelting:false,negNoLongNotes:false,negCustom:'',keyTonic:'',keyPolarity:'major',greekMode:'',timeSig:'',checkpoint:null,autosave:null});
   pipelineObj=null;pipeline=[];prePipeline=[];needsConsol=false;sunoGenCount=0;
   getEl('close-modal').classList.remove('open');updateTopbar();render();openSessionModal();showToast('Session closed');
