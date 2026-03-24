@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pipeline OS v3.1.0</title>
+<title>Pipeline OS v3.1.1</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;600;700;800&display=swap');
 :root {
@@ -354,7 +354,7 @@ textarea.m-ta::placeholder{color:var(--muted);opacity:.45;}
 #splash.hiding{opacity:0;pointer-events:none;}
 #splash.hidden{display:none;}
 #splash-logo-svg{display:block;overflow:visible;}
-#splash-sub{font-family:'DM Mono',monospace;font-size:11px;color:#55556a;letter-spacing:.1em;text-transform:uppercase;margin-top:12px;}
+#splash-sub{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:#88889a;letter-spacing:.08em;text-transform:uppercase;margin-top:14px;}
 #splash-start{margin-top:32px;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;background:transparent;border:1px solid #333340;color:#88889a;padding:10px 28px;border-radius:4px;cursor:pointer;transition:all .2s;}
 #splash-start:hover{border-color:#e2e2f0;color:#e2e2f0;}
 /* HELP MODAL */
@@ -396,14 +396,14 @@ textarea.m-ta::placeholder{color:var(--muted);opacity:.45;}
 <div id="splash">
   <div>
     <canvas id="splash-logo-canvas" style="display:block;"></canvas>
-    <div id="splash-sub">Pipeline OS · v3.1.0</div>
+    <div id="splash-sub">Pipeline OS · v3.1.1</div>
     <button id="splash-start" onclick="splashStart()">▶ Login</button>
   </div>
 </div>
 <div id="pw-modal" class="hidden">
   <div id="pw-box">
     <div id="pw-logo">OM35</div>
-    <div id="pw-tag">Pipeline OS · v3.1.0</div>
+    <div id="pw-tag">Pipeline OS · v3.1.1</div>
     <div id="pw-label">Enter password</div>
     <input id="pw-input" type="password" autocomplete="off" data-lpignore="true" placeholder="••••••••" onkeydown="if(event.key==='Enter')pwSubmit()">
     <div id="pw-err"></div>
@@ -412,7 +412,7 @@ textarea.m-ta::placeholder{color:var(--muted);opacity:.45;}
 </div>
 <div id="topbar">
   <button id="om35-logo" onclick="openHelp()" style="font-family:'Syne',sans-serif;font-weight:800;font-size:18px;letter-spacing:-.5px;color:#e2e2f0;background:transparent;border:none;cursor:pointer;padding:0;line-height:1;flex-shrink:0;">OM35</button>
-  <span class="v-badge">v3.1.0</span>
+  <span class="v-badge">v3.1.1</span>
   <div class="pipe-sep"></div>
   <button class="top-btn" onclick="collapseAll()">⊟ Collapse</button>
   <button class="top-btn" onclick="expandAll()">⊞ Expand</button>
@@ -515,7 +515,7 @@ textarea.m-ta::placeholder{color:var(--muted);opacity:.45;}
 <div id="help-modal">
   <div class="help-box">
     <div class="help-box-logo">OM35</div>
-    <div class="help-box-tag">Pipeline OS · v3.1.0</div>
+    <div class="help-box-tag">Pipeline OS · v3.1.1</div>
     <div class="help-box-soon">Help & Support</div>
     <div class="help-box-sub">Documentation and support portal coming soon.<br>For now, reach out directly to the team.</div>
     <button class="help-close" onclick="closeHelp()">✕ Close</button>
@@ -729,7 +729,7 @@ function showLockScreen(){
   if(splash){splash.classList.remove('hidden','hiding');}
   getEl('splash-start').style.display='none';
   const sub=getEl('splash-sub');
-  if(sub)sub.innerHTML='Pipeline OS &middot; v3.1.0 &nbsp;·&nbsp; <span onclick="_splashReopen()" style="cursor:pointer;color:#c8ff57;text-decoration:underline;text-underline-offset:3px">open project</span>';
+  if(sub)sub.innerHTML='Pipeline OS &middot; v3.1.1 &nbsp;·&nbsp; <span onclick="_splashReopen()" style="cursor:pointer;color:#c8ff57;text-decoration:underline;text-underline-offset:3px">open project</span>';
 }
 function _splashReopen(){
   pwRequire(()=>{
