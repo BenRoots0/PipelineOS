@@ -17,10 +17,6 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh;}
 #topbar,#pipeline,#toolbox-toggle,#toolbox-panel{display:none;}
-body.ws-ready #topbar{display:flex;}
-body.ws-ready #pipeline{display:block;}
-body.ws-ready #toolbox-toggle{display:flex;}
-body.ws-ready #toolbox-panel{display:block;}
 #topbar{position:sticky;top:0;z-index:200;background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;gap:12px;}
 #topbar h1{font-family:'Syne',sans-serif;font-weight:800;font-size:14px;letter-spacing:-.3px;color:var(--accent);white-space:nowrap;}
 .v-badge{font-size:9px;color:var(--muted);border:1px solid var(--border2);padding:2px 7px;border-radius:10px;font-family:'Syne',sans-serif;font-weight:700;letter-spacing:.06em;}
@@ -262,8 +258,10 @@ textarea.m-ta::placeholder{color:var(--muted);opacity:.45;}
 .rs-add-in{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;padding:6px 10px;outline:none;}
 .rs-add-in:focus{border-color:var(--purple);}
 .rs-add-btn{font-family:'Syne',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;background:var(--purple);color:#0b0b0e;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;}
-#session-modal{display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.88);align-items:center;justify-content:center;}
-#session-modal.open{display:flex;}
+#session-modal{display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.0);align-items:center;justify-content:center;transition:background .25s ease;}
+#session-modal.open{display:flex;background:rgba(0,0,0,.88);}
+#session-modal .sess-box{opacity:0;transform:translateY(10px);transition:opacity .25s ease,transform .25s cubic-bezier(.4,0,.2,1);}
+#session-modal.open .sess-box{opacity:1;transform:translateY(0);}
 .sess-box{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;width:260px;max-width:96vw;overflow:hidden;max-height:88vh;display:flex;flex-direction:column;transition:width .26s cubic-bezier(.4,0,.2,1);}
 .sess-head{padding:14px 16px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-shrink:0;}
 .sess-title{font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:var(--accent);letter-spacing:-.3px;flex-shrink:0;}
@@ -734,7 +732,7 @@ function showLockScreen(){
   if(splash){splash.classList.remove('hidden','hiding');}
   getEl('splash-start').style.display='none';
   const sub=getEl('splash-sub');
-  if(sub)sub.innerHTML='Pipeline OS &middot; v3.1.1 &nbsp;·&nbsp; <span onclick="_splashReopen()" style="cursor:pointer;color:#c8ff57;text-decoration:underline;text-underline-offset:3px">open project</span>';
+  if(sub)sub.innerHTML='Pipeline OS &middot; v3.1.1 &nbsp;·&nbsp; <span onclick="_splashReopen()" style="cursor:pointer;color:#c8ff57;text-decoration:underline;text-underline-offset:3px">Login</span>';
 }
 function _splashReopen(){
   pwRequire(()=>{
@@ -926,6 +924,16 @@ function initKaleidoscope(){
   requestAnimationFrame(drawFrame);
 }
 
+function _showWorkspace(){
+  const els=[['topbar','flex'],['pipeline','block'],['toolbox-toggle','flex'],['toolbox-panel','block']];
+  els.forEach(([id,d])=>{const el=getEl(id);if(el){el.style.display=d;el.style.opacity='0';el.style.transition='opacity .45s ease';}});
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    els.forEach(([id])=>{const el=getEl(id);if(el)el.style.opacity='1';});
+  }));
+}
+function _hideWorkspace(){
+  ['topbar','pipeline','toolbox-toggle','toolbox-panel'].forEach(id=>{const el=getEl(id);if(el)el.style.display='none';});
+}
 function playStartupJingle(){
   try{
     const ctx=new(window.AudioContext||window.webkitAudioContext)();
@@ -2941,7 +2949,7 @@ function openTrack(artistId,trackName){
   const tracks=getProjects(artistId);const trackMeta=tracks.find(t=>(t.name||t.track)===trackName);
   const saved=dbGet('pipeline_track_state_'+artistId+'_'+trackName);
   getEl('session-modal').classList.remove('open');
-  document.body.classList.add('ws-ready');
+  _showWorkspace();
   activeSession={artistId,artistName:a.name,track:trackName,persona:'',fromSuno:trackMeta?.fromSuno||false};localStorage.setItem('om35_last_session',JSON.stringify({artistId,track:trackName}));
   if(saved){
     if(saved.lyricInput)Object.assign(LI,saved.lyricInput);
@@ -3004,7 +3012,7 @@ function doCloseSession(){
     const tracks=getProjects(activeSession.artistId);const t=tracks.find(x=>x.name===activeSession.track);if(t)t.savedAt=new Date().toISOString();saveProjects(activeSession.artistId,tracks);
     logEntry(activeSession.artistId,activeSession.track,{event:'session_close'});
   }
-  document.body.classList.remove('ws-ready');
+  _hideWorkspace();
   activeSession=null;Object.assign(LI,{rawLyrics:'',promptOverall:'',locked:false,collapsed:false,sectionPrompts:{},sectionTechniques:{},bpm:'',bpmBypass:false,featName:'',globalInstructions:'',negNobelting:false,negNoLongNotes:false,negCustom:'',keyTonic:'',keyPolarity:'major',greekMode:'',timeSig:'',checkpoint:null,autosave:null});
   pipelineObj=null;pipeline=[];prePipeline=[];needsConsol=false;sunoGenCount=0;
   getEl('close-modal').classList.remove('open');updateTopbar();render();openSessionModal();showToast('Session closed');
