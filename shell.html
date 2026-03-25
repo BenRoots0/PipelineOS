@@ -3217,13 +3217,14 @@ function _sessRenderLabels(){
       <div class="sess-item-actions"><button class="sess-item-btn" title="Rename label" onclick="event.stopPropagation();sessRenameBtn(this,'label','${l.id}')">✎</button><button class="sess-item-btn danger" title="Delete label" onclick="event.stopPropagation();sessDelLabel('${l.id}')">✕</button></div>
     </div>`;
   });
-  if(defaultCount>0||!labels.length){
+  // Only show Default if no labels exist AND there are orphaned artists
+  if(!labels.length&&defaultCount>0){
     h+=`<div class="sess-item" onclick="sessGoArtist('__default__')">
       <div class="sess-item-avatar" style="color:var(--muted)">—</div>
       <div class="sess-item-info"><div class="sess-item-name" style="color:var(--text2)">Default</div><div class="sess-item-meta">${defaultCount} artist${defaultCount!==1?'s':''}</div></div>
     </div>`;
   }
-  list.innerHTML=h||`<div style="padding:20px;font-size:11px;color:var(--muted);text-align:center">No labels yet.<br>Create one below.</div>`;
+  list.innerHTML=h||`<div style="padding:20px;font-size:11px;color:var(--muted);text-align:center">Create a label to get started.</div>`;
 }
 
 function sessGoArtist(labelId){
@@ -3307,10 +3308,11 @@ function sessAddLabel(){
 }
 
 function sessAddArtist(){
+  if(_sessLabelId==='__default__'){showToast('Create a label first');return;}
   const nm=getEl('sess-artist-name')?.value.trim();if(!nm){showToast('Artist name?');return;}
   const artists=getArtists();
   const id='artist_'+Date.now();
-  artists.push({id,name:nm,labelId:_sessLabelId==='__default__'?undefined:_sessLabelId,stylePrompt:'',personas:[],createdAt:new Date().toISOString()});
+  artists.push({id,name:nm,labelId:_sessLabelId,stylePrompt:'',personas:[],createdAt:new Date().toISOString()});
   saveArtists(artists);
   sessToggleArtistForm(false);
   _sessRenderArtists(_sessLabelId);
