@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pipeline OS v5.0.0</title>
+<title>Pipeline OS v4.2.0</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;600;700;800&display=swap');
 :root {
@@ -430,14 +430,14 @@ textarea.m-ta::placeholder{color:var(--muted);opacity:.45;}
 <div id="splash" class="visible">
   <div>
     <canvas id="splash-logo-canvas" style="display:block;opacity:0;transition:opacity 1.2s ease-in-out;"></canvas>
-    <div id="splash-sub">Pipeline OS · v5.0.0</div>
+    <div id="splash-sub">Pipeline OS · v4.2.0</div>
     <button id="splash-start" onclick="splashStart()">▶ Login</button>
   </div>
 </div>
 <div id="pw-modal" class="gone">
   <div id="pw-box">
     <div id="pw-logo">OM35</div>
-    <div id="pw-tag">Pipeline OS · v5.0.0</div>
+    <div id="pw-tag">Pipeline OS · v4.2.0</div>
     <div id="pw-label">Enter password</div>
     <input id="pw-input" type="password" autocomplete="off" data-lpignore="true" placeholder="••••••••" onfocus="this.placeholder=''" onblur="if(!this.value)this.placeholder='••••••••'" onkeydown="if(event.key==='Enter')pwSubmit()">
     <div id="pw-err"></div>
@@ -447,7 +447,7 @@ textarea.m-ta::placeholder{color:var(--muted);opacity:.45;}
 <div id="workspace-wrap">
 <div id="topbar">
   <button id="om35-logo" onclick="openHelp()" style="font-family:'Syne',sans-serif;font-weight:800;font-size:18px;letter-spacing:-.5px;color:#e2e2f0;background:transparent;border:none;cursor:pointer;padding:0;line-height:1;flex-shrink:0;">OM35</button>
-  <span class="v-badge">v5.0.0</span>
+  <span class="v-badge">v4.2.0</span>
   <div class="pipe-sep"></div>
   <button class="top-btn" onclick="collapseAll()">⊟ Collapse</button>
   <button class="top-btn" onclick="expandAll()">⊞ Expand</button>
@@ -582,7 +582,7 @@ textarea.m-ta::placeholder{color:var(--muted);opacity:.45;}
   <div class="help-box">
     <div class="help-header">
       <div class="help-box-logo">OM35</div>
-      <div class="help-box-tag">Pipeline OS · v5.0.0</div>
+      <div class="help-box-tag">Pipeline OS · v4.2.0</div>
       <div class="help-tabs">
         <button class="help-tab active" onclick="helpTab('about')">About</button>
         <button class="help-tab" onclick="helpTab('handbook')">Handbook</button>
@@ -842,7 +842,7 @@ function dbSet(k,v){_idbCache[k]=v;_idbWrite(k,v);}
 function dbDel(k){delete _idbCache[k];_idbDel(k);}
 async function migrateFromLocalStorage(){const keys=Object.keys(localStorage).filter(k=>k.startsWith('pipeline_'));if(!keys.length)return;let migrated=0;for(const k of keys){try{const v=JSON.parse(localStorage.getItem(k));if(v!==null){dbSet(k,v);migrated++;}}catch(e){}}if(migrated>0){console.log(`Migrated ${migrated} keys from localStorage to IndexedDB`);keys.forEach(k=>localStorage.removeItem(k));}}
 // ═══ VERSION MIGRATION ═══════════════════════════════════
-const PPOS_VERSION='5.0.0';
+const PPOS_VERSION='4.2.0';
 function migrateVersion(){
   const prev=localStorage.getItem('ppos_version')||'0';
   if(prev!==PPOS_VERSION){
@@ -905,7 +905,7 @@ function showLockScreen(){
   // Show the Login button (same as initial splash)
   const btn=getEl('splash-start');if(btn){btn.style.display='';btn.onclick=function(){splashStartFromLock();};}
   const sub=getEl('splash-sub');
-  if(sub)sub.textContent='Pipeline OS · v5.0.0';
+  if(sub)sub.textContent='Pipeline OS · v4.2.0';
   fadeIn(splash);
 }
 function splashStartFromLock(){
@@ -1015,7 +1015,7 @@ document.addEventListener('visibilitychange',()=>{
         splash.classList.remove('gone');splash.classList.add('visible');
         getEl('splash-start').style.display='none';
         const sub=getEl('splash-sub');
-        if(sub)sub.innerHTML='Pipeline OS &middot; v5.0.0 &nbsp;·&nbsp; <span style="color:var(--muted)">locked</span>';
+        if(sub)sub.innerHTML='Pipeline OS &middot; v4.2.0 &nbsp;·&nbsp; <span style="color:var(--muted)">locked</span>';
       },10000);
     }
     return;
