@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pipeline OS v3.1.0</title>
+<title>Pipeline OS v4.0.0</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;600;700;800&display=swap');
 :root {
@@ -16,6 +16,9 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh;}
+/* GLOBAL FADE */
+#workspace-wrap{opacity:0;transition:opacity .5s ease-in-out;display:none;}
+#topbar,#pipeline,#toolbox-toggle,#toolbox-panel{display:none;}
 #topbar{position:sticky;top:0;z-index:200;background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;gap:12px;}
 #topbar h1{font-family:'Syne',sans-serif;font-weight:800;font-size:14px;letter-spacing:-.3px;color:var(--accent);white-space:nowrap;}
 .v-badge{font-size:9px;color:var(--muted);border:1px solid var(--border2);padding:2px 7px;border-radius:10px;font-family:'Syne',sans-serif;font-weight:700;letter-spacing:.06em;}
@@ -257,48 +260,55 @@ textarea.m-ta::placeholder{color:var(--muted);opacity:.45;}
 .rs-add-in{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;padding:6px 10px;outline:none;}
 .rs-add-in:focus{border-color:var(--purple);}
 .rs-add-btn{font-family:'Syne',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;background:var(--purple);color:#0b0b0e;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;}
-#session-modal{display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.88);align-items:center;justify-content:center;}
-#session-modal.open{display:flex;}
-.sess-box{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;width:460px;max-width:94vw;overflow:hidden;max-height:90vh;overflow-y:auto;}
-.sess-head{padding:20px 24px 16px;border-bottom:1px solid var(--border);}
-.sess-title{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:var(--accent);letter-spacing:-.3px;margin-bottom:3px;}
-.sess-sub{font-size:11px;color:var(--muted);}
-.sess-step{display:none;flex-direction:column;}
-.sess-step.active{display:flex;}
-.sess-list{padding:12px 14px;display:flex;flex-direction:column;gap:4px;max-height:300px;overflow-y:auto;}
-.sess-proj-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--border);border-radius:6px;cursor:pointer;transition:all .12s;background:var(--surface3);}
-.sess-proj-item:hover{border-color:var(--border2);}
-.sess-avatar{width:30px;height:30px;border-radius:5px;background:var(--surface);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:10px;font-weight:700;color:var(--text2);flex-shrink:0;}
-.sess-proj-info{flex:1;min-width:0;}
-.sess-proj-name{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.sess-proj-meta{font-size:10px;color:var(--muted);margin-top:1px;}
-.sess-new-btn{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px dashed var(--border2);border-radius:6px;cursor:pointer;transition:all .12s;color:var(--muted);font-family:'Syne',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;}
-.sess-new-btn:hover{border-color:var(--accent);color:var(--accent);}
-.sess-artist-group{display:flex;flex-direction:column;}
-.sess-track-list{background:var(--bg);border-left:2px solid var(--border2);margin-left:14px;margin-bottom:4px;}
-.sess-track-item{display:flex;align-items:center;padding:7px 12px 7px 14px;border-bottom:1px solid var(--border);transition:background .12s;}
-.sess-track-item:hover{background:var(--surface3);}
-.sess-track-info{flex:1;cursor:pointer;}
-.sess-track-name{display:block;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--text);}
-.sess-track-meta{display:block;font-size:9px;color:var(--muted);margin-top:1px;}
-.sess-track-del{background:transparent;border:none;color:var(--border2);cursor:pointer;font-size:11px;padding:3px 5px;transition:color .12s;flex-shrink:0;}
-.sess-track-del:hover{color:var(--red);}
-.sess-track-new{padding:7px 14px;font-family:'Syne',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);cursor:pointer;transition:color .12s;}
-.sess-track-new:hover{color:var(--accent);}
-.sess-fields{padding:16px 24px;display:flex;flex-direction:column;gap:14px;}
-.sess-field{display:flex;flex-direction:column;gap:5px;}
-.sess-field label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;}
-.sess-field input,.sess-field select,.sess-field textarea{background:var(--surface3);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;padding:8px 11px;border-radius:5px;outline:none;width:100%;}
-.sess-field input:focus,.sess-field select:focus,.sess-field textarea:focus{border-color:var(--accent);}
-.sess-field input::placeholder,.sess-field textarea::placeholder{color:var(--muted);opacity:.45;}
-.sess-new-name{background:var(--surface3);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;padding:8px 11px;border-radius:5px;outline:none;width:100%;display:none;}
-.sess-new-name:focus{border-color:var(--accent);}
-.sess-back{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;background:transparent;color:var(--muted);border:none;cursor:pointer;padding:0;}
-.sess-back:hover{color:var(--text2);}
-.sess-footer{padding:12px 24px 18px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);}
-.sess-go{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;background:var(--accent);color:#0b0b0e;border:none;padding:8px 20px;border-radius:4px;cursor:pointer;}
-.sess-go:disabled{opacity:.35;cursor:not-allowed;}
-.sess-disclaimer{font-size:9px;color:var(--muted);line-height:1.5;padding:0 24px 10px;}
+#session-modal{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .5s ease-in-out;pointer-events:none;}
+#session-modal.visible{opacity:1;pointer-events:auto;background:rgba(0,0,0,.88);}
+#session-modal.gone{display:none;}
+#session-modal .sess-box{opacity:0;transform:translateY(10px);transition:opacity .5s ease-in-out,transform .5s cubic-bezier(.4,0,.2,1);}
+#session-modal.visible .sess-box{opacity:1;transform:translateY(0);}
+.sess-box{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;width:260px;max-width:96vw;overflow:hidden;max-height:88vh;display:flex;flex-direction:column;transition:width .26s cubic-bezier(.4,0,.2,1);}
+.sess-head{padding:14px 16px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.sess-title{font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:var(--accent);letter-spacing:-.3px;flex-shrink:0;}
+.sess-breadcrumb{font-size:10px;color:var(--muted);display:flex;align-items:center;gap:4px;flex:1;min-width:0;overflow:hidden;}
+.sess-bc-item{color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sess-bc-sep{color:var(--border2);flex-shrink:0;}
+.sess-close-btn{background:transparent;border:none;color:var(--muted);font-size:14px;cursor:pointer;padding:2px 4px;line-height:1;flex-shrink:0;transition:color .12s;}
+.sess-close-btn:hover{color:var(--text);}
+.sess-cols-wrap{overflow:hidden;flex:1;min-height:0;}
+.sess-cols{display:flex;}
+.sess-col{width:260px;min-width:260px;display:flex;flex-direction:column;max-height:calc(88vh - 52px);overflow:hidden;border-left:1px solid var(--border);opacity:0;transform:translateX(16px);transition:opacity .22s ease,transform .22s cubic-bezier(.4,0,.2,1);pointer-events:none;}
+.sess-col:first-child{border-left:none;opacity:1;transform:none;pointer-events:auto;}
+.sess-col.active{opacity:1;transform:translateX(0);pointer-events:auto;}
+.sess-col-head{padding:10px 14px;font-family:'Syne',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);border-bottom:1px solid var(--border);flex-shrink:0;}
+.sess-col-list{flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:3px;}
+.sess-col-footer{border-top:1px solid var(--border);padding:6px 8px;flex-shrink:0;}
+.sess-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid transparent;border-radius:5px;cursor:pointer;transition:all .12s;}
+.sess-item:hover{background:var(--surface3);border-color:var(--border);}
+.sess-item-avatar{width:26px;height:26px;border-radius:4px;background:var(--surface);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:9px;font-weight:700;color:var(--text2);flex-shrink:0;}
+.sess-item-info{flex:1;min-width:0;}
+.sess-item-name{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sess-item-meta{font-size:9px;color:var(--muted);margin-top:1px;}
+.sess-item-actions{display:flex;gap:3px;flex-shrink:0;}
+.sess-item-btn{background:transparent;border:1px solid var(--border);color:var(--muted);font-size:9px;padding:2px 6px;border-radius:3px;cursor:pointer;transition:all .12s;}
+.sess-item-btn:hover{border-color:var(--border2);color:var(--text2);}
+.sess-item-btn.danger:hover{border-color:rgba(255,85,85,.4);color:var(--red);}
+.sess-add-btn{display:flex;align-items:center;gap:6px;padding:7px 10px;border:1px dashed var(--border2);border-radius:5px;cursor:pointer;color:var(--muted);font-family:'Syne',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;transition:all .12s;}
+.sess-add-btn:hover{border-color:var(--accent);color:var(--accent);}
+.sess-back-btn{background:transparent;border:none;color:var(--muted);font-size:10px;cursor:pointer;padding:4px 8px;font-family:'Syne',sans-serif;font-weight:700;letter-spacing:.04em;}
+.sess-back-btn:hover{color:var(--text2);}
+/* New label/artist inline form */
+.sess-inline-form{padding:8px;border-top:1px solid var(--border);display:none;flex-direction:column;gap:6px;}
+.sess-inline-form.open{display:flex;}
+.sess-inline-input{background:var(--surface3);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:11px;padding:6px 10px;border-radius:4px;outline:none;}
+.sess-inline-input:focus{border-color:var(--accent);}
+.sess-inline-actions{display:flex;gap:6px;}
+.sess-inline-save{font-family:'Syne',sans-serif;font-size:9px;font-weight:700;background:var(--accent);color:#0b0b0e;border:none;padding:5px 12px;border-radius:3px;cursor:pointer;}
+.sess-inline-cancel{font-family:'Syne',sans-serif;font-size:9px;font-weight:700;background:transparent;border:1px solid var(--border);color:var(--muted);padding:5px 10px;border-radius:3px;cursor:pointer;}
+.sess-rename-wrap{display:flex;align-items:center;gap:5px;width:100%;}
+.sess-rename-input{flex:1;background:var(--surface);border:1px solid var(--accent);color:var(--text);font-family:'DM Mono',monospace;font-size:11px;padding:3px 7px;border-radius:3px;outline:none;min-width:0;}
+.sess-rename-ok{background:var(--accent);color:#0b0b0e;border:none;font-size:10px;padding:3px 8px;border-radius:3px;cursor:pointer;flex-shrink:0;}
+.sess-rename-cancel{background:transparent;border:1px solid var(--border2);color:var(--muted);font-size:10px;padding:3px 6px;border-radius:3px;cursor:pointer;flex-shrink:0;}
+.suno-master-bar{display:flex;align-items:center;gap:8px;padding:8px 14px;background:rgba(200,255,87,.05);border-bottom:1px solid rgba(200,255,87,.18);font-size:10px;color:var(--accent);flex-shrink:0;}
+.suno-master-bar strong{font-family:'Syne',sans-serif;font-weight:700;}
 #close-modal{display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.85);align-items:center;justify-content:center;}
 #close-modal.open{display:flex;}
 .close-box{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:22px 26px;width:440px;max-width:94vw;display:flex;flex-direction:column;gap:12px;}
@@ -346,23 +356,55 @@ textarea.m-ta::placeholder{color:var(--muted);opacity:.45;}
 #toast.show{transform:translateX(-50%) translateY(0);}
 @media(max-width:860px){:root{--module-w:100%;}#pipeline{padding:0 10px;}.api-wrap label{display:none;}#global-key{width:140px;}}
 /* SPLASH / LOCK SCREEN */
-#splash{position:fixed;inset:0;z-index:1000;background:#000;display:flex;align-items:center;justify-content:flex-start;padding-left:12vw;transition:opacity .6s ease;}
-#splash.hiding{opacity:0;pointer-events:none;}
-#splash.hidden{display:none;}
+#splash{position:fixed;inset:0;z-index:1000;background:#000;display:flex;align-items:center;justify-content:flex-start;padding-left:12vw;opacity:0;transition:opacity .5s ease-in-out;}
+#splash.visible{opacity:1;}
+#splash.gone{display:none;}
 #splash-logo-svg{display:block;overflow:visible;}
-#splash-sub{font-family:'DM Mono',monospace;font-size:11px;color:#55556a;letter-spacing:.1em;text-transform:uppercase;margin-top:12px;}
+#splash-sub{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:#88889a;letter-spacing:.08em;text-transform:uppercase;margin-top:14px;}
 #splash-start{margin-top:32px;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;background:transparent;border:1px solid #333340;color:#88889a;padding:10px 28px;border-radius:4px;cursor:pointer;transition:all .2s;}
 #splash-start:hover{border-color:#e2e2f0;color:#e2e2f0;}
 /* HELP MODAL */
-#help-modal{display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.85);align-items:center;justify-content:center;}
+#help-modal{display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.88);align-items:center;justify-content:center;}
 #help-modal.open{display:flex;}
-.help-box{background:#131317;border:1px solid #28282f;border-radius:10px;padding:32px 36px;width:420px;max-width:94vw;text-align:center;display:flex;flex-direction:column;gap:14px;}
+.help-box{background:#131317;border:1px solid #28282f;border-radius:10px;width:640px;max-width:96vw;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;}
+.help-header{padding:24px 28px 0;text-align:center;}
 .help-box-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:36px;letter-spacing:-2px;color:#e2e2f0;}
-.help-box-tag{font-size:10px;color:#55556a;text-transform:uppercase;letter-spacing:.12em;}
-.help-box-soon{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#c8ff57;margin-top:4px;}
-.help-box-sub{font-size:11px;color:#88889a;line-height:1.6;}
-.help-close{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;background:transparent;border:1px solid #28282f;color:#55556a;padding:7px 20px;border-radius:4px;cursor:pointer;margin-top:4px;transition:all .15s;}
+.help-box-tag{font-size:10px;color:#55556a;text-transform:uppercase;letter-spacing:.12em;margin-top:2px;}
+.help-tabs{display:flex;gap:0;border-bottom:1px solid #28282f;margin-top:16px;padding:0 28px;}
+.help-tab{flex:1;text-align:center;font-family:'Syne',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:10px 0;cursor:pointer;color:#55556a;border-bottom:2px solid transparent;transition:all .15s;background:transparent;border-top:none;border-left:none;border-right:none;}
+.help-tab.active{color:#c8ff57;border-bottom-color:#c8ff57;}
+.help-tab:hover{color:#88889a;}
+.help-pane{display:none;padding:20px 28px 24px;overflow-y:auto;flex:1;}
+.help-pane.active{display:block;}
+.help-close{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;background:transparent;border:1px solid #28282f;color:#55556a;padding:7px 20px;border-radius:4px;cursor:pointer;transition:all .15s;align-self:center;margin:0 28px 20px;}
 .help-close:hover{border-color:#e2e2f0;color:#e2e2f0;}
+.hb-mod{border:1px solid #28282f;border-radius:6px;margin-bottom:8px;overflow:hidden;}
+.hb-mod-head{padding:10px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;background:#0f0f14;user-select:none;}
+.hb-mod-head:hover{background:#1a1a22;}
+.hb-mod-icon{font-size:16px;}
+.hb-mod-name{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;flex:1;}
+.hb-mod-arrow{font-size:9px;color:#55556a;transition:transform .2s;}
+.hb-mod-arrow.open{transform:rotate(180deg);}
+.hb-mod-body{padding:12px 14px;border-top:1px solid #28282f;font-size:11px;line-height:1.7;color:#88889a;}
+.hb-tag{display:inline-block;font-family:'DM Mono',monospace;font-size:9px;padding:1px 7px;border-radius:3px;margin:1px 2px;}
+.hb-tag-read{border:1px solid rgba(34,211,238,.2);color:#22d3ee;background:rgba(34,211,238,.06);}
+.hb-tag-write{border:1px solid rgba(200,255,87,.2);color:#c8ff57;background:rgba(200,255,87,.06);}
+.hb-tag-create{border:1px solid rgba(167,139,250,.2);color:#a78bfa;background:rgba(167,139,250,.06);}
+.hb-tag-req{border:1px solid rgba(245,158,11,.2);color:#f59e0b;background:rgba(245,158,11,.06);}
+/* PASSWORD LOCK */
+#pw-modal{position:fixed;inset:0;z-index:2000;background:#000;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .5s ease-in-out;pointer-events:none;}
+#pw-modal.visible{opacity:1;pointer-events:auto;}
+#pw-modal.gone{display:none;}
+#pw-box{display:flex;flex-direction:column;align-items:center;gap:0;}
+#pw-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:42px;letter-spacing:-2px;color:#e2e2f0;margin-bottom:8px;}
+#pw-tag{font-family:'DM Mono',monospace;font-size:10px;color:#55556a;letter-spacing:.12em;text-transform:uppercase;margin-bottom:32px;}
+#pw-label{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#55556a;margin-bottom:10px;}
+#pw-input{font-family:'DM Mono',monospace;font-size:16px;background:transparent;border:none;border-bottom:1px solid #333340;color:#e2e2f0;padding:8px 4px;width:200px;text-align:center;outline:none;letter-spacing:.2em;transition:border-color .2s;}
+#pw-input:focus{border-bottom-color:#c8ff57;}
+#pw-err{font-family:'DM Mono',monospace;font-size:10px;color:#ff5555;margin-top:8px;height:14px;text-align:center;}
+#pw-submit{margin-top:24px;font-family:'Syne',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;background:transparent;border:1px solid #333340;color:#88889a;padding:9px 28px;border-radius:4px;cursor:pointer;transition:all .2s;}
+#pw-submit:hover{border-color:#e2e2f0;color:#e2e2f0;}
+#pw-setup{font-family:'DM Mono',monospace;font-size:10px;color:#55556a;text-align:center;}
 /* MAXIMIZE STATE */
 .mod-maximize-btn{font-size:11px;color:#55556a;background:transparent;border:1px solid #28282f;padding:2px 6px;border-radius:3px;cursor:pointer;transition:all .12s;flex-shrink:0;line-height:1;}
 .mod-maximize-btn:hover{color:#e2e2f0;border-color:#333340;}
@@ -375,16 +417,27 @@ textarea.m-ta::placeholder{color:var(--muted);opacity:.45;}
 </style>
 </head>
 <body>
-<div id="splash">
+<div id="splash" class="visible">
   <div>
-    <canvas id="splash-logo-canvas" style="display:block;"></canvas>
-    <div id="splash-sub">Pipeline OS · v3.1.0</div>
-    <button id="splash-start" onclick="splashStart()">▶ Start Engine</button>
+    <canvas id="splash-logo-canvas" style="display:block;opacity:0;transition:opacity 1.2s ease-in-out;"></canvas>
+    <div id="splash-sub">Pipeline OS · v4.0.0</div>
+    <button id="splash-start" onclick="splashStart()">▶ Login</button>
   </div>
 </div>
+<div id="pw-modal" class="gone">
+  <div id="pw-box">
+    <div id="pw-logo">OM35</div>
+    <div id="pw-tag">Pipeline OS · v4.0.0</div>
+    <div id="pw-label">Enter password</div>
+    <input id="pw-input" type="password" autocomplete="off" data-lpignore="true" placeholder="••••••••" onkeydown="if(event.key==='Enter')pwSubmit()">
+    <div id="pw-err"></div>
+    <button id="pw-submit" onclick="pwSubmit()">▶ Unlock</button>
+  </div>
+</div>
+<div id="workspace-wrap">
 <div id="topbar">
   <button id="om35-logo" onclick="openHelp()" style="font-family:'Syne',sans-serif;font-weight:800;font-size:18px;letter-spacing:-.5px;color:#e2e2f0;background:transparent;border:none;cursor:pointer;padding:0;line-height:1;flex-shrink:0;">OM35</button>
-  <span class="v-badge">v3.1.0</span>
+  <span class="v-badge">v4.0.0</span>
   <div class="pipe-sep"></div>
   <button class="top-btn" onclick="collapseAll()">⊟ Collapse</button>
   <button class="top-btn" onclick="expandAll()">⊞ Expand</button>
@@ -411,21 +464,56 @@ textarea.m-ta::placeholder{color:var(--muted);opacity:.45;}
   <div class="tb-head"><span class="tb-title">Module Toolbox</span><button class="tb-close" onclick="toggleToolbox()">✕</button></div>
   <div class="tb-list" id="tb-list"></div>
 </div>
+</div><!-- /workspace-wrap -->
 <!-- SESSION MODAL -->
-<div id="session-modal">
+<div id="session-modal" class="gone">
   <div class="sess-box">
-    <div class="sess-head"><div class="sess-title">⬡ Pipeline OS</div><div class="sess-sub" id="sess-sub">Select a project to start working</div></div>
-    <div class="sess-step active" id="sess-step-1"><div class="sess-list" id="sess-list"></div><div class="sess-footer"><span></span><span style="font-size:10px;color:var(--muted)">click a project to continue</span></div></div>
-    <div class="sess-step" id="sess-step-2">
-      <div class="sess-fields">
-        <input class="sess-new-name" id="sess-new-name" placeholder="Project name..." oninput="onStep2Input()">
-        <div class="sess-field"><label>Style Prompt <span style="color:var(--muted);font-size:9px;text-transform:none;letter-spacing:0">(Suno style — English)</span></label><textarea id="sess-style-prompt" rows="2" placeholder="e.g: Gorillaz-inspired alternative hip hop pop, quirky psychedelic groove..." oninput="onStep2Input()"></textarea></div>
-        <div class="sess-field"><label>Persona</label><select id="sess-persona" onchange="onStep2Input()"><option value="">— select persona —</option></select></div>
-        <div class="sess-field"><label>Track name</label><input id="sess-track" placeholder="Ex: Chama no Particular..." oninput="onStep2Input()"></div>
-        <div class="sess-field"><label>Feat <span style="color:var(--muted);font-size:9px;text-transform:none;letter-spacing:0">(optional)</span></label><input id="sess-feat" placeholder="e.g. MC Pedrinho..." oninput="onStep2Input()"></div>
+    <div class="sess-head">
+      <div class="sess-title">⬡ Pipeline OS</div>
+      <div class="sess-breadcrumb" id="sess-breadcrumb"><span style="font-size:10px;color:var(--muted)">Select a label</span></div>
+      <button class="sess-close-btn" onclick="sessModalClose()" title="Close">✕</button>
+    </div>
+    <div class="sess-cols-wrap">
+      <div class="sess-cols" id="sess-cols">
+        <!-- Column 0: Labels -->
+        <div class="sess-col" id="sess-col-0">
+          <div class="sess-col-head">Label</div>
+          <div class="sess-col-list" id="sess-label-list"></div>
+          <div class="sess-col-footer">
+            <div class="sess-inline-form" id="sess-label-form">
+              <input class="sess-inline-input" id="sess-label-name" placeholder="Label name..." onkeydown="if(event.key==='Enter')sessAddLabel()">
+              <div class="sess-inline-actions"><button class="sess-inline-save" onclick="sessAddLabel()">Add</button><button class="sess-inline-cancel" onclick="sessToggleLabelForm(false)">Cancel</button></div>
+            </div>
+            <div class="sess-add-btn" onclick="sessToggleLabelForm(true)">＋ New Label</div>
+          </div>
+        </div>
+        <!-- Column 1: Artists -->
+        <div class="sess-col" id="sess-col-1">
+          <div class="sess-col-head">Artista</div>
+          <div class="sess-col-list" id="sess-artist-list"></div>
+          <div class="sess-col-footer">
+            <div class="sess-inline-form" id="sess-artist-form">
+              <input class="sess-inline-input" id="sess-artist-name" placeholder="Artist name..." onkeydown="if(event.key==='Enter')sessAddArtist()">
+              <div class="sess-inline-actions"><button class="sess-inline-save" onclick="sessAddArtist()">Add</button><button class="sess-inline-cancel" onclick="sessToggleArtistForm(false)">Cancel</button></div>
+            </div>
+            <div class="sess-add-btn" onclick="sessToggleArtistForm(true)">＋ New Artist</div>
+            <button class="sess-back-btn" onclick="sessBack(0)">← Labels</button>
+          </div>
+        </div>
+        <!-- Column 2: Tracks -->
+        <div class="sess-col" id="sess-col-2">
+          <div class="sess-col-head">Track</div>
+          <div class="sess-col-list" id="sess-track-list"></div>
+          <div class="sess-col-footer">
+            <div class="sess-inline-form" id="sess-track-form">
+              <input class="sess-inline-input" id="sess-track-name" placeholder="Track name..." onkeydown="if(event.key==='Enter')sessAddTrack()">
+              <div class="sess-inline-actions"><button class="sess-inline-save" onclick="sessAddTrack()">Add</button><button class="sess-inline-cancel" onclick="sessToggleTrackForm(false)">Cancel</button></div>
+            </div>
+            <div class="sess-add-btn" onclick="sessToggleTrackForm(true)">＋ New Track</div>
+            <button class="sess-back-btn" onclick="sessBack(1)">← Artists</button>
+          </div>
+        </div>
       </div>
-      <div class="sess-disclaimer" id="sess-feat-disc" style="display:none">⚠ Feat may not work 100% when assigning personas in Suno.</div>
-      <div class="sess-footer"><button class="sess-back" onclick="sessBack()">← back</button><button class="sess-go" id="sess-go" disabled onclick="startSession()">Start →</button></div>
     </div>
   </div>
 </div>
@@ -452,10 +540,81 @@ textarea.m-ta::placeholder{color:var(--muted);opacity:.45;}
 <!-- HELP MODAL -->
 <div id="help-modal">
   <div class="help-box">
-    <div class="help-box-logo">OM35</div>
-    <div class="help-box-tag">Pipeline OS · v3.1.0</div>
-    <div class="help-box-soon">Help & Support</div>
-    <div class="help-box-sub">Documentation and support portal coming soon.<br>For now, reach out directly to the team.</div>
+    <div class="help-header">
+      <div class="help-box-logo">OM35</div>
+      <div class="help-box-tag">Pipeline OS · v4.0.0</div>
+      <div class="help-tabs">
+        <button class="help-tab active" onclick="helpTab('about')">About</button>
+        <button class="help-tab" onclick="helpTab('handbook')">Handbook</button>
+        <button class="help-tab" onclick="helpTab('flow')">Object Flow</button>
+      </div>
+    </div>
+    <!-- ABOUT -->
+    <div class="help-pane active" id="help-about">
+      <div style="text-align:center;">
+        <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#c8ff57;margin-bottom:8px">Help & Support</div>
+        <div style="font-size:11px;color:#88889a;line-height:1.7;">Full documentation and support portal coming soon.<br>For now, reach out directly to the team.</div>
+        <div style="margin-top:16px;padding:14px;background:rgba(200,255,87,.04);border:1px solid rgba(200,255,87,.12);border-radius:6px;font-size:10px;color:#88889a;line-height:1.7;text-align:left;">
+          <strong style="color:#c8ff57">Quick Start:</strong><br>
+          1. Open or create a track in the Session Modal<br>
+          2. Paste lyrics in <strong style="color:#e2e2f0">Lyric Input</strong> (use [Section] tags)<br>
+          3. Add an overall style prompt<br>
+          4. <strong style="color:#e2e2f0">Lock</strong> the input and <strong style="color:#e2e2f0">Send ↓</strong> to pipeline<br>
+          5. Run modules in order: Wizard → Prompt Wizard → Hit Detective<br>
+          6. Export via <strong style="color:#e2e2f0">Suno Export</strong> when ready
+        </div>
+      </div>
+    </div>
+    <!-- HANDBOOK -->
+    <div class="help-pane" id="help-handbook"></div>
+    <!-- OBJECT FLOW -->
+    <div class="help-pane" id="help-flow">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;line-height:1.8;color:#88889a;white-space:pre;overflow-x:auto;">
+USER INPUT
+    │
+    ▼
+┌──────────────┐
+│ LYRIC INPUT  │ ← lyrics + prompts + meta (BPM, key)
+│ lock + send  │ → creates pipelineObj
+└──────┬───────┘
+       │ sendDown ↓
+       ▼
+┌──────────────┐     ┌───────────────┐
+│ LYRIC WIZARD │ ──→ │ PROMPT WIZARD │
+│ analyze      │     │ generate      │
+│ lyrics       │     │ prompts       │
+└──────┬───────┘     └───────┬───────┘
+       │                     │
+       └──────────┬──────────┘
+                  ▼
+         ┌────────────────┐
+         │ HIT DETECTIVE  │ ← reads all analyses
+         │ 4-layer score  │
+         └────────┬───────┘
+                  │
+    ┌─────────────┼──────────────┐
+    ▼             ▼              ▼
+┌─────────┐ ┌──────────┐ ┌───────────┐
+│NEGATIVE │ │SPOTLIGHT │ │ HIT MAKER │
+│ANALYZER │ │ section  │ │ 2-pass    │
+│ flags   │ │ editor   │ │ rewrite   │
+└─────────┘ └──────────┘ └─────┬─────┘
+                                │
+                          consolidate()
+                                │
+                                ▼
+                        ┌──────────────┐
+                        │ SUNO EXPORT  │
+                        │ final output │
+                        └──────────────┘
+
+AUXILIARY MODULES (any position):
+ ├─ Hit Score Checklist → manual 66-item scoring
+ ├─ Suno Prompt Builder → keyword picker
+ ├─ Text to Prompter   → AI reference analysis
+ ├─ Feed Loop          → iteration synthesis
+ └─ Lyric Cleaner      → paste cleanup</div>
+    </div>
     <button class="help-close" onclick="closeHelp()">✕ Close</button>
   </div>
 </div>
@@ -600,10 +759,10 @@ function emptyObj() {
   };
 }
 
-let pipelineObj = null;
-let needsConsol = false;
+var pipelineObj = null;
+var needsConsol = false;
 
-const LI = {
+var LI = {
   rawLyrics:'', promptOverall:'', locked:false, collapsed:false,
   sectionPrompts:{}, sectionTechniques:{}, bpm:'', bpmBypass:false, featName:'',
   globalInstructions:'', negNobelting:false, negNoLongNotes:false, negCustom:'',
@@ -611,11 +770,11 @@ const LI = {
   checkpoint:null, autosave:null
 };
 
-let prePipeline=[], pipeline=[], activeSession=null, confirmCallback=null;
-let rhysLang='EN', toolboxOpen=false, sunoGenCount=0, allCollapsed=false;
-let autosaveTimer=null, detectedPending=null;
+var prePipeline=[], pipeline=[], activeSession=null, confirmCallback=null;
+var rhysLang='EN', toolboxOpen=false, sunoGenCount=0, allCollapsed=false;
+var autosaveTimer=null, detectedPending=null;
 
-const MODULE_DEFS = [
+var MODULE_DEFS = [
   { id:'generator',  icon:'✍', title:'Lyric Generator',   subtitle:'lyrics + prompt · pre-input',  color:'var(--accent)', preOnly:true },
   { id:'cleaner',    icon:'⊘', title:'Lyric Cleaner',     subtitle:'strips prompt noise',            color:'var(--accent)' },
   { id:'wizard',     icon:'✦', title:'Lyric Wizard',       subtitle:'full + sections · analysis',     color:'var(--purple)' },
@@ -642,25 +801,182 @@ function dbGet(k,def=null){const v=_idbCache[k];return v!==undefined?v:(def);}
 function dbSet(k,v){_idbCache[k]=v;_idbWrite(k,v);}
 function dbDel(k){delete _idbCache[k];_idbDel(k);}
 async function migrateFromLocalStorage(){const keys=Object.keys(localStorage).filter(k=>k.startsWith('pipeline_'));if(!keys.length)return;let migrated=0;for(const k of keys){try{const v=JSON.parse(localStorage.getItem(k));if(v!==null){dbSet(k,v);migrated++;}}catch(e){}}if(migrated>0){console.log(`Migrated ${migrated} keys from localStorage to IndexedDB`);keys.forEach(k=>localStorage.removeItem(k));}}
+// ═══ VERSION MIGRATION ═══════════════════════════════════
+const PPOS_VERSION='4.1.0';
+function migrateVersion(){
+  const prev=localStorage.getItem('ppos_version')||'0';
+  if(prev!==PPOS_VERSION){
+    localStorage.removeItem('om35_last_session');
+    localStorage.setItem('ppos_version',PPOS_VERSION);
+  }
+}
+// ═══ FADE HELPERS ════════════════════════════════════════
+const FADE=500;
+function fadeIn(el,cb){if(!el)return cb&&cb();el.classList.remove('gone');requestAnimationFrame(()=>requestAnimationFrame(()=>{el.classList.add('visible');setTimeout(()=>cb&&cb(),FADE);}));}
+function fadeOut(el,cb){if(!el)return cb&&cb();el.classList.remove('visible');setTimeout(()=>{el.classList.add('gone');cb&&cb();},FADE);}
+function fadeInWrap(){
+  const w=getEl('workspace-wrap');if(!w)return;
+  w.style.display='block';
+  ['topbar','pipeline','toolbox-toggle','toolbox-panel'].forEach(id=>{
+    const el=getEl(id);if(!el)return;
+    el.style.display=id==='topbar'||id==='toolbox-toggle'?'flex':'block';
+  });
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{w.style.opacity='1';}));
+}
+function fadeOutWrap(cb){
+  const w=getEl('workspace-wrap');if(!w)return cb&&cb();
+  w.style.opacity='0';
+  setTimeout(()=>{w.style.display='none';cb&&cb();},FADE);
+}
+
 // ═══ SPLASH / LOCK ══════════════════════════════════════
+let _splashStarted=false;
 function splashStart(){
+  if(_splashStarted)return;
+  _splashStarted=true;
+  migrateVersion();
   playStartupJingle();
   const splash=getEl('splash');
-  splash.classList.add('hiding');
-  setTimeout(()=>splash.classList.add('hidden'),650);
-  // Open session modal after splash hides
-  setTimeout(()=>{ if(!activeSession)openSessionModal(); },400);
+  // Splash already visible → fade out after 1.5s
+  setTimeout(()=>{
+    fadeOut(splash,()=>{
+      // PW fade in
+      _pwShow(()=>{
+        // pw accepted → pw fades out inside pwHide
+        // Pause 400ms
+        setTimeout(()=>{
+          const last=localStorage.getItem('om35_last_session');
+          if(last){
+            try{
+              const s=JSON.parse(last);
+              const a=s.artistId?getArtists().find(x=>x.id===s.artistId):null;
+              if(a&&s.track){openTrack(s.artistId,s.track);return;}
+              else{localStorage.removeItem('om35_last_session');}
+            }catch(e){localStorage.removeItem('om35_last_session');}
+          }
+          _openSessionFade();
+        },400);
+      });
+    });
+  },1500);
 }
 
 function showLockScreen(){
   const splash=getEl('splash');
-  if(splash){splash.classList.remove('hidden','hiding');}
-  getEl('splash-start').style.display='none'; // hide start btn on re-lock
-  // show "open project" link instead
+  getEl('splash-start').style.display='none';
   const sub=getEl('splash-sub');
-  if(sub)sub.innerHTML='Pipeline OS &middot; v3.1.0 &nbsp;·&nbsp; <span onclick="openSessionModal()" style="cursor:pointer;color:#c8ff57;text-decoration:underline;text-underline-offset:3px">open project</span>';
+  if(sub)sub.innerHTML='Pipeline OS &middot; v4.0.0 &nbsp;·&nbsp; <span onclick="_splashReopen()" style="cursor:pointer;color:#c8ff57;text-decoration:underline;text-underline-offset:3px">Login</span>';
+  fadeIn(splash);
+}
+function _splashReopen(){
+  fadeOut(getEl('splash'),()=>{
+    _pwShow(()=>{
+      setTimeout(()=>_openSessionFade(),400);
+    });
+  });
+}
+function _openSessionFade(){
+  const modal=getEl('session-modal');
+  modal.classList.remove('gone');
+  openSessionModal();
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{modal.classList.add('visible');}));
 }
 
+// ═══ PASSWORD LOCK ══════════════════════════════════════
+let _pwCallback=null;
+function pwGet(){return localStorage.getItem('om35_pw');}
+function pwSet(pw){localStorage.setItem('om35_pw',pw.trim());}
+function pwCheck(pw){const stored=localStorage.getItem('om35_pw');return!!stored&&stored===pw.trim();}
+function _pwShow(cb){
+  _pwCallback=cb;
+  const modal=getEl('pw-modal');
+  const lbl=getEl('pw-label');
+  if(lbl)lbl.textContent=pwGet()?'Enter password':'Set a password';
+  if(modal){getEl('pw-input').value='';getEl('pw-err').textContent='';fadeIn(modal,()=>{getEl('pw-input').focus();});}
+}
+function pwRequire(cb){_pwShow(cb);}
+function pwSubmit(){
+  const inp=getEl('pw-input');
+  const val=(inp?inp.value:'').trim();
+  if(!pwGet()){// setup mode: first time
+    if(val.length<4){getEl('pw-err').textContent='Min 4 characters';return;}
+    pwSet(val);
+    const lbl=getEl('pw-label');if(lbl)lbl.textContent='Enter password';
+    pwHide();
+    if(_pwCallback){const cb=_pwCallback;_pwCallback=null;cb();}
+    showToast('Password set ✓');return;
+  }
+  if(!pwCheck(val)){
+    getEl('pw-err').textContent='Incorrect password';
+    getEl('pw-input').value='';
+    getEl('pw-input').focus();
+    return;
+  }
+  pwHide();
+  if(_pwCallback){const cb=_pwCallback;_pwCallback=null;cb();}
+}
+function pwHide(){
+  playUnlockJingle();
+  fadeOut(getEl('pw-modal'));
+}
+function playUnlockJingle(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.connect(gain);gain.connect(ctx.destination);
+    osc.type='sine';
+    const t=ctx.currentTime;
+    // Glissando from note 1 (C4 ~261Hz) up 12 semitones to C5 (~523Hz), same duration as startup
+    osc.frequency.setValueAtTime(261.63,t);
+    osc.frequency.exponentialRampToValueAtTime(523.25,t+0.45);
+    gain.gain.setValueAtTime(0,t);
+    gain.gain.linearRampToValueAtTime(0.11,t+0.03);
+    gain.gain.exponentialRampToValueAtTime(0.001,t+0.50);
+    osc.start(t);osc.stop(t+0.55);
+  }catch(e){}
+}
+function pwChangeRequest(){
+  // Show setup: clear stored pw and require new one
+  if(!pwGet()){showToast('No password set');return;}
+  const cur=prompt('Current password:');
+  if(!cur)return;
+  if(!pwCheck(cur)){showToast('Incorrect password');return;}
+  const nw=prompt('New password (min 4 chars):');
+  if(!nw||nw.length<4){showToast('Too short');return;}
+  pwSet(nw);showToast('Password updated ✓');
+}
+// Auto-lock on tab return (sleep/screensaver/tab switch)
+let _wasVisible=false;
+let _lockTimer=null;
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){
+    _wasVisible=true;
+    if(activeSession&&pwGet()){
+      // Wait 10s before locking — user might just be switching tabs briefly
+      _lockTimer=setTimeout(()=>{
+        if(!document.hidden)return; // came back before timer fired
+        const splash=getEl('splash');
+        splash.classList.remove('gone');splash.classList.add('visible');
+        getEl('splash-start').style.display='none';
+        const sub=getEl('splash-sub');
+        if(sub)sub.innerHTML='Pipeline OS &middot; v4.0.0 &nbsp;·&nbsp; <span style="color:var(--muted)">locked</span>';
+      },10000);
+    }
+    return;
+  }
+  if(_lockTimer){clearTimeout(_lockTimer);_lockTimer=null;}
+  if(!_wasVisible)return;
+  _wasVisible=false;
+  if(activeSession&&pwGet()&&getEl('splash').classList.contains('visible')){
+    // Splash already visible → fade out splash, fade in pw
+    fadeOut(getEl('splash'),()=>{
+      _pwShow(()=>{
+        // pw accepted → resume workspace (already visible behind)
+      });
+    });
+  }
+});
 function initKaleidoscope(){
   const canvas=getEl('splash-logo-canvas');
   if(!canvas)return;
@@ -713,6 +1029,11 @@ function initKaleidoscope(){
     mctx.fillText('OM35',CW/2,112);
     mctx.restore();
     maskReady=true;
+    // Fade in logo once mask is ready (font loaded + clipped)
+    requestAnimationFrame(()=>{
+      const c=getEl('splash-logo-canvas');
+      if(c)c.style.opacity='1';
+    });
   });
 
   // ── Mouse state ───────────────────────────────────────────────────────
@@ -743,6 +1064,9 @@ function initKaleidoscope(){
       const sat=78+(mySmooth/CH)*14;              // 78–92 %
       const litBase=50+(mySmooth/CH)*12;          // 50–62 %
 
+      // Only render once font mask is ready — triangles never appear unclipped
+      if(!maskReady){requestAnimationFrame(drawFrame);return;}
+
       tris.forEach(tri=>{
         const dx=tri.cx-mxSmooth, dy=tri.cy-mySmooth;
         const dist=Math.sqrt(dx*dx+dy*dy);
@@ -771,37 +1095,109 @@ function initKaleidoscope(){
       });
 
       // clip to OM35 text shape
-      if(maskReady){
-        ctx.globalCompositeOperation='destination-in';
-        ctx.drawImage(maskC,0,0,CW,CH);
-        ctx.globalCompositeOperation='source-over';
-      }
+      ctx.globalCompositeOperation='destination-in';
+      ctx.drawImage(maskC,0,0,CW,CH);
+      ctx.globalCompositeOperation='source-over';
     }
     requestAnimationFrame(drawFrame);
   }
   requestAnimationFrame(drawFrame);
 }
 
+function _showWorkspace(){
+  const els=[['topbar','flex'],['pipeline','block'],['toolbox-toggle','flex'],['toolbox-panel','block']];
+  els.forEach(([id,d])=>{const el=getEl(id);if(el)el.style.display=d;});
+  fadeInWrap();
+}
+function _hideWorkspace(cb){
+  fadeOutWrap(()=>{
+    ['topbar','pipeline','toolbox-toggle','toolbox-panel'].forEach(id=>{const el=getEl(id);if(el)el.style.display='none';});
+    cb&&cb();
+  });
+}
 function playStartupJingle(){
   try{
     const ctx=new(window.AudioContext||window.webkitAudioContext)();
-    // C4 · E4 · G4 · C5 — warm major arpeggio
-    [261.63,329.63,392,523.25].forEach((freq,i)=>{
-      const osc=ctx.createOscillator();
-      const gain=ctx.createGain();
-      osc.connect(gain);gain.connect(ctx.destination);
-      osc.type='sine';osc.frequency.value=freq;
-      const t=ctx.currentTime+i*0.11;
-      gain.gain.setValueAtTime(0,t);
-      gain.gain.linearRampToValueAtTime(0.13,t+0.025);
-      gain.gain.exponentialRampToValueAtTime(0.001,t+0.28);
-      osc.start(t);osc.stop(t+0.3);
-    });
+    if(ctx.state==='suspended')ctx.resume();
+    const t=ctx.currentTime;
+    // Beep 1: C4 (261.63 Hz)
+    const osc1=ctx.createOscillator();const g1=ctx.createGain();
+    osc1.connect(g1);g1.connect(ctx.destination);
+    osc1.type='sine';osc1.frequency.setValueAtTime(261.63,t);
+    g1.gain.setValueAtTime(0,t);g1.gain.linearRampToValueAtTime(0.12,t+0.015);
+    g1.gain.exponentialRampToValueAtTime(0.001,t+0.1);
+    osc1.start(t);osc1.stop(t+0.12);
+    // Beep 2: G4 (392 Hz) — perfect fifth, 7 semitones up
+    const osc2=ctx.createOscillator();const g2=ctx.createGain();
+    osc2.connect(g2);g2.connect(ctx.destination);
+    osc2.type='sine';osc2.frequency.setValueAtTime(392,t+0.1);
+    g2.gain.setValueAtTime(0,t+0.1);g2.gain.linearRampToValueAtTime(0.12,t+0.115);
+    g2.gain.exponentialRampToValueAtTime(0.001,t+0.22);
+    osc2.start(t+0.1);osc2.stop(t+0.24);
   }catch(e){}
 }
 
-function openHelp(){getEl('help-modal').classList.add('open');}
+function openHelp(){
+  getEl('help-modal').classList.add('open');
+  renderHandbook();
+}
 function closeHelp(){getEl('help-modal').classList.remove('open');}
+function helpTab(tab){
+  const tabs=document.querySelectorAll('.help-tab');
+  const panes=document.querySelectorAll('.help-pane');
+  const order=['about','handbook','flow'];
+  const ti=order.indexOf(tab);
+  tabs.forEach((t,i)=>t.classList.toggle('active',i===ti));
+  panes.forEach((p,i)=>p.classList.toggle('active',i===ti));
+}
+
+// ── Handbook data (auto-generated from module analysis) ──
+const HANDBOOK_DATA={
+  'lyric':{name:'Lyric Input',icon:'✍️',color:'var(--accent)',desc:'The source module. Enter lyrics with [Section] tags, overall style prompt, BPM, key, time signature. Lock to create the pipeline object.',reads:[],writes:['pipelineObj (creates via buildObj)'],creates:['lyrics.sections','prompt_overall','prompts_seccionais','meta'],requires:[]},
+  'cleaner':{name:'Lyric Cleaner',icon:'🧹',color:'var(--text2)',desc:'Paste cleanup utility. Removes extra whitespace, normalizes formatting, fixes common paste artifacts. Does not modify the pipeline object.',reads:['raw text input'],writes:[],creates:[],requires:[]},
+  'wizard':{name:'Lyric Wizard',icon:'🔮',color:'var(--purple)',desc:'AI-powered lyric analysis across 7 modes: poetic, rhythm, imagery, structure, hit score, metric, and free. Scores your lyrics and provides detailed suggestions per section.',reads:['lyrics.sections'],writes:['analysis.lyricWizard.full','analysis.lyricWizard.sections'],creates:['scores per mode','section suggestions','strengths/weaknesses'],requires:['Locked LI','lyrics in object']},
+  'pwizard':{name:'Prompt Wizard',icon:'🎯',color:'var(--cyan)',desc:'AI prompt generator and validator. Creates or evaluates section-level Suno prompts. Modes: Generator (from scratch), Validator (score existing), Artist Align (match style).',reads:['full pipelineObj','analysis.promptWizard'],writes:['prompt_overall.positive','prompts_seccionais[*].positive','analysis.promptWizard'],creates:['overall prompt','section prompts','validation scores'],requires:['Locked LI']},
+  'hitdet':{name:'Hit Detective',icon:'🕵️',color:'var(--amber)',desc:'4-layer analysis: lyrics, prompts, interaction, and negatives. Detects conflicts between lyrics and prompts, scores synergy, identifies risks. Best results when Wizard + Prompt Wizard ran first.',reads:['full pipelineObj','analysis.lyricWizard','analysis.promptWizard','prompt_overall.negative'],writes:['analysis.hitDetective.full','analysis.hitDetective.sections'],creates:['4-layer scores','conflict/synergy notes','fix suggestions'],requires:['Locked LI','Wizard + PW recommended']},
+  'neganalyzer':{name:'Negative Analyzer',icon:'⊘',color:'var(--red)',desc:'Scans lyrics and prompts for risks: belting triggers, long notes, cliches, filler, vague terms. Suggests negative prompt entries to prevent Suno from generating unwanted content.',reads:['lyrics.sections','prompt_overall','prompts_seccionais'],writes:['analysis.negativeAnalyzer','prompt_overall.negative'],creates:['risk flags','suggested negatives'],requires:['Locked LI']},
+  'spotlight':{name:'Spotlight',icon:'🔦',color:'var(--green)',desc:'Section-by-section editor. View lyrics and prompts per section with live analysis summaries from Wizard, Prompt Wizard, and Hit Detective. Edit inline.',reads:['lyrics.sections','prompts_seccionais','all analysis.*'],writes:['lyrics.sections[*].content','prompts_seccionais[*].positive'],creates:[],requires:['Locked LI']},
+  'hitmaker':{name:'Hit Maker',icon:'⚡',color:'var(--amber)',desc:'2-pass AI rewrite engine. Pass 1: analyzes issues across all lyrics and prompts. Pass 2: rewrites everything for maximum hit potential. Saves original for comparison.',reads:['full pipelineObj','artist style','creative direction'],writes:['lyrics.sections[*].content','prompts_seccionais[*].positive','prompt_overall.positive'],creates:['full rewrite','predicted score'],requires:['Locked LI','all analyses recommended']},
+  'suno':{name:'Suno Export',icon:'🎵',color:'var(--accent)',desc:'Formats the final object for Suno. Displays formatted lyrics with section prompts, overall style prompt, and negatives. Copy or generate directly.',reads:['full pipelineObj','analysis (summary cards)','meta'],writes:[],creates:['formatted Suno output'],requires:['Locked LI']},
+  'feedloop':{name:'Feed Loop',icon:'🔄',color:'var(--blue)',desc:'Post-generation iteration module. Rate the Suno output (1-5), note what worked and what to change. AI synthesizes an iteration plan with specific changes to lyrics, prompts, and structure.',reads:['pipelineObj (context)','user feedback'],writes:['analysis.feedloop'],creates:['iteration plan','change suggestions'],requires:['Locked LI']},
+  'hitscore':{name:'Hit Score Checklist',icon:'📊',color:'var(--purple)',desc:'66 criteria from Spotify 1M+ streams research across 9 categories. Manual checklist — check items as you verify them. Shows overall score and critical criteria score. Displays lyrics reference panel when available.',reads:['lyrics.sections','meta (bpm, key)'],writes:[],creates:['manual score (0-100)'],requires:['Object for lyrics reference']},
+  'sunobuilder':{name:'Suno Prompt Builder',icon:'🎛️',color:'var(--accent)',desc:'Visual keyword picker with all Suno-interpretable variables. 13 sections: genre, BPM, key, mood, vocal, instruments, structure, tempo feel, mix, energy, reference, texture, production, negatives. Auto-syncs BPM/key from object if available.',reads:['meta.bpm','meta.key','meta.timeSig'],writes:[],creates:['keyword prompt (≤1000 chars)'],requires:[]},
+  'text2prompter':{name:'Text to Prompter',icon:'🎯',color:'var(--cyan)',desc:'AI-assisted keyword analysis. Enter up to 3 reference songs — Claude API analyzes them and returns Suno-compatible keywords. Detects conflicts between contradictory tags. Results can be applied directly to Suno Prompt Builder.',reads:['reference song names (user input)'],writes:[],creates:['AI-generated keywords','conflict detection'],requires:['Claude API key']},
+};
+
+function renderHandbook(){
+  const el=getEl('help-handbook');if(!el)return;
+  let h='<div style="font-family:\'Syne\',sans-serif;font-size:12px;font-weight:700;color:#c8ff57;margin-bottom:12px">Module Handbook</div>';
+  h+='<div style="font-size:10px;color:#55556a;margin-bottom:14px;line-height:1.5">Click a module to see what it reads, writes, and creates in the pipeline object.</div>';
+  const order=['lyric','cleaner','wizard','pwizard','hitdet','neganalyzer','spotlight','hitmaker','suno','feedloop','hitscore','sunobuilder','text2prompter'];
+  order.forEach(id=>{
+    const m=HANDBOOK_DATA[id];if(!m)return;
+    h+=`<div class="hb-mod">`;
+    h+=`<div class="hb-mod-head" onclick="hbToggle(this)">`;
+    h+=`<span class="hb-mod-icon">${m.icon}</span>`;
+    h+=`<span class="hb-mod-name" style="color:${m.color}">${m.name}</span>`;
+    h+=`<span class="hb-mod-arrow">▼</span>`;
+    h+=`</div>`;
+    h+=`<div class="hb-mod-body" style="display:none;">`;
+    h+=`<div style="margin-bottom:8px">${m.desc}</div>`;
+    if(m.reads.length)h+=`<div style="margin-bottom:4px"><strong style="color:#22d3ee;font-size:9px;letter-spacing:.08em">READS:</strong> ${m.reads.map(r=>`<span class="hb-tag hb-tag-read">${r}</span>`).join(' ')}</div>`;
+    if(m.writes.length)h+=`<div style="margin-bottom:4px"><strong style="color:#c8ff57;font-size:9px;letter-spacing:.08em">WRITES:</strong> ${m.writes.map(w=>`<span class="hb-tag hb-tag-write">${w}</span>`).join(' ')}</div>`;
+    if(m.creates.length)h+=`<div style="margin-bottom:4px"><strong style="color:#a78bfa;font-size:9px;letter-spacing:.08em">CREATES:</strong> ${m.creates.map(c=>`<span class="hb-tag hb-tag-create">${c}</span>`).join(' ')}</div>`;
+    if(m.requires.length)h+=`<div><strong style="color:#f59e0b;font-size:9px;letter-spacing:.08em">REQUIRES:</strong> ${m.requires.map(r=>`<span class="hb-tag hb-tag-req">${r}</span>`).join(' ')}</div>`;
+    h+=`</div></div>`;
+  });
+  el.innerHTML=h;
+}
+function hbToggle(head){
+  const body=head.nextElementSibling;
+  const arrow=head.querySelector('.hb-mod-arrow');
+  const open=body.style.display!=='none';
+  body.style.display=open?'none':'block';
+  arrow.classList.toggle('open',!open);
+}
 
 // ═══ MAXIMIZE ═══════════════════════════════════════════
 let _maxPrevState=null;
@@ -974,6 +1370,7 @@ function consolidate() {
     const state={lyricInput:captureLIState(),pipelineObj:JSON.parse(JSON.stringify(pipelineObj)),savedAt:new Date().toISOString()};
     dbSet('pipeline_track_state_'+activeSession.artistId+'_'+activeSession.track,state);
     logEntry(activeSession.artistId,activeSession.track,{event:'consolidate'});
+    localStorage.removeItem('om35_last_session');
   }
   showToast('Consolidated ✓');
 }
@@ -989,6 +1386,7 @@ function saveCheckpoint(id) {
 
 function triggerAutosave(id) {
   clearTimeout(autosaveTimer);
+  if(typeof markDirty==='function')markDirty();
   autosaveTimer=setTimeout(()=>{
     if(id==='lyric'){LI.autosave={label:'⟳ auto',state:captureLIState(),ts:Date.now()};}
     else{const p=pipeline[id];if(p)p.autosave={label:'⟳ auto',state:JSON.parse(JSON.stringify(p.data)),ts:Date.now()};}
@@ -1072,6 +1470,7 @@ function makePreModule(idx) {
   const p=prePipeline[idx];const def=MODULE_DEFS.find(d=>d.id===p.defId);if(!def)return document.createElement('div');
   const w=document.createElement('div');w.className='module'+(p.collapsed?' collapsed':'');w.id='pre-module-'+idx;
   const badge=p.hasContent?`<span class="mod-badge active">ready</span>`:`<span class="mod-badge">empty</span>`;
+  const sunoBar=activeSession?.fromSuno?`<div class="suno-master-bar">🔒 <strong>From Suno</strong> · master copy — read only <button onclick="openSunoCopy()" style="margin-left:auto;font-family:'Syne',sans-serif;font-size:9px;font-weight:700;background:transparent;border:1px solid rgba(200,255,87,.4);color:var(--accent);padding:4px 10px;border-radius:3px;cursor:pointer">⎘ Open Copy to Edit</button></div>`:'';
   w.innerHTML=`<div class="mod-header" onclick="togglePreMod(${idx})"><span class="mod-num" style="color:var(--accent)">✍</span><span class="mod-icon" style="color:${def.color}">${def.icon}</span><span class="mod-title">${def.title}</span><span class="mod-subtitle">${def.subtitle}</span>${badge}<button style="margin-left:auto;font-size:9px;padding:3px 8px;border-radius:3px;background:transparent;border:1px solid var(--border);color:var(--muted);cursor:pointer;" onclick="event.stopPropagation();removePreMod(${idx})">✕</button><span class="mod-chevron">▾</span></div><div class="mod-body">${p.defId==='generator'?bodyGen(idx):''}<div class="send-bar"><button class="send-btn" onclick="sendPreToInput(${idx})">→ Send to Lyric Input</button></div></div>`;
   return w;
 }
@@ -1082,6 +1481,7 @@ function makeModule(idx) {
   const p=pipeline[idx];const def=MODULE_DEFS.find(d=>d.id===p.defId);if(!def)return document.createElement('div');
   const w=document.createElement('div');w.className='module pipeline-locked'+(p.collapsed?' collapsed':'');w.id='module-'+idx;w.draggable=false;
   const badge=p.hasContent?`<span class="mod-badge active" id="mod-badge-${idx}">active</span>`:`<span class="mod-badge" id="mod-badge-${idx}">empty</span>`;
+  const sunoBar=activeSession?.fromSuno?`<div class="suno-master-bar">🔒 <strong>From Suno</strong> · master copy — read only <button onclick="openSunoCopy()" style="margin-left:auto;font-family:'Syne',sans-serif;font-size:9px;font-weight:700;background:transparent;border:1px solid rgba(200,255,87,.4);color:var(--accent);padding:4px 10px;border-radius:3px;cursor:pointer">⎘ Open Copy to Edit</button></div>`:'';
   w.innerHTML=`<div class="mod-header" onclick="toggleMod(${idx})"><div class="drag-handle" onclick="event.stopPropagation()"><span></span><span></span><span></span></div><span class="mod-num">${idx+1}</span><span class="mod-icon" style="color:${def.color}">${def.icon}</span><span class="mod-title">${def.title}</span><span class="mod-subtitle">${def.subtitle}</span>${badge}<button class="mod-gear-btn" onclick="event.stopPropagation();toggleModSettings(${idx})">⚙</button><button class="mod-maximize-btn" onclick="event.stopPropagation();openMaximize('${p.defId}')" title="Maximize">⤢</button><button style="font-size:9px;padding:3px 8px;border-radius:3px;background:transparent;border:1px solid var(--border);color:var(--muted);cursor:pointer;margin-left:2px" onclick="event.stopPropagation();removeMod(${idx})">✕</button><span class="mod-chevron">▾</span></div><div class="mod-body"><div id="mod-settings-${idx}" style="display:none;padding:10px 14px;background:var(--surface2);border-bottom:1px solid var(--border);"><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">Output language</div><select style="background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;padding:4px 8px;outline:none;" onchange="pipeline[${idx}].settings=pipeline[${idx}].settings||{};pipeline[${idx}].settings.lang=this.value"><option value="auto">Auto-detect</option><option value="PT">PT</option><option value="EN">EN</option><option value="ES">ES</option></select></div>${renderObjBar(idx)}${renderModBody(idx)}<div class="mod-footer"><div class="undo-row" id="undo-row-${idx}">${renderUndoRowHTML(idx)}</div></div></div><div class="send-bar">${idx>0?`<button class="send-btn up" onclick="sendMod(${idx},'up')">↑ send up</button>`:''}<button class="send-btn" onclick="sendMod(${idx},'down')">↓ send down</button><button class="send-btn wipe" onclick="wipeMod(${idx})">⊘ wipe</button></div>`;
   return w;
 }
@@ -1127,6 +1527,7 @@ function injectObj(idx) {
   else if(def==='neganalyzer'){const el=getEl('na-info-'+idx);if(el){el.textContent=lyrics.split('\n').filter(l=>l.trim()).length+' lines · ready';el.style.color='var(--text2)';}}
   else if(def==='spotlight'){loadSpot(idx);}
   else if(def==='suno'){buildSuno(idx);}
+  else if(def==='hitscore'||def==='sunobuilder'){renderModules();}
 }
 
 function sendLyricDown() {
@@ -1145,7 +1546,8 @@ function makeLIModule() {
   w.id='module-lyric';
   const lbl=LI.locked?`<span class="mod-badge locked">🔒 Locked</span>`:`<span class="mod-badge">source</span>`;
   const nc=needsConsol?`<span style="font-size:9px;color:var(--amber);margin-left:6px">⚠ needs consolidation</span>`:'';
-  w.innerHTML=`<div class="mod-header" onclick="toggleLI()"><span class="mod-num" style="color:var(--border2)">⊙</span><span class="mod-icon">⊡</span><span class="mod-title" style="color:var(--text2)">Lyric & Prompt Input</span><span class="mod-subtitle">source of truth</span>${lbl}${nc}<span class="mod-chevron">▾</span></div><div class="mod-body"><div class="steps-bar"><button class="step-tab active" id="step-tab-1" onclick="switchStep(1)"><span class="step-num">1</span> Lyrics & Prompt</button><button class="step-tab" id="step-tab-2" onclick="switchStep(2)"><span class="step-num">2</span> Section Prompts</button></div><div class="lstep active" id="lstep-1"><div class="m-row"><div class="m-col"><div class="m-col-hdr" style="color:var(--text2)">Lyrics<span style="font-size:9px;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px">· <span style="color:var(--cyan)">[Section]</span> · <span style="color:var(--text2)" title="Type a section name alone (v1, cho, br...) then press Tab to create [Section] tag">name+Tab</span></span><button class="popout-btn" onclick="event.stopPropagation();copyField('lyrics')" style="margin-left:auto">⧉</button></div><div id="lyric-display" class="lyric-hl" style="min-height:180px"></div><textarea id="lyric-raw" class="m-ta" style="display:none;min-height:180px" placeholder="Paste or type lyrics here...&#10;&#10;Tip: type a section name alone + Tab to create it:&#10;  intro → [Intro]&#10;  v1 → [Verse 1]&#10;  cho → [Chorus]&#10;  br → [Bridge]" oninput="onLyricInput(this.value)" onkeydown="lyricTabKey(event)"></textarea></div><div class="m-col" style="max-width:220px;flex:0 0 220px"><div class="m-col-hdr cyan">Overall Prompt<button class="popout-btn" onclick="event.stopPropagation();copyField('prompt')" style="margin-left:auto">⧉</button></div><textarea class="m-ta" id="lyric-prompt" style="min-height:180px" placeholder="Suno style prompt..." oninput="onPromptInput(this.value)"></textarea></div></div><div class="no-sec-warn" id="no-sec-warn">⚠ No [Section] tags detected</div><div class="m-opts" id="li-footer-1">${liFooterHTML()}</div></div><div class="lstep" id="lstep-2"><div id="sec-prompts-area"></div><div class="adv-toggle" onclick="toggleAdv()"><span>Advanced</span><span id="adv-chev">▾</span></div><div class="adv-panel" id="adv-panel"><div class="adv-sec"><div class="adv-lbl">BPM</div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><input type="number" class="adv-input" style="width:72px" id="adv-bpm" placeholder="120" min="40" max="300" oninput="LI.bpm=this.value;triggerAutosave('lyric')"><button onclick="tapBPM()" style="font-size:10px;padding:4px 9px;background:var(--surface3);border:1px solid var(--border);border-radius:4px;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace" title="Tap to set BPM">♩ Tap B</button><label style="font-size:10px;color:var(--text2);display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="adv-bpm-bypass" style="accent-color:var(--purple)" onchange="LI.bpmBypass=this.checked"> bypass</label></div><div style="display:flex;align-items:center;gap:8px;margin-top:6px"><button onclick="tapMetrica()" style="font-size:10px;padding:4px 9px;background:var(--surface3);border:1px solid var(--border);border-radius:4px;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace" title="Tap to count syllables">♪ Tap M</button><span id="adv-metrica-display" style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace">— tap M to count syllables</span></div></div><div class="adv-sec"><div class="adv-lbl">Time Signature</div><div style="display:flex;gap:6px;flex-wrap:wrap" id="adv-ts-row"><button onclick="setTimeSig('4/4')" id="adv-ts-4_4" style="font-size:10px;padding:4px 10px;background:var(--surface3);border:1px solid var(--border);border-radius:4px;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace">4/4</button><button onclick="setTimeSig('3/4')" id="adv-ts-3_4" style="font-size:10px;padding:4px 10px;background:var(--surface3);border:1px solid var(--border);border-radius:4px;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace">3/4</button><button onclick="setTimeSig('6/8')" id="adv-ts-6_8" style="font-size:10px;padding:4px 10px;background:var(--surface3);border:1px solid var(--border);border-radius:4px;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace">6/8</button><button onclick="setTimeSig('5/4')" id="adv-ts-5_4" style="font-size:10px;padding:4px 10px;background:var(--surface3);border:1px solid var(--border);border-radius:4px;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace">5/4</button><button onclick="setTimeSig('7/8')" id="adv-ts-7_8" style="font-size:10px;padding:4px 10px;background:var(--surface3);border:1px solid var(--border);border-radius:4px;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace">7/8</button><button onclick="setTimeSig('12/8')" id="adv-ts-12_8" style="font-size:10px;padding:4px 10px;background:var(--surface3);border:1px solid var(--border);border-radius:4px;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace">12/8</button></div></div><div class="adv-sec"><div class="adv-lbl">Key & Mode</div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><input type="text" class="adv-input" id="adv-key-tonic" placeholder="C, F#, Bb…" style="width:60px" oninput="LI.keyTonic=this.value;triggerAutosave('lyric')"><div style="display:flex;border:1px solid var(--border);border-radius:4px;overflow:hidden;flex-shrink:0"><button id="adv-pol-major" onclick="setKeyPolarity('major')" style="font-size:10px;padding:4px 10px;background:var(--accent);color:#000;border:none;cursor:pointer;font-family:'Syne',sans-serif;font-weight:700">Major</button><button id="adv-pol-minor" onclick="setKeyPolarity('minor')" style="font-size:10px;padding:4px 10px;background:transparent;color:var(--text2);border:none;cursor:pointer;font-family:'Syne',sans-serif;font-weight:700">Minor</button></div><select id="adv-greek-mode" style="flex:1;min-width:140px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;padding:4px 8px;outline:none" onchange="LI.greekMode=this.value;triggerAutosave('lyric')"><option value="">— mode —</option></select></div></div><div class="adv-sec"><div class="adv-lbl">Negative (global)</div><div style="display:flex;gap:12px;margin-bottom:6px;flex-wrap:wrap;"><label style="font-size:10px;color:var(--text2);display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="adv-no-belting" style="accent-color:var(--red)" onchange="LI.negNobelting=this.checked"> no belting</label><label style="font-size:10px;color:var(--text2);display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="adv-no-longnotes" style="accent-color:var(--red)" onchange="LI.negNoLongNotes=this.checked"> no long notes</label></div><input class="adv-input" id="adv-neg-custom" placeholder="Custom negative prompt..." oninput="LI.negCustom=this.value;triggerAutosave('lyric')"></div><div class="adv-sec"><div class="adv-lbl">Global Artist Instructions</div><textarea class="adv-input" id="adv-global-instr" style="height:52px;resize:none" placeholder="Persistent instructions for all sections..." oninput="LI.globalInstructions=this.value;triggerAutosave('lyric')"></textarea></div></div><div class="m-opts">${liFooterHTML()}</div></div></div><div class="send-bar"><button class="send-btn" onclick="rebuildAndSend()">↓ send down</button><button class="send-btn" onclick="copyField('lyrics')">⧉ lyrics</button><button class="send-btn" onclick="copyField('prompt')">⧉ prompt</button><button class="send-btn" onclick="copyField('negative')">⧉ negative</button></div>`;
+  const sunoBar=activeSession?.fromSuno?`<div class="suno-master-bar">🔒 <strong>From Suno</strong> · master copy — read only <button onclick="openSunoCopy()" style="margin-left:auto;font-family:'Syne',sans-serif;font-size:9px;font-weight:700;background:transparent;border:1px solid rgba(200,255,87,.4);color:var(--accent);padding:4px 10px;border-radius:3px;cursor:pointer">⎘ Open Copy to Edit</button></div>`:'';
+  w.innerHTML=`<div class="mod-header" onclick="toggleLI()"><span class="mod-num" style="color:var(--border2)">⊙</span><span class="mod-icon">⊡</span><span class="mod-title" style="color:var(--text2)">Lyric & Prompt Input</span><span class="mod-subtitle">source of truth</span>${lbl}${nc}<span class="mod-chevron">▾</span></div><div class="mod-body">${sunoBar}<div class="steps-bar"><button class="step-tab active" id="step-tab-1" onclick="switchStep(1)"><span class="step-num">1</span> Lyrics & Prompt</button><button class="step-tab" id="step-tab-2" onclick="switchStep(2)"><span class="step-num">2</span> Section Prompts</button></div><div class="lstep active" id="lstep-1"><div class="m-row"><div class="m-col"><div class="m-col-hdr" style="color:var(--text2)">Lyrics<span style="font-size:9px;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px">· <span style="color:var(--cyan)">[Section]</span> · <span style="color:var(--text2)" title="Type a section name alone (v1, cho, br...) then press Tab to create [Section] tag">name+Tab</span></span><button class="popout-btn" onclick="event.stopPropagation();copyField('lyrics')" style="margin-left:auto">⧉</button></div><div id="lyric-display" class="lyric-hl" style="min-height:180px"></div><textarea id="lyric-raw" class="m-ta" style="display:none;min-height:180px" placeholder="Paste or type lyrics here...&#10;&#10;Tip: type a section name alone + Tab to create it:&#10;  intro → [Intro]&#10;  v1 → [Verse 1]&#10;  cho → [Chorus]&#10;  br → [Bridge]" oninput="onLyricInput(this.value)" onkeydown="lyricTabKey(event)"></textarea></div><div class="m-col" style="max-width:220px;flex:0 0 220px"><div class="m-col-hdr cyan">Overall Prompt<button class="popout-btn" onclick="event.stopPropagation();copyField('prompt')" style="margin-left:auto">⧉</button></div><textarea class="m-ta" id="lyric-prompt" style="min-height:180px" placeholder="Suno style prompt..." oninput="onPromptInput(this.value)"></textarea></div></div><div class="no-sec-warn" id="no-sec-warn">⚠ No [Section] tags detected</div><div class="m-opts" id="li-footer-1">${liFooterHTML()}</div></div><div class="lstep" id="lstep-2"><div id="sec-prompts-area"></div><div class="adv-toggle" onclick="toggleAdv()"><span>Advanced</span><span id="adv-chev">▾</span></div><div class="adv-panel" id="adv-panel"><div class="adv-sec"><div class="adv-lbl">BPM</div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><input type="number" class="adv-input" style="width:72px" id="adv-bpm" placeholder="120" min="40" max="300" oninput="LI.bpm=this.value;triggerAutosave('lyric')"><button onclick="tapBPM()" style="font-size:10px;padding:4px 9px;background:var(--surface3);border:1px solid var(--border);border-radius:4px;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace" title="Tap to set BPM">♩ Tap B</button><label style="font-size:10px;color:var(--text2);display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="adv-bpm-bypass" style="accent-color:var(--purple)" onchange="LI.bpmBypass=this.checked"> bypass</label></div><div style="display:flex;align-items:center;gap:8px;margin-top:6px"><button onclick="tapMetrica()" style="font-size:10px;padding:4px 9px;background:var(--surface3);border:1px solid var(--border);border-radius:4px;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace" title="Tap to count syllables">♪ Tap M</button><span id="adv-metrica-display" style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace">— tap M to count syllables</span></div></div><div class="adv-sec"><div class="adv-lbl">Time Signature</div><div style="display:flex;gap:6px;flex-wrap:wrap" id="adv-ts-row"><button onclick="setTimeSig('4/4')" id="adv-ts-4_4" style="font-size:10px;padding:4px 10px;background:var(--surface3);border:1px solid var(--border);border-radius:4px;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace">4/4</button><button onclick="setTimeSig('3/4')" id="adv-ts-3_4" style="font-size:10px;padding:4px 10px;background:var(--surface3);border:1px solid var(--border);border-radius:4px;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace">3/4</button><button onclick="setTimeSig('6/8')" id="adv-ts-6_8" style="font-size:10px;padding:4px 10px;background:var(--surface3);border:1px solid var(--border);border-radius:4px;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace">6/8</button><button onclick="setTimeSig('5/4')" id="adv-ts-5_4" style="font-size:10px;padding:4px 10px;background:var(--surface3);border:1px solid var(--border);border-radius:4px;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace">5/4</button><button onclick="setTimeSig('7/8')" id="adv-ts-7_8" style="font-size:10px;padding:4px 10px;background:var(--surface3);border:1px solid var(--border);border-radius:4px;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace">7/8</button><button onclick="setTimeSig('12/8')" id="adv-ts-12_8" style="font-size:10px;padding:4px 10px;background:var(--surface3);border:1px solid var(--border);border-radius:4px;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace">12/8</button></div></div><div class="adv-sec"><div class="adv-lbl">Key & Mode</div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><input type="text" class="adv-input" id="adv-key-tonic" placeholder="C, F#, Bb…" style="width:60px" oninput="LI.keyTonic=this.value;triggerAutosave('lyric')"><div style="display:flex;border:1px solid var(--border);border-radius:4px;overflow:hidden;flex-shrink:0"><button id="adv-pol-major" onclick="setKeyPolarity('major')" style="font-size:10px;padding:4px 10px;background:var(--accent);color:#000;border:none;cursor:pointer;font-family:'Syne',sans-serif;font-weight:700">Major</button><button id="adv-pol-minor" onclick="setKeyPolarity('minor')" style="font-size:10px;padding:4px 10px;background:transparent;color:var(--text2);border:none;cursor:pointer;font-family:'Syne',sans-serif;font-weight:700">Minor</button></div><select id="adv-greek-mode" style="flex:1;min-width:140px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;padding:4px 8px;outline:none" onchange="LI.greekMode=this.value;triggerAutosave('lyric')"><option value="">— mode —</option></select></div></div><div class="adv-sec"><div class="adv-lbl">Negative (global)</div><div style="display:flex;gap:12px;margin-bottom:6px;flex-wrap:wrap;"><label style="font-size:10px;color:var(--text2);display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="adv-no-belting" style="accent-color:var(--red)" onchange="LI.negNobelting=this.checked"> no belting</label><label style="font-size:10px;color:var(--text2);display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="adv-no-longnotes" style="accent-color:var(--red)" onchange="LI.negNoLongNotes=this.checked"> no long notes</label></div><input class="adv-input" id="adv-neg-custom" placeholder="Custom negative prompt..." oninput="LI.negCustom=this.value;triggerAutosave('lyric')"></div><div class="adv-sec"><div class="adv-lbl">Global Artist Instructions</div><textarea class="adv-input" id="adv-global-instr" style="height:52px;resize:none" placeholder="Persistent instructions for all sections..." oninput="LI.globalInstructions=this.value;triggerAutosave('lyric')"></textarea></div></div><div class="m-opts">${liFooterHTML()}</div></div></div><div class="send-bar"><button class="send-btn" onclick="rebuildAndSend()">↓ send down</button><button class="send-btn" onclick="copyField('lyrics')">⧉ lyrics</button><button class="send-btn" onclick="copyField('prompt')">⧉ prompt</button><button class="send-btn" onclick="copyField('negative')">⧉ negative</button></div>`;
   return w;
 }
 
@@ -1392,7 +1794,7 @@ async function diceSection(name){
 
 // ═══ MODULE BODY ROUTER (registry-based) ═══════════════
 // Built-in modules registered below; external modules self-register via _mr['id']=fn
-const _mr={};
+var _mr={};
 function renderModBody(idx){
   const r=_mr[pipeline[idx]?.defId];
   return r?r(idx):`<div style="padding:14px;color:var(--muted);font-size:11px">Module not found: "${pipeline[idx]?.defId}"</div>`;
@@ -2555,70 +2957,265 @@ Generated by Pipeline OS v2.2 | Import outputs back into Pipeline for refinement
 function copyCwBriefing(){navigator.clipboard.writeText(getEl('cw-out-text')?.textContent||'').then(()=>showToast('Briefing copied!'));}
 
 // ═══ SESSION MANAGEMENT ════════════════════════════════
-let sessNewArtist=false;
+// ─── SESSION MODAL STATE ────────────────────────────────────
+let _sessStep=0, _sessLabelId=null, _sessArtistId=null;
+let sessNewArtist=false; // legacy compat — kept for startSession
+
+function getLabels(){return dbGet('pipeline_labels')||[];}
+function saveLabels(l){dbSet('pipeline_labels',l);}
 
 function openSessionModal(){
   const modal=getEl('session-modal');if(!modal)return;
-  modal.classList.add('open');showSessStep(1);loadSessProjects();
+  modal.classList.remove('gone');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{modal.classList.add('visible');}));
+  _sessStep=0;_sessLabelId=null;_sessArtistId=null;
+  _sessSlideTo(0);
+  _sessRenderLabels();
+  _sessBreadcrumb();
 }
 
-function loadSessProjects(){
-  const artists=getArtists();const list=getEl('sess-list');if(!list)return;
-  if(!artists.length){list.innerHTML=`<div class="sess-new-btn" onclick="sessNewArtist()">＋ New Artist / Project</div>`;return;}
-  let html='';
+function _sessSlideTo(step){
+  const box=document.querySelector('#session-modal .sess-box');
+  if(box)box.style.width=(260*(step+1))+'px';
+  for(let i=1;i<=2;i++){const col=getEl('sess-col-'+i);if(col)col.classList.toggle('active',i<=step);}
+  _sessStep=step;
+}
+
+function _sessBreadcrumb(){
+  const el=getEl('sess-breadcrumb');if(!el)return;
+  if(_sessStep===0){el.innerHTML=`<span style="font-size:10px;color:var(--muted)">Select a label to start</span>`;return;}
+  const labels=getLabels();
+  const lbl=_sessLabelId==='__default__'?'Default':labels.find(l=>l.id===_sessLabelId)?.name||'?';
+  if(_sessStep===1){el.innerHTML=`<span class="sess-bc-item">${esc(lbl)}</span>`;return;}
+  const art=getArtists().find(a=>a.id===_sessArtistId);
+  el.innerHTML=`<span class="sess-bc-item">${esc(lbl)}</span><span class="sess-bc-sep">›</span><span class="sess-bc-item">${esc(art?.name||'?')}</span>`;
+}
+
+// ── Hold-to-rename (700ms press) ─────────────────────────────
+let _holdTimer=null,_holdFired=false,_holdTarget=null;
+function sessHoldStart(e,type,id){
+  _holdFired=false;
+  _holdTarget=e.currentTarget||e.target.closest('.sess-item');
+  _holdTimer=setTimeout(()=>{_holdFired=true;sessContextMenuEl(_holdTarget,type,id);},700);
+}
+function sessHoldEnd(){if(_holdTimer){clearTimeout(_holdTimer);_holdTimer=null;}_holdTarget=null;}
+function sessModalClose(){
+  fadeOut(getEl('session-modal'),()=>{
+    if(!activeSession)showLockScreen();
+  });
+}
+function sessRenameBtn(btn,type,id){
+  const item=btn.closest('.sess-item');
+  if(!item){console.warn('sessRenameBtn: no .sess-item found for',type,id);return;}
+  sessContextMenuEl(item,type,id);
+}
+function sessContextMenu(e,type,id){
+  e.preventDefault();e.stopPropagation();
+  const item=e.currentTarget||e.target.closest('.sess-item');
+  sessContextMenuEl(item,type,id);
+}
+function sessContextMenuEl(item,type,id){
+  if(!item)return;
+  const infoEl=item.querySelector('.sess-item-info');
+  if(!infoEl)return;
+  const cur=infoEl.querySelector('.sess-item-name')?.textContent.trim()||'';
+  const reRender=type==='label'?'_sessRenderLabels()':type==='artist'?'_sessRenderArtists(_sessLabelId)':'_sessRenderTracks(_sessArtistId)';
+  infoEl.innerHTML=`<div class="sess-rename-wrap"><input class="sess-rename-input" value="${esc(cur)}" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.stopPropagation();sessDoRename(this,'${type}','${esc(id)}');}if(event.key==='Escape'){event.stopPropagation();${reRender}}"><button class="sess-rename-ok" onclick="event.stopPropagation();sessDoRename(this.previousElementSibling,'${type}','${esc(id)}')">✓</button><button class="sess-rename-cancel" onclick="event.stopPropagation();${reRender}">✕</button></div>`;
+  const inp=infoEl.querySelector('.sess-rename-input');
+  if(inp){inp.select();inp.focus();}
+}
+function sessDoRename(inp,type,id){
+  const name=inp?.value?.trim();if(!name){showToast('Name cannot be empty');return;}
+  if(type==='label'){
+    const labels=getLabels();const l=labels.find(x=>x.id===id);
+    if(l){l.name=name;saveLabels(labels);}
+    _sessRenderLabels();
+  }else if(type==='artist'){
+    const artists=getArtists();const a=artists.find(x=>x.id===id);
+    if(a){a.name=name;saveArtists(artists);updateTopbar();}
+    _sessRenderArtists(_sessLabelId);
+  }else if(type==='track'){
+    const tracks=getProjects(_sessArtistId);const t=tracks.find(x=>(x.name||x.track)===id);
+    if(t){
+      const oldKey='pipeline_track_state_'+_sessArtistId+'_'+id;
+      const saved=dbGet(oldKey);if(saved){dbSet('pipeline_track_state_'+_sessArtistId+'_'+name,saved);dbDel(oldKey);}
+      t.name=name;saveProjects(_sessArtistId,tracks);
+    }
+    _sessRenderTracks(_sessArtistId);
+  }
+  showToast('Renamed ✓');
+}
+
+function _sessRenderLabels(){
+  const list=getEl('sess-label-list');if(!list)return;
+  const labels=getLabels();
+  const artists=getArtists();
+  const defaultCount=artists.filter(a=>!a.labelId).length;
+  let h='';
+  labels.forEach(l=>{
+    const cnt=artists.filter(a=>a.labelId===l.id).length;
+    h+=`<div class="sess-item" oncontextmenu="sessContextMenu(event,'label','${l.id}')" onmousedown="sessHoldStart(event,'label','${l.id}')" onmouseup="sessHoldEnd()" onmouseleave="sessHoldEnd()" onclick="if(_holdFired){_holdFired=false;return;}sessGoArtist('${l.id}')">
+      <div class="sess-item-avatar">${esc(l.name.charAt(0).toUpperCase())}</div>
+      <div class="sess-item-info"><div class="sess-item-name">${esc(l.name)}</div><div class="sess-item-meta">${cnt} artist${cnt!==1?'s':''}</div></div>
+      <div class="sess-item-actions"><button class="sess-item-btn" title="Rename label" onclick="event.stopPropagation();sessRenameBtn(this,'label','${l.id}')">✎</button><button class="sess-item-btn danger" title="Delete label" onclick="event.stopPropagation();sessDelLabel('${l.id}')">✕</button></div>
+    </div>`;
+  });
+  if(defaultCount>0||!labels.length){
+    h+=`<div class="sess-item" onclick="sessGoArtist('__default__')">
+      <div class="sess-item-avatar" style="color:var(--muted)">—</div>
+      <div class="sess-item-info"><div class="sess-item-name" style="color:var(--text2)">Default</div><div class="sess-item-meta">${defaultCount} artist${defaultCount!==1?'s':''}</div></div>
+    </div>`;
+  }
+  list.innerHTML=h||`<div style="padding:20px;font-size:11px;color:var(--muted);text-align:center">No labels yet.<br>Create one below.</div>`;
+}
+
+function sessGoArtist(labelId){
+  _sessLabelId=labelId;
+  _sessRenderArtists(labelId);
+  _sessSlideTo(1);
+  _sessBreadcrumb();
+  sessToggleLabelForm(false);
+}
+
+function _sessRenderArtists(labelId){
+  const list=getEl('sess-artist-list');if(!list)return;
+  const artists=getArtists().filter(a=>labelId==='__default__'?!a.labelId:a.labelId===labelId);
+  let h='';
   artists.forEach(a=>{
     const tracks=getProjects(a.id);
-    const aName=a.name||'(Unnamed Artist)';
-    html+=`<div class="sess-artist-group"><div class="sess-proj-item" onclick="selectArtist('${a.id}')"><div class="sess-avatar">${aName.charAt(0).toUpperCase()}</div><div class="sess-proj-info"><div class="sess-proj-name">${esc(aName)}</div><div class="sess-proj-meta">${tracks.length} tracks${a.stylePrompt?' · style ✓':''}${a.bio?' · bio ✓':''}${a.personas?.length?' · '+a.personas.length+' personas':''}</div></div><button style="font-size:9px;padding:3px 8px;border-radius:3px;background:transparent;border:1px solid rgba(167,139,250,.4);color:var(--purple);cursor:pointer;margin-left:4px" title="Edit artist" onclick="event.stopPropagation();editArtist('${a.id}')">✏</button><button style="font-size:9px;padding:3px 8px;border-radius:3px;background:transparent;border:1px solid var(--border);color:var(--muted);cursor:pointer;margin-left:4px" onclick="event.stopPropagation();delArtist('${a.id}')">✕</button></div>`;
-    if(tracks.length){html+=`<div class="sess-track-list">`;tracks.forEach((t,ti)=>{const tName=t.name||t.track||'(Unnamed Track)';html+=`<div class="sess-track-item"><div class="sess-track-info" onclick="openTrack('${a.id}','${esc(tName)}')"><span class="sess-track-name">${esc(tName)}</span><span class="sess-track-meta">${t.savedAt||t.createdAt?new Date(t.savedAt||t.createdAt).toLocaleDateString():''}</span></div><button class="sess-track-del" onclick="event.stopPropagation();delTrack('${a.id}',${ti})">✕</button></div>`;});html+=`<div class="sess-track-new" onclick="newTrackFor('${a.id}')">＋ new track</div></div>`;}
-    else{html+=`<div class="sess-track-list"><div class="sess-track-new" onclick="newTrackFor('${a.id}')">＋ new track</div></div>`;}
-    html+=`</div>`;
+    const nm=a.name||'(Unnamed)';
+    h+=`<div class="sess-item" oncontextmenu="sessContextMenu(event,'artist','${a.id}')" onmousedown="sessHoldStart(event,'artist','${a.id}')" onmouseup="sessHoldEnd()" onmouseleave="sessHoldEnd()" onclick="if(_holdFired){_holdFired=false;return;}sessGoTrack('${a.id}')">
+      <div class="sess-item-avatar">${esc(nm.charAt(0).toUpperCase())}</div>
+      <div class="sess-item-info"><div class="sess-item-name">${esc(nm)}</div><div class="sess-item-meta">${tracks.length} track${tracks.length!==1?'s':''}${a.stylePrompt?' · style ✓':''}</div></div>
+      <div class="sess-item-actions"><button class="sess-item-btn" title="Rename" onclick="event.stopPropagation();sessRenameBtn(this,'artist','${a.id}')">✎</button><button class="sess-item-btn" title="Edit" onclick="event.stopPropagation();editArtist('${a.id}')">✏</button><button class="sess-item-btn danger" onclick="event.stopPropagation();delArtist('${a.id}')">✕</button></div>
+    </div>`;
   });
-  html+=`<div class="sess-new-btn" onclick="startNewArtist()">＋ New Artist</div>`;
-  list.innerHTML=html;
+  list.innerHTML=h||`<div style="padding:20px;font-size:11px;color:var(--muted);text-align:center">No artists in this label.<br>Add one below.</div>`;
 }
 
-function startNewArtist(){sessNewArtist=true;const nm=getEl('sess-new-name');if(nm){nm.style.display='block';nm.placeholder='New artist name...';}const sel=getEl('sess-persona');if(sel){sel.innerHTML='<option value="">— select persona —</option>';sel.disabled=true;}const sp=getEl('sess-style-prompt');if(sp)sp.disabled=false;const trk=getEl('sess-track');if(trk)trk.placeholder='Track name...';showSessStep(2);getEl('sess-sub').textContent='New artist / track';}
-
-function selectArtist(id){
-  sessNewArtist=false;const artists=getArtists();const a=artists.find(x=>x.id===id);if(!a)return;
-  const nm=getEl('sess-new-name');if(nm)nm.style.display='none';
-  const sp=getEl('sess-style-prompt');if(sp){sp.value=a.stylePrompt||'';sp.disabled=false;}
-  const sel=getEl('sess-persona');
-  if(sel){sel.disabled=false;sel.innerHTML='<option value="">— no persona —</option>'+(a.personas||[]).map(p=>{const pn=typeof p==='string'?p:p.name;return`<option value="${esc(pn)}">${esc(pn)}</option>`;}).join('')+'<option value="__new__">＋ New persona</option>';}
-  getEl('sess-sub').textContent=a.name||'(Unnamed)';
-  showSessStep(2,id);
+function sessGoTrack(artistId){
+  _sessArtistId=artistId;
+  _sessRenderTracks(artistId);
+  _sessSlideTo(2);
+  _sessBreadcrumb();
+  sessToggleArtistForm(false);
 }
 
-function newTrackFor(artistId){
-  selectArtist(artistId);
-  const t=getEl('sess-track');if(t){t.value='';t.focus();}
+function _sessRenderTracks(artistId){
+  const list=getEl('sess-track-list');if(!list)return;
+  const tracks=getProjects(artistId);
+  let h='';
+  tracks.forEach((t,ti)=>{
+    const nm=t.name||t.track||'(Unnamed)';
+    const dt=t.savedAt||t.createdAt?new Date(t.savedAt||t.createdAt).toLocaleDateString():'';
+    const isSuno=t.fromSuno||false;
+    h+=`<div class="sess-item" oncontextmenu="sessContextMenu(event,'track','${esc(nm)}')" onmousedown="sessHoldStart(event,'track','${esc(nm)}')" onmouseup="sessHoldEnd()" onmouseleave="sessHoldEnd()" onclick="if(_holdFired){_holdFired=false;return;}openTrack('${artistId}','${esc(nm)}')">
+      <div class="sess-item-avatar" style="font-size:8px${isSuno?';color:var(--accent)':''}">▶</div>
+      <div class="sess-item-info"><div class="sess-item-name">${esc(nm)}</div><div class="sess-item-meta">${isSuno?'<span style="color:var(--accent)">✓ from suno</span>'+(dt?' · '+dt:''): dt}</div></div>
+      <div class="sess-item-actions"><button class="sess-item-btn" title="Rename" onclick="event.stopPropagation();sessRenameBtn(this,'track','${esc(nm)}')">✎</button><button class="sess-item-btn${isSuno?' active':''}" title="Toggle from Suno (loads locked)" onclick="event.stopPropagation();sessToggleSuno('${artistId}',${ti})" style="${isSuno?'color:var(--accent);border-color:rgba(200,255,87,.35)':''}">suno</button><button class="sess-item-btn danger" onclick="event.stopPropagation();delTrack('${artistId}',${ti})">✕</button></div>
+    </div>`;
+  });
+  list.innerHTML=h||`<div style="padding:20px;font-size:11px;color:var(--muted);text-align:center">No tracks yet.<br>Add one below.</div>`;
 }
 
+function sessBack(toStep){
+  _sessSlideTo(toStep);
+  _sessBreadcrumb();
+  if(toStep===0){_sessLabelId=null;_sessRenderLabels();sessToggleArtistForm(false);}
+  if(toStep===1){_sessArtistId=null;_sessRenderArtists(_sessLabelId);sessToggleTrackForm(false);}
+}
+
+// ── Inline forms ─────────────────────────────────────────────
+function sessToggleLabelForm(open){const f=getEl('sess-label-form');if(f){f.classList.toggle('open',open);if(open){const i=getEl('sess-label-name');if(i){i.value='';i.focus();}}}}
+function sessToggleArtistForm(open){const f=getEl('sess-artist-form');if(f){f.classList.toggle('open',open);if(open){const i=getEl('sess-artist-name');if(i){i.value='';i.focus();}}}}
+function sessToggleTrackForm(open){const f=getEl('sess-track-form');if(f){f.classList.toggle('open',open);if(open){const i=getEl('sess-track-name');if(i){i.value='';i.focus();}}}}
+
+function sessAddLabel(){
+  const nm=getEl('sess-label-name')?.value.trim();if(!nm){showToast('Label name?');return;}
+  const labels=getLabels();
+  labels.push({id:'label_'+Date.now(),name:nm,createdAt:new Date().toISOString()});
+  saveLabels(labels);
+  sessToggleLabelForm(false);
+  _sessRenderLabels();
+}
+
+function sessAddArtist(){
+  const nm=getEl('sess-artist-name')?.value.trim();if(!nm){showToast('Artist name?');return;}
+  const artists=getArtists();
+  const id='artist_'+Date.now();
+  artists.push({id,name:nm,labelId:_sessLabelId==='__default__'?undefined:_sessLabelId,stylePrompt:'',personas:[],createdAt:new Date().toISOString()});
+  saveArtists(artists);
+  sessToggleArtistForm(false);
+  _sessRenderArtists(_sessLabelId);
+  showToast('Artist added');
+}
+
+function sessAddTrack(){
+  const nm=getEl('sess-track-name')?.value.trim();if(!nm){showToast('Track name?');return;}
+  const tracks=getProjects(_sessArtistId);
+  if(tracks.find(t=>t.name===nm)){showToast('Track already exists');return;}
+  tracks.push({name:nm,createdAt:new Date().toISOString()});
+  saveProjects(_sessArtistId,tracks);
+  sessToggleTrackForm(false);
+  _sessRenderTracks(_sessArtistId);
+  showToast('Track added — click to load');
+}
+
+function sessDelLabel(id){
+  openConfirm({title:'Delete label?',body:'Artists in this label become "Default". This cannot be undone.',onOk:()=>{
+    const labels=getLabels().filter(l=>l.id!==id);
+    saveLabels(labels);
+    const artists=getArtists();artists.forEach(a=>{if(a.labelId===id)delete a.labelId;});
+    saveArtists(artists);
+    _sessRenderLabels();
+  }});
+}
+
+function sessToggleSuno(artistId,ti){
+  const tracks=getProjects(artistId);if(!tracks[ti])return;
+  tracks[ti].fromSuno=!tracks[ti].fromSuno;
+  saveProjects(artistId,tracks);_sessRenderTracks(artistId);
+}
+
+function openSunoCopy(){
+  if(!activeSession?.fromSuno)return;
+  const artistId=activeSession.artistId;
+  const tracks=getProjects(artistId);
+  const base=activeSession.track.replace(/\s+OM35\s+v\d+\.\d+$/,'');
+  const escaped=base.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  const pattern=new RegExp('^'+escaped+'\\s+OM35\\s+v(\\d+)\\.\\d+$');
+  let maxV=0;
+  tracks.forEach(t=>{const m=(t.name||t.track||'').match(pattern);if(m)maxV=Math.max(maxV,parseInt(m[1]));});
+  const newName=base+' OM35 v'+(maxV+1)+'.0';
+  const newTrack={name:newName,createdAt:new Date().toISOString(),fromSuno:false};
+  tracks.push(newTrack);saveProjects(artistId,tracks);
+  const oldKey='pipeline_track_state_'+artistId+'_'+activeSession.track;
+  const savedState=dbGet(oldKey);
+  if(savedState){
+    const copy=JSON.parse(JSON.stringify(savedState));
+    if(copy.lyricInput){copy.lyricInput.locked=false;}
+    delete copy.pipelineObj;
+    dbSet('pipeline_track_state_'+artistId+'_'+newName,copy);
+  }
+  activeSession={artistId,artistName:activeSession.artistName,track:newName,persona:'',fromSuno:false};
+  if(savedState?.lyricInput)Object.assign(LI,savedState.lyricInput);
+  LI.locked=false;pipelineObj=null;
+  updateTopbar();render();
+  showToast('⎘ Copy opened: '+newName);
+}
 function openTrack(artistId,trackName){
-  const artists=getArtists();const a=artists.find(x=>x.id===artistId);if(!a)return;
+  const artists=getArtists();const a=artists.find(x=>x.id===artistId);if(!a){localStorage.removeItem('om35_last_session');openSessionModal();return;}
+  const tracks=getProjects(artistId);const trackMeta=tracks.find(t=>(t.name||t.track)===trackName);
   const saved=dbGet('pipeline_track_state_'+artistId+'_'+trackName);
-  getEl('session-modal').classList.remove('open');
-  activeSession={artistId,artistName:a.name,track:trackName,persona:''};
+  fadeOut(getEl('session-modal'),()=>{_showWorkspace();});
+  activeSession={artistId,artistName:a.name,track:trackName,persona:'',fromSuno:trackMeta?.fromSuno||false};localStorage.setItem('om35_last_session',JSON.stringify({artistId,track:trackName}));
   if(saved){
     if(saved.lyricInput)Object.assign(LI,saved.lyricInput);
     if(saved.pipelineObj){pipelineObj=saved.pipelineObj;LI.locked=true;}
   }
-  updateTopbar();render();showToast('Track loaded: '+trackName);
-}
-
-function showSessStep(n,artistId){
-  [1,2].forEach(s=>{const el=getEl('sess-step-'+s);if(el){el.classList.toggle('active',s===n);}});
-  if(n===2&&artistId){getEl('sess-step-2')?.dataset&&(getEl('sess-step-2').dataset.artistId=artistId);}
-}
-
-function sessBack(){sessNewArtist=false;showSessStep(1);loadSessProjects();}
-
-function onStep2Input(){
-  const nm=getEl('sess-new-name')?.value.trim();const trk=getEl('sess-track')?.value.trim();const go=getEl('sess-go');
-  const featInp=getEl('sess-feat');const disc=getEl('sess-feat-disc');
-  if(featInp?.value.trim()&&disc)disc.style.display='block';else if(disc)disc.style.display='none';
-  if(go)go.disabled=!(trk&&(nm||!sessNewArtist));
+  if(trackMeta?.fromSuno&&LI.rawLyrics&&!LI.locked){pipelineObj=buildObj();LI.locked=true;}
+  updateTopbar();render();
+  showToast(trackMeta?.fromSuno?'Track loaded · locked (from Suno) 🔒':'Track loaded: '+trackName);
 }
 
 function startSession(){
@@ -2638,7 +3235,7 @@ function startSession(){
   const tracks=getProjects(artistId);if(!tracks.find(t=>t.name===trk)){tracks.push({name:trk,createdAt:new Date().toISOString()});saveProjects(artistId,tracks);}
   if(feat)LI.featName=feat;
   activeSession={artistId,artistName:a.name,track:trk,persona:pers};
-  getEl('session-modal').classList.remove('open');
+  fadeOut(getEl('session-modal'),()=>{_showWorkspace();});
   updateTopbar();render();logEntry(artistId,trk,{event:'session_start'});showToast('Session started ✓');
 }
 
@@ -2651,8 +3248,8 @@ function updateTopbar(){
   getEl('si-track').textContent=activeSession.track;
 }
 
-function delArtist(id){const a=getArtists().find(x=>x.id===id);const nm=a?.name||'(Unnamed Artist)';openConfirm({title:'Delete artist?',body:`Remove "${nm}" and all their tracks? This cannot be undone.`,onOk:()=>{const artists=getArtists().filter(a=>a.id!==id);saveArtists(artists);loadSessProjects();}});}
-function delTrack(artistId,idx){const tracks=getProjects(artistId);const t=tracks[idx];const nm=t?.name||t?.track||'(Unnamed Track)';openConfirm({title:'Delete track?',body:`Remove track "${nm}"? This cannot be undone.`,onOk:()=>{tracks.splice(idx,1);saveProjects(artistId,tracks);loadSessProjects();}});}
+function delArtist(id){const a=getArtists().find(x=>x.id===id);const nm=a?.name||'(Unnamed Artist)';openConfirm({title:'Delete artist?',body:`Remove "${nm}" and all their tracks? This cannot be undone.`,onOk:()=>{const artists=getArtists().filter(a=>a.id!==id);saveArtists(artists);_sessRenderArtists(_sessLabelId);}});}
+function delTrack(artistId,idx){const tracks=getProjects(artistId);const t=tracks[idx];const nm=t?.name||t?.track||'(Unnamed Track)';openConfirm({title:'Delete track?',body:`Remove track "${nm}"? This cannot be undone.`,onOk:()=>{tracks.splice(idx,1);saveProjects(artistId,tracks);_sessRenderTracks(artistId);}});}
 
 function openCloseModal(){
   const modal=getEl('close-modal');if(!modal)return;
@@ -2673,6 +3270,8 @@ function doCloseSession(){
     const tracks=getProjects(activeSession.artistId);const t=tracks.find(x=>x.name===activeSession.track);if(t)t.savedAt=new Date().toISOString();saveProjects(activeSession.artistId,tracks);
     logEntry(activeSession.artistId,activeSession.track,{event:'session_close'});
   }
+  _hideWorkspace();
+  localStorage.removeItem('om35_last_session');
   activeSession=null;Object.assign(LI,{rawLyrics:'',promptOverall:'',locked:false,collapsed:false,sectionPrompts:{},sectionTechniques:{},bpm:'',bpmBypass:false,featName:'',globalInstructions:'',negNobelting:false,negNoLongNotes:false,negCustom:'',keyTonic:'',keyPolarity:'major',greekMode:'',timeSig:'',checkpoint:null,autosave:null});
   pipelineObj=null;pipeline=[];prePipeline=[];needsConsol=false;sunoGenCount=0;
   getEl('close-modal').classList.remove('open');updateTopbar();render();openSessionModal();showToast('Session closed');
@@ -2697,7 +3296,7 @@ function saveArtistEdit(){
   a.bio=getEl('ae-bio')?.value.trim()||'';
   saveArtists(artists);
   if(activeSession?.artistId===_aeArtistId&&nm){activeSession.artistName=nm;updateTopbar();}
-  closeArtistEdit();loadSessProjects();showToast('Artist saved ✓');
+  closeArtistEdit();if(_sessLabelId!==null)_sessRenderArtists(_sessLabelId);showToast('Artist saved ✓');
 }
 
 // ═══ NIGHT RUN ═══════════════════════════════════════════
@@ -2948,6 +3547,7 @@ function migrateLegacyData(){
   loadKey();
   render();
   initKaleidoscope();
+  if(typeof startAutosave==='function')startAutosave(3000);
   // Auto-dismiss splash if we have a saved session
   const savedSess = dbGet('pipeline_active_session');
   if (savedSess) {
@@ -2955,6 +3555,9 @@ function migrateLegacyData(){
   }
   // If no saved session, splash stays visible until user clicks Start Engine
 })();
+
+
+
 </script>
 </body>
 </html>
