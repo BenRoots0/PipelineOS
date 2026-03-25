@@ -802,7 +802,7 @@ function dbSet(k,v){_idbCache[k]=v;_idbWrite(k,v);}
 function dbDel(k){delete _idbCache[k];_idbDel(k);}
 async function migrateFromLocalStorage(){const keys=Object.keys(localStorage).filter(k=>k.startsWith('pipeline_'));if(!keys.length)return;let migrated=0;for(const k of keys){try{const v=JSON.parse(localStorage.getItem(k));if(v!==null){dbSet(k,v);migrated++;}}catch(e){}}if(migrated>0){console.log(`Migrated ${migrated} keys from localStorage to IndexedDB`);keys.forEach(k=>localStorage.removeItem(k));}}
 // ═══ VERSION MIGRATION ═══════════════════════════════════
-const PPOS_VERSION='4.1.0';
+const PPOS_VERSION='4.1.1';
 function migrateVersion(){
   const prev=localStorage.getItem('ppos_version')||'0';
   if(prev!==PPOS_VERSION){
@@ -1367,10 +1367,9 @@ function consolidate() {
   renderLyricFields();
   renderSectionPrompts();
   if(activeSession){
-    const state={lyricInput:captureLIState(),pipelineObj:JSON.parse(JSON.stringify(pipelineObj)),savedAt:new Date().toISOString()};
-    dbSet('pipeline_track_state_'+activeSession.artistId+'_'+activeSession.track,state);
+    // Flush full magnetized state via backbone persistence
+    if(typeof persistNow==='function')persistNow();
     logEntry(activeSession.artistId,activeSession.track,{event:'consolidate'});
-    localStorage.removeItem('om35_last_session');
   }
   showToast('Consolidated ✓');
 }
@@ -1386,12 +1385,15 @@ function saveCheckpoint(id) {
 
 function triggerAutosave(id) {
   clearTimeout(autosaveTimer);
+  // Signal backbone persistence (debounced IDB write)
   if(typeof markDirty==='function')markDirty();
   autosaveTimer=setTimeout(()=>{
     if(id==='lyric'){LI.autosave={label:'⟳ auto',state:captureLIState(),ts:Date.now()};}
     else{const p=pipeline[id];if(p)p.autosave={label:'⟳ auto',state:JSON.parse(JSON.stringify(p.data)),ts:Date.now()};}
     const dot=getEl('autosave-dot-'+id);
     if(dot){dot.classList.add('saving');setTimeout(()=>dot.classList.remove('saving'),700);}
+    // Force flush to IDB after in-memory autosave
+    if(typeof persistNow==='function')persistNow();
   },10000);
 }
 
@@ -3210,8 +3212,11 @@ function openTrack(artistId,trackName){
   fadeOut(getEl('session-modal'),()=>{_showWorkspace();});
   activeSession={artistId,artistName:a.name,track:trackName,persona:'',fromSuno:trackMeta?.fromSuno||false};localStorage.setItem('om35_last_session',JSON.stringify({artistId,track:trackName}));
   if(saved){
+    // Restore LI state
     if(saved.lyricInput)Object.assign(LI,saved.lyricInput);
     if(saved.pipelineObj){pipelineObj=saved.pipelineObj;LI.locked=true;}
+    // Restore module pipeline shape + data (magnetized state)
+    if(typeof restoreModuleState==='function')restoreModuleState(saved);
   }
   if(trackMeta?.fromSuno&&LI.rawLyrics&&!LI.locked){pipelineObj=buildObj();LI.locked=true;}
   updateTopbar();render();
@@ -3263,15 +3268,17 @@ function selCloseOpt(which){
 }
 
 function doCloseSession(){
-  const saveAll=getEl('close-opt-all')?.classList.contains('selected');
-  if(saveAll&&activeSession){
-    const state={lyricInput:captureLIState(),pipelineObj:pipelineObj?JSON.parse(JSON.stringify(pipelineObj)):null,savedAt:new Date().toISOString()};
-    dbSet('pipeline_track_state_'+activeSession.artistId+'_'+activeSession.track,state);
+  // Always persist before closing — state is reactive, no consolidation needed
+  if(activeSession){
+    if(typeof persistNow==='function')persistNow();
     const tracks=getProjects(activeSession.artistId);const t=tracks.find(x=>x.name===activeSession.track);if(t)t.savedAt=new Date().toISOString();saveProjects(activeSession.artistId,tracks);
     logEntry(activeSession.artistId,activeSession.track,{event:'session_close'});
   }
   _hideWorkspace();
+  // Clear active session marker — next boot opens modal
+  dbDel('pipeline_active_session');
   localStorage.removeItem('om35_last_session');
+  // Reset in-memory state (IDB already has the snapshot)
   activeSession=null;Object.assign(LI,{rawLyrics:'',promptOverall:'',locked:false,collapsed:false,sectionPrompts:{},sectionTechniques:{},bpm:'',bpmBypass:false,featName:'',globalInstructions:'',negNobelting:false,negNoLongNotes:false,negCustom:'',keyTonic:'',keyPolarity:'major',greekMode:'',timeSig:'',checkpoint:null,autosave:null});
   pipelineObj=null;pipeline=[];prePipeline=[];needsConsol=false;sunoGenCount=0;
   getEl('close-modal').classList.remove('open');updateTopbar();render();openSessionModal();showToast('Session closed');
@@ -3548,12 +3555,21 @@ function migrateLegacyData(){
   render();
   initKaleidoscope();
   if(typeof startAutosave==='function')startAutosave(3000);
-  // Auto-dismiss splash if we have a saved session
-  const savedSess = dbGet('pipeline_active_session');
-  if (savedSess) {
-    splashStart();
+  // Check for active session (tab was closed mid-work)
+  const activeSess = dbGet('pipeline_active_session');
+  if (activeSess && activeSess.artistId && activeSess.track) {
+    // Validate the session still exists
+    const a = getArtists().find(x => x.id === activeSess.artistId);
+    if (a) {
+      // Store for auto-resume after splash/pw flow
+      localStorage.setItem('om35_last_session', JSON.stringify({
+        artistId: activeSess.artistId, track: activeSess.track
+      }));
+    } else {
+      dbDel('pipeline_active_session');
+    }
   }
-  // If no saved session, splash stays visible until user clicks Start Engine
+  // Splash stays visible until user clicks Login
 })();
 
 

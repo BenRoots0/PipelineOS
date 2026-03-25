@@ -1,115 +1,258 @@
 // ═══════════════════════════════════════════════════════════════
 // BACKBONE: Persistence  |  persistence.js
-// Pipeline OS · v4.1 · src/backbone/persistence.js
+// Pipeline OS · v4.1.1 · src/backbone/persistence.js
 //
-// Two-layer persistence:
-//   A) Granular: persistModule(idx) — called by modules after critical mutations
-//   B) Global autosave: every N seconds, snapshot full pipeline state to IndexedDB
+// Strategy:
+//   1. Debounced continuous write — every state mutation triggers a
+//      500ms debounced IDB write. High-frequency edits batch naturally.
+//   2. Global autosave — every 3s, flush if dirty (safety net).
+//   3. beforeunload — forced synchronous flush using navigator.locks
+//      keep-alive pattern to prevent tab kill before IDB completes.
 //
-// Both layers use core's dbSet (from shell.html) via window reference.
+// What is persisted: "magnetized" state — full module state dump:
+//   { lyricInput, pipelineObj, moduleData, pipeline (defIds+collapsed), savedAt }
+//
+// The object is reactive and lives in Backbone. Old consolidation
+// pattern is dead. No .clear(), .reset(), .destroy() on close.
 // ═══════════════════════════════════════════════════════════════
 
-let _autosaveTimer = null;
 let _dirty = false;
+let _debounceTimer = null;
+let _globalTimer = null;
+let _flushPromise = null;
+
+// ── State capture ───────────────────────────────────────────
 
 /**
- * Mark the pipeline as dirty (needs save).
- * Called by modules after mutating pipeline[idx].data
+ * Capture the full magnetized state of the app.
+ * This is what gets written to IDB on every flush.
  */
-export function markDirty() {
-  _dirty = true;
-}
-
-/**
- * Persist current track state to IndexedDB immediately.
- * Uses the same key format as core JS: pipeline_track_state_{artistId}_{track}
- */
-export function persistNow() {
+function captureFullState() {
   const session = window.activeSession;
-  if (!session) return;
+  if (!session) return null;
 
   const captureLI = window.captureLIState;
-  if (!captureLI) return;
 
-  const state = {
-    lyricInput: captureLI(),
-    pipelineObj: window.pipelineObj ? JSON.parse(JSON.stringify(window.pipelineObj)) : null,
+  return {
+    lyricInput: captureLI ? captureLI() : null,
+    pipelineObj: window.pipelineObj
+      ? JSON.parse(JSON.stringify(window.pipelineObj))
+      : null,
     moduleData: captureModuleData(),
+    pipelineShape: capturePipelineShape(),
     savedAt: new Date().toISOString(),
   };
-
-  window.dbSet(
-    'pipeline_track_state_' + session.artistId + '_' + session.track,
-    state
-  );
-  _dirty = false;
 }
 
 /**
- * Capture all module data from pipeline[] for persistence.
+ * Capture module data from all pipeline entries.
  */
 function captureModuleData() {
   const pipeline = window.pipeline;
   if (!pipeline?.length) return {};
   const snap = {};
-  pipeline.forEach((entry, idx) => {
+  pipeline.forEach((entry) => {
     if (entry.data && Object.keys(entry.data).length > 0) {
-      snap[entry.defId || idx] = JSON.parse(JSON.stringify(entry.data));
+      snap[entry.defId] = JSON.parse(JSON.stringify(entry.data));
     }
   });
   return snap;
 }
 
 /**
- * Persist module state after a critical mutation.
- * Call this from module event handlers after changing pipeline[idx].data
- *
- * @param {number} idx - pipeline index
- * @param {string} [reason] - optional label for debug
+ * Capture pipeline shape: ordered list of { defId, collapsed }.
+ * This allows restoring which modules were open and in what order.
  */
-export function persistModule(idx, reason) {
-  markDirty();
-  // Debounce: persist after 500ms of inactivity (batches rapid changes)
-  clearTimeout(_autosaveTimer);
-  _autosaveTimer = setTimeout(() => {
-    if (_dirty) persistNow();
+function capturePipelineShape() {
+  const pipeline = window.pipeline;
+  if (!pipeline?.length) return [];
+  return pipeline.map(entry => ({
+    defId: entry.defId,
+    collapsed: entry.collapsed,
+  }));
+}
+
+// ── IDB key for current session ────────────────────────────
+
+function stateKey() {
+  const s = window.activeSession;
+  if (!s) return null;
+  return 'pipeline_track_state_' + s.artistId + '_' + s.track;
+}
+
+// ── Core flush (async IDB write) ───────────────────────────
+
+/**
+ * Flush current state to IndexedDB.
+ * Returns a promise that resolves when the write is done.
+ */
+function flushToIDB() {
+  const key = stateKey();
+  if (!key) return Promise.resolve();
+
+  const state = captureFullState();
+  if (!state) return Promise.resolve();
+
+  _dirty = false;
+
+  // Use dbSet which writes to cache + async IDB
+  if (typeof window.dbSet === 'function') {
+    window.dbSet(key, state);
+  }
+
+  // Also write the active session marker
+  if (window.activeSession) {
+    window.dbSet('pipeline_active_session', {
+      artistId: window.activeSession.artistId,
+      track: window.activeSession.track,
+      savedAt: state.savedAt,
+    });
+  }
+
+  // Return a promise that resolves after IDB transaction completes.
+  // _idbWrite is fire-and-forget, but we wait a tick for it to enqueue.
+  return new Promise(resolve => setTimeout(resolve, 50));
+}
+
+// ── Public API ─────────────────────────────────────────────
+
+/**
+ * Mark state as dirty. Called by modules after any mutation.
+ */
+export function markDirty() {
+  _dirty = true;
+  // Debounced write: flush after 500ms of inactivity
+  clearTimeout(_debounceTimer);
+  _debounceTimer = setTimeout(() => {
+    if (_dirty) flushToIDB();
   }, 500);
 }
 
 /**
- * Start the global autosave loop.
- * Runs every `interval` ms, persists only if dirty.
- *
- * @param {number} interval - ms between checks (default 3000)
+ * Force immediate persist (bypasses debounce).
  */
-let _globalTimer = null;
+export function persistNow() {
+  clearTimeout(_debounceTimer);
+  flushToIDB();
+}
+
+/**
+ * Persist module state after a critical mutation.
+ * Triggers debounced write.
+ */
+export function persistModule(idx, reason) {
+  markDirty();
+}
+
+/**
+ * Start global autosave loop (safety net).
+ */
 export function startAutosave(interval = 3000) {
   if (_globalTimer) clearInterval(_globalTimer);
   _globalTimer = setInterval(() => {
     if (_dirty && window.activeSession) {
-      persistNow();
+      flushToIDB();
     }
   }, interval);
 }
 
 /**
- * Stop the global autosave loop.
+ * Stop global autosave.
  */
 export function stopAutosave() {
   if (_globalTimer) { clearInterval(_globalTimer); _globalTimer = null; }
 }
 
 /**
- * Force save now (e.g. before session close).
+ * Force save now (alias for external callers).
  */
 export function savePipelineSnapshot() {
   persistNow();
 }
 
-// Expose to window
+// ── beforeunload: forced flush with keep-alive ─────────────
+
+function setupBeforeUnload() {
+  window.addEventListener('beforeunload', (e) => {
+    if (!_dirty && !window.activeSession) return;
+
+    // Strategy: use navigator.locks with ifAvailable to keep the
+    // service worker / tab alive long enough for IDB to flush.
+    // Fallback: synchronous cache write (dbSet writes to _idbCache
+    // instantly, IDB write is async but cache is already updated).
+
+    // 1. Immediate cache write (synchronous — survives even if IDB doesn't finish)
+    const key = stateKey();
+    if (key) {
+      const state = captureFullState();
+      if (state && typeof window.dbSet === 'function') {
+        window.dbSet(key, state);
+        if (window.activeSession) {
+          window.dbSet('pipeline_active_session', {
+            artistId: window.activeSession.artistId,
+            track: window.activeSession.track,
+            savedAt: state.savedAt,
+          });
+        }
+      }
+    }
+
+    // 2. Keep-alive lock to give IDB time to flush
+    if (navigator.locks) {
+      navigator.locks.request('ppos_flush', { ifAvailable: true }, async (lock) => {
+        if (!lock) return;
+        // Hold the lock briefly to let IDB transaction complete
+        await new Promise(resolve => setTimeout(resolve, 200));
+      }).catch(() => {});
+    }
+  });
+}
+
+// ── Restore: rehydrate module data on track open ───────────
+
+/**
+ * Restore module data from saved state into the current pipeline.
+ * Called by openTrack after building the pipeline array.
+ *
+ * @param {object} saved - the full state object from IDB
+ */
+export function restoreModuleState(saved) {
+  if (!saved) return;
+
+  const pipeline = window.pipeline;
+  if (!pipeline) return;
+
+  // Restore pipeline shape (which modules were open)
+  if (saved.pipelineShape?.length && pipeline.length === 0) {
+    saved.pipelineShape.forEach(shape => {
+      if (typeof window.makeEntry === 'function') {
+        const entry = window.makeEntry(shape.defId);
+        entry.collapsed = shape.collapsed;
+        pipeline.push(entry);
+      }
+    });
+  }
+
+  // Restore module data into existing pipeline entries
+  if (saved.moduleData) {
+    pipeline.forEach(entry => {
+      if (saved.moduleData[entry.defId]) {
+        entry.data = JSON.parse(JSON.stringify(saved.moduleData[entry.defId]));
+      }
+    });
+  }
+}
+
+// ── Init ───────────────────────────────────────────────────
+
+setupBeforeUnload();
+
+// ── Expose to window ───────────────────────────────────────
 window.persistModule = persistModule;
 window.persistNow = persistNow;
 window.markDirty = markDirty;
 window.startAutosave = startAutosave;
 window.stopAutosave = stopAutosave;
 window.savePipelineSnapshot = savePipelineSnapshot;
+window.restoreModuleState = restoreModuleState;
+window.captureFullState = captureFullState;
