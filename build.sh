@@ -213,4 +213,7 @@ PYEOF
 # ── Cleanup temp bundle ──────────────────────────────────────
 rm -f "$TMP_BUNDLE"
 
+# ── Copy to index.html (Netlify deploy target) ───────────────
+cp "$OUT" "$SCRIPT_DIR/index.html"
 echo "Done → $OUT"
+echo "       $SCRIPT_DIR/index.html (Netlify)"
