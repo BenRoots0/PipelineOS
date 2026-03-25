@@ -837,13 +837,12 @@ function splashStart(){
   migrateVersion();
   playStartupJingle();
   const splash=getEl('splash');
-  // Splash already visible → fade out after 1.5s
+  // Splash already visible → fade out after 1.1s (snappier)
   setTimeout(()=>{
     fadeOut(splash,()=>{
       // PW fade in
       _pwShow(()=>{
         // pw accepted → pw fades out inside pwHide
-        // Pause 400ms
         setTimeout(()=>{
           const last=localStorage.getItem('om35_last_session');
           if(last){
@@ -858,22 +857,38 @@ function splashStart(){
         },400);
       });
     });
-  },1500);
+  },1100);
 }
 
 function showLockScreen(){
   const splash=getEl('splash');
-  getEl('splash-start').style.display='none';
+  // Show the Login button (same as initial splash)
+  const btn=getEl('splash-start');if(btn){btn.style.display='';btn.onclick=function(){splashStartFromLock();};}
   const sub=getEl('splash-sub');
-  if(sub)sub.innerHTML='Pipeline OS &middot; v4.1.1 &nbsp;·&nbsp; <span onclick="_splashReopen()" style="cursor:pointer;color:#c8ff57;text-decoration:underline;text-underline-offset:3px">Login</span>';
+  if(sub)sub.textContent='Pipeline OS · v4.1.1';
   fadeIn(splash);
 }
-function _splashReopen(){
-  fadeOut(getEl('splash'),()=>{
+function splashStartFromLock(){
+  const splash=getEl('splash');
+  fadeOut(splash,()=>{
     _pwShow(()=>{
-      setTimeout(()=>_openSessionFade(),400);
+      setTimeout(()=>{
+        const last=localStorage.getItem('om35_last_session');
+        if(last){
+          try{
+            const s=JSON.parse(last);
+            const a=s.artistId?getArtists().find(x=>x.id===s.artistId):null;
+            if(a&&s.track){openTrack(s.artistId,s.track);return;}
+            else{localStorage.removeItem('om35_last_session');}
+          }catch(e){localStorage.removeItem('om35_last_session');}
+        }
+        _openSessionFade();
+      },300);
     });
   });
+}
+function _splashReopen(){
+  splashStartFromLock();
 }
 function _openSessionFade(){
   const modal=getEl('session-modal');
