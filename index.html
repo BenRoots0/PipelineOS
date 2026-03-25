@@ -420,16 +420,16 @@ textarea.m-ta::placeholder{color:var(--muted);opacity:.45;}
 <div id="splash" class="visible">
   <div>
     <canvas id="splash-logo-canvas" style="display:block;"></canvas>
-    <div id="splash-sub">Pipeline OS · v4.1.1</div>
+    <div id="splash-sub">Pipeline OS · v5.0.0</div>
     <button id="splash-start" onclick="splashStart()">▶ Login</button>
   </div>
 </div>
 <div id="pw-modal" class="gone">
   <div id="pw-box">
     <div id="pw-logo">OM35</div>
-    <div id="pw-tag">Pipeline OS · v4.1.1</div>
+    <div id="pw-tag">Pipeline OS · v5.0.0</div>
     <div id="pw-label">Enter password</div>
-    <input id="pw-input" type="password" autocomplete="off" data-lpignore="true" placeholder="••••••••" onkeydown="if(event.key==='Enter')pwSubmit()">
+    <input id="pw-input" type="password" autocomplete="off" data-lpignore="true" placeholder="••••••••" onfocus="this.placeholder=''" onblur="if(!this.value)this.placeholder='••••••••'" onkeydown="if(event.key==='Enter')pwSubmit()">
     <div id="pw-err"></div>
     <button id="pw-submit" onclick="pwSubmit()">▶ Unlock</button>
   </div>
@@ -437,7 +437,7 @@ textarea.m-ta::placeholder{color:var(--muted);opacity:.45;}
 <div id="workspace-wrap">
 <div id="topbar">
   <button id="om35-logo" onclick="openHelp()" style="font-family:'Syne',sans-serif;font-weight:800;font-size:18px;letter-spacing:-.5px;color:#e2e2f0;background:transparent;border:none;cursor:pointer;padding:0;line-height:1;flex-shrink:0;">OM35</button>
-  <span class="v-badge">v4.1.1</span>
+  <span class="v-badge">v5.0.0</span>
   <div class="pipe-sep"></div>
   <button class="top-btn" onclick="collapseAll()">⊟ Collapse</button>
   <button class="top-btn" onclick="expandAll()">⊞ Expand</button>
@@ -456,6 +456,36 @@ textarea.m-ta::placeholder{color:var(--muted);opacity:.45;}
   <div class="api-wrap">
     <label>API Key</label>
     <input id="global-key" type="password" placeholder="sk-ant-..." oninput="saveKey(this.value)">
+    <button class="top-btn" onclick="toggleSettings()" style="margin-left:4px;font-size:10px;padding:3px 6px" title="Settings">⚙</button>
+  </div>
+</div>
+<!-- SETTINGS PANEL -->
+<div id="settings-panel" style="display:none;position:fixed;top:52px;right:0;width:320px;background:var(--surface);border-left:1px solid var(--border);border-bottom:1px solid var(--border);border-radius:0 0 0 8px;z-index:200;padding:16px;box-shadow:0 8px 32px rgba(0,0,0,.5);">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+    <span style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text2)">Settings</span>
+    <button onclick="toggleSettings()" style="background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:14px">✕</button>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-family:'Syne',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:8px">Supabase (Cloud Sync)</div>
+    <label style="display:block;font-size:10px;color:var(--muted);margin-bottom:3px">Project URL</label>
+    <input id="supa-url" type="text" placeholder="https://xxx.supabase.co" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:6px 8px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;outline:none;margin-bottom:8px;">
+    <label style="display:block;font-size:10px;color:var(--muted);margin-bottom:3px">Anon Key</label>
+    <input id="supa-key" type="password" placeholder="eyJ..." style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:6px 8px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;outline:none;margin-bottom:8px;">
+    <div style="display:flex;gap:6px;">
+      <button class="m-btn m-btn-primary" onclick="supaConnect()" style="flex:1;font-size:10px;padding:5px 10px">Connect</button>
+      <button class="m-btn m-btn-ghost" onclick="supaDisconnect()" style="font-size:10px;padding:5px 10px">Disconnect</button>
+    </div>
+    <div id="supa-status" style="font-size:10px;color:var(--muted);margin-top:6px"></div>
+  </div>
+  <div>
+    <div style="font-family:'Syne',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:6px">Supabase Auth</div>
+    <input id="supa-email" type="email" placeholder="email" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:6px 8px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;outline:none;margin-bottom:6px;">
+    <input id="supa-pass" type="password" placeholder="password" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:6px 8px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;outline:none;margin-bottom:6px;">
+    <div style="display:flex;gap:6px;">
+      <button class="m-btn m-btn-primary" onclick="supaDoSignIn()" style="flex:1;font-size:10px;padding:5px 10px">Sign In</button>
+      <button class="m-btn m-btn-ghost" onclick="supaDoSignUp()" style="flex:1;font-size:10px;padding:5px 10px">Sign Up</button>
+    </div>
+    <div id="supa-auth-status" style="font-size:10px;color:var(--muted);margin-top:6px"></div>
   </div>
 </div>
 <div id="pipeline"></div>
@@ -542,7 +572,7 @@ textarea.m-ta::placeholder{color:var(--muted);opacity:.45;}
   <div class="help-box">
     <div class="help-header">
       <div class="help-box-logo">OM35</div>
-      <div class="help-box-tag">Pipeline OS · v4.1.1</div>
+      <div class="help-box-tag">Pipeline OS · v5.0.0</div>
       <div class="help-tabs">
         <button class="help-tab active" onclick="helpTab('about')">About</button>
         <button class="help-tab" onclick="helpTab('handbook')">Handbook</button>
