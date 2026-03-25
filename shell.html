@@ -466,6 +466,36 @@ textarea.m-ta::placeholder{color:var(--muted);opacity:.45;}
   <div class="api-wrap">
     <label>API Key</label>
     <input id="global-key" type="password" placeholder="sk-ant-..." oninput="saveKey(this.value)">
+    <button class="top-btn" onclick="toggleSettings()" style="margin-left:4px;font-size:10px;padding:3px 6px" title="Settings">⚙</button>
+  </div>
+</div>
+<!-- SETTINGS PANEL -->
+<div id="settings-panel" style="display:none;position:fixed;top:52px;right:0;width:320px;background:var(--surface);border-left:1px solid var(--border);border-bottom:1px solid var(--border);border-radius:0 0 0 8px;z-index:200;padding:16px;box-shadow:0 8px 32px rgba(0,0,0,.5);">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+    <span style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text2)">Settings</span>
+    <button onclick="toggleSettings()" style="background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:14px">✕</button>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-family:'Syne',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:8px">Supabase (Cloud Sync)</div>
+    <label style="display:block;font-size:10px;color:var(--muted);margin-bottom:3px">Project URL</label>
+    <input id="supa-url" type="text" placeholder="https://xxx.supabase.co" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:6px 8px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;outline:none;margin-bottom:8px;">
+    <label style="display:block;font-size:10px;color:var(--muted);margin-bottom:3px">Anon Key</label>
+    <input id="supa-key" type="password" placeholder="eyJ..." style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:6px 8px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;outline:none;margin-bottom:8px;">
+    <div style="display:flex;gap:6px;">
+      <button class="m-btn m-btn-primary" onclick="supaConnect()" style="flex:1;font-size:10px;padding:5px 10px">Connect</button>
+      <button class="m-btn m-btn-ghost" onclick="supaDisconnect()" style="font-size:10px;padding:5px 10px">Disconnect</button>
+    </div>
+    <div id="supa-status" style="font-size:10px;color:var(--muted);margin-top:6px"></div>
+  </div>
+  <div>
+    <div style="font-family:'Syne',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:6px">Supabase Auth</div>
+    <input id="supa-email" type="email" placeholder="email" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:6px 8px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;outline:none;margin-bottom:6px;">
+    <input id="supa-pass" type="password" placeholder="password" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:6px 8px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;outline:none;margin-bottom:6px;">
+    <div style="display:flex;gap:6px;">
+      <button class="m-btn m-btn-primary" onclick="supaDoSignIn()" style="flex:1;font-size:10px;padding:5px 10px">Sign In</button>
+      <button class="m-btn m-btn-ghost" onclick="supaDoSignUp()" style="flex:1;font-size:10px;padding:5px 10px">Sign Up</button>
+    </div>
+    <div id="supa-auth-status" style="font-size:10px;color:var(--muted);margin-top:6px"></div>
   </div>
 </div>
 <div id="pipeline"></div>
@@ -1290,6 +1320,50 @@ function lyricTabKey(e){
 
 function getKey(){return document.getElementById('global-key').value.trim();}
 function saveKey(v){dbSet('pipeline_key',v);}
+
+// ═══ SETTINGS PANEL ═══════════════════════════════════════
+function toggleSettings(){const p=getEl('settings-panel');if(p)p.style.display=p.style.display==='none'?'block':'none';}
+function supaConnect(){
+  const url=getEl('supa-url')?.value.trim();const key=getEl('supa-key')?.value.trim();
+  if(!url||!key){getEl('supa-status').innerHTML='<span style="color:var(--red)">URL and key required</span>';return;}
+  dbSet('ppos_supa_url',url);dbSet('ppos_supa_key',key);
+  if(typeof window.supaInit==='function'){
+    window.supaInit(url,key);
+    getEl('supa-status').innerHTML='<span style="color:var(--green)">Connected ✓</span>';
+  }else{getEl('supa-status').innerHTML='<span style="color:var(--red)">Supabase module not loaded</span>';}
+}
+function supaDisconnect(){
+  dbDel('ppos_supa_url');dbDel('ppos_supa_key');
+  if(typeof window.supaSignOut==='function')window.supaSignOut();
+  getEl('supa-status').innerHTML='<span style="color:var(--muted)">Disconnected</span>';
+}
+async function supaDoSignIn(){
+  const email=getEl('supa-email')?.value.trim();const pass=getEl('supa-pass')?.value;
+  if(!email||!pass){getEl('supa-auth-status').innerHTML='<span style="color:var(--red)">Email and password required</span>';return;}
+  try{
+    await window.supaSignIn(email,pass);
+    getEl('supa-auth-status').innerHTML='<span style="color:var(--green)">Signed in ✓</span>';
+    // Pull cloud data
+    if(typeof window.supaPullAll==='function')await window.supaPullAll();
+    showToast('Supabase synced ✓');
+  }catch(e){getEl('supa-auth-status').innerHTML=`<span style="color:var(--red)">${esc(e.message)}</span>`;}
+}
+async function supaDoSignUp(){
+  const email=getEl('supa-email')?.value.trim();const pass=getEl('supa-pass')?.value;
+  if(!email||!pass){getEl('supa-auth-status').innerHTML='<span style="color:var(--red)">Email and password required</span>';return;}
+  try{
+    await window.supaSignUp(email,pass);
+    getEl('supa-auth-status').innerHTML='<span style="color:var(--green)">Signed up ✓ — check email for confirmation</span>';
+  }catch(e){getEl('supa-auth-status').innerHTML=`<span style="color:var(--red)">${esc(e.message)}</span>`;}
+}
+// Auto-connect Supabase on boot if credentials saved
+function _supaAutoConnect(){
+  const url=dbGet('ppos_supa_url');const key=dbGet('ppos_supa_key');
+  if(url&&key&&typeof window.supaInit==='function'){
+    window.supaInit(url,key);
+    if(window.supaIsReady&&window.supaIsReady())console.log('[Supabase] Auto-connected');
+  }
+}
 function loadKey(){const k=dbGet('pipeline_key');if(k)document.getElementById('global-key').value=k;}
 function getArtists(){return dbGet('pipeline_artists')||[];}
 function saveArtists(a){dbSet('pipeline_artists',a);}
@@ -3666,6 +3740,7 @@ function migrateLegacyData(){
   await migrateFromLocalStorage();
   migrateLegacyData();
   loadKey();
+  _supaAutoConnect();
   render();
   initKaleidoscope();
   if(typeof startAutosave==='function')startAutosave(3000);

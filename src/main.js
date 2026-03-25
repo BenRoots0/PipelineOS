@@ -17,6 +17,7 @@ import './utils/helpers.js';
 
 // ── Layer 4: Services ──────────────────────────────────────────
 import './services/api.js';
+import './services/supabase.js';
 
 // ── Layer 5: Backbone / Contracts / Persistence ─────────────
 import './backbone/contracts.js';
