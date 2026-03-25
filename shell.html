@@ -3264,16 +3264,14 @@ function _sessRenderTracks(artistId){
   const artist=getArtists().find(a=>a.id===artistId);
   const personas=artist?.personas||[];
   let h='';
-  // Persona selector (if artist has personas)
-  if(personas.length){
-    h+=`<div style="padding:8px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;">`;
-    h+=`<span style="font-family:'Syne',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)">Persona</span>`;
-    h+=`<select id="sess-persona" style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:4px 8px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;outline:none;">`;
-    h+=`<option value="">none</option>`;
-    personas.forEach(p=>{h+=`<option value="${esc(p.name||p)}">${esc(p.name||p)}</option>`;});
-    h+=`<option value="__new__">＋ New persona...</option>`;
-    h+=`</select></div>`;
-  }
+  // Persona selector (always visible)
+  h+=`<div style="padding:8px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;">`;
+  h+=`<span style="font-family:'Syne',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)">Persona</span>`;
+  h+=`<select id="sess-persona" style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:4px 8px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;outline:none;">`;
+  h+=`<option value="">none</option>`;
+  personas.forEach(p=>{h+=`<option value="${esc(p.name||p)}">${esc(p.name||p)}</option>`;});
+  h+=`<option value="__new__">＋ New persona...</option>`;
+  h+=`</select></div>`;
   tracks.forEach((t,ti)=>{
     const nm=t.name||t.track||'(Unnamed)';
     const dt=t.savedAt||t.createdAt?new Date(t.savedAt||t.createdAt).toLocaleDateString():'';
