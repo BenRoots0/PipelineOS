@@ -189,6 +189,21 @@ function bodySunoBuilder(idx) {
   h += `<span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)">${filledSecs}/${totalSecs}</span>`;
   h += `</div>`;
 
+  // Weirdness % and Style Influence % sliders
+  if (!V.weirdness) V.weirdness = 0;
+  if (!V.styleInfluence) V.styleInfluence = 50;
+  h += `<div style="padding:8px 16px;display:flex;gap:16px;border-bottom:1px solid var(--border);align-items:center;flex-wrap:wrap;">`;
+  h += `<div style="flex:1;min-width:120px;display:flex;align-items:center;gap:6px;">`;
+  h += `<span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);white-space:nowrap">Weirdness</span>`;
+  h += `<input type="range" min="0" max="100" value="${V.weirdness}" oninput="sbSlider(${idx},'weirdness',this.value)" style="flex:1;accent-color:var(--purple);">`;
+  h += `<span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--purple);min-width:28px;text-align:right">${V.weirdness}%</span>`;
+  h += `</div>`;
+  h += `<div style="flex:1;min-width:120px;display:flex;align-items:center;gap:6px;">`;
+  h += `<span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);white-space:nowrap">Style</span>`;
+  h += `<input type="range" min="0" max="100" value="${V.styleInfluence}" oninput="sbSlider(${idx},'styleInfluence',this.value)" style="flex:1;accent-color:var(--cyan);">`;
+  h += `<span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--cyan);min-width:28px;text-align:right">${V.styleInfluence}%</span>`;
+  h += `</div></div>`;
+
   h += `<div style="padding:8px 16px 16px;max-height:60vh;overflow-y:auto;">`;
   SB_SECTIONS.forEach(s => {
     const cnt = Array.isArray(V[s.id]) ? V[s.id].length : (V[s.id] ? 1 : 0);
@@ -267,6 +282,15 @@ function bodySunoBuilder(idx) {
 }
 
 // ── Event handlers ────────────────────────────────────────────
+function sbSlider(idx, key, val) {
+  const p = window.pipeline[idx]; if (!p) return; if (!p.data) p.data = {};
+  if (!p.data.sbVals) p.data.sbVals = {};
+  p.data.sbVals[key] = parseInt(val) || 0;
+  // Update display inline (no full re-render for sliders)
+  const span = event?.target?.nextElementSibling;
+  if (span) span.textContent = val + '%';
+}
+
 function sbTab(idx, tab) {
   const p = window.pipeline[idx]; if (!p) return; if (!p.data) p.data = {};
   p.data.sbTab = tab;
@@ -450,6 +474,7 @@ window.sbTab = sbTab;
 window.sbTogSec = sbTogSec;
 window.sbChip = sbChip;
 window.sbUpd = sbUpd;
+window.sbSlider = sbSlider;
 window.sbApply = sbApply;
 window.sbCopy = sbCopy;
 window.sbCopyNeg = sbCopyNeg;

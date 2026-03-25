@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pipeline OS v4.1.1</title>
+<title>Pipeline OS v5.0.0</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;600;700;800&display=swap');
 :root {
@@ -66,6 +66,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-
 .mod-badge.modified{color:var(--amber);border-color:rgba(245,158,11,.3);animation:pulse-needs 2s ease-in-out infinite;}
 .mod-chevron{font-size:10px;color:var(--muted);transition:transform .2s;flex-shrink:0;}
 .module.collapsed .mod-chevron{transform:rotate(-90deg);}
+.module.half .mod-body{max-height:280px;overflow-y:auto;}
+.module.half .mod-chevron{transform:rotate(-45deg);}
 .mod-gear-btn{font-size:12px;color:var(--muted);background:transparent;border:none;cursor:pointer;padding:3px;transition:color .15s;flex-shrink:0;}
 .mod-gear-btn:hover{color:var(--text2);}
 .mod-body{overflow:hidden;transition:max-height .35s cubic-bezier(.4,0,.2,1);max-height:4000px;}
@@ -239,6 +241,14 @@ textarea.m-ta::placeholder{color:var(--muted);opacity:.45;}
 .tb-item-desc{font-size:9px;color:var(--muted);margin-top:1px;}
 .tb-add{font-family:'Syne',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;background:transparent;border:1px solid var(--border);color:var(--muted);padding:3px 8px;border-radius:3px;cursor:pointer;transition:all .15s;}
 .tb-add:hover{border-color:var(--accent);color:var(--accent);}
+.tb-folder{border-bottom:1px solid var(--border);}
+.tb-folder-head{padding:10px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--text2);user-select:none;}
+.tb-folder-head:hover{background:var(--surface2);}
+.tb-folder-chevron{font-size:9px;color:var(--muted);transition:transform .2s;}
+.tb-folder.open .tb-folder-chevron{transform:rotate(90deg);}
+.tb-folder-name{flex:1;}
+.tb-folder-body{display:none;padding:0 8px 8px;}
+.tb-folder.open .tb-folder-body{display:block;}
 #toolbox-toggle{position:fixed;right:16px;bottom:24px;z-index:160;width:44px;height:44px;border-radius:50%;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;box-shadow:0 4px 16px rgba(0,0,0,.4);}
 #toolbox-toggle:hover{border-color:var(--accent);color:var(--accent);}
 #rhyme-stash-modal{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.75);align-items:flex-end;justify-content:flex-end;padding:20px;}
@@ -420,16 +430,16 @@ textarea.m-ta::placeholder{color:var(--muted);opacity:.45;}
 <div id="splash" class="visible">
   <div>
     <canvas id="splash-logo-canvas" style="display:block;opacity:0;transition:opacity 1.2s ease-in-out;"></canvas>
-    <div id="splash-sub">Pipeline OS · v4.1.1</div>
+    <div id="splash-sub">Pipeline OS · v5.0.0</div>
     <button id="splash-start" onclick="splashStart()">▶ Login</button>
   </div>
 </div>
 <div id="pw-modal" class="gone">
   <div id="pw-box">
     <div id="pw-logo">OM35</div>
-    <div id="pw-tag">Pipeline OS · v4.1.1</div>
+    <div id="pw-tag">Pipeline OS · v5.0.0</div>
     <div id="pw-label">Enter password</div>
-    <input id="pw-input" type="password" autocomplete="off" data-lpignore="true" placeholder="••••••••" onkeydown="if(event.key==='Enter')pwSubmit()">
+    <input id="pw-input" type="password" autocomplete="off" data-lpignore="true" placeholder="••••••••" onfocus="this.placeholder=''" onblur="if(!this.value)this.placeholder='••••••••'" onkeydown="if(event.key==='Enter')pwSubmit()">
     <div id="pw-err"></div>
     <button id="pw-submit" onclick="pwSubmit()">▶ Unlock</button>
   </div>
@@ -437,7 +447,7 @@ textarea.m-ta::placeholder{color:var(--muted);opacity:.45;}
 <div id="workspace-wrap">
 <div id="topbar">
   <button id="om35-logo" onclick="openHelp()" style="font-family:'Syne',sans-serif;font-weight:800;font-size:18px;letter-spacing:-.5px;color:#e2e2f0;background:transparent;border:none;cursor:pointer;padding:0;line-height:1;flex-shrink:0;">OM35</button>
-  <span class="v-badge">v4.1.1</span>
+  <span class="v-badge">v5.0.0</span>
   <div class="pipe-sep"></div>
   <button class="top-btn" onclick="collapseAll()">⊟ Collapse</button>
   <button class="top-btn" onclick="expandAll()">⊞ Expand</button>
@@ -470,7 +480,7 @@ textarea.m-ta::placeholder{color:var(--muted);opacity:.45;}
   <div class="sess-box">
     <div class="sess-head">
       <div class="sess-title">⬡ Pipeline OS</div>
-      <div class="sess-breadcrumb" id="sess-breadcrumb"><span style="font-size:10px;color:var(--muted)">Select a label</span></div>
+      <div class="sess-breadcrumb" id="sess-breadcrumb"></div>
       <button class="sess-close-btn" onclick="sessModalClose()" title="Close">✕</button>
     </div>
     <div class="sess-cols-wrap">
@@ -542,7 +552,7 @@ textarea.m-ta::placeholder{color:var(--muted);opacity:.45;}
   <div class="help-box">
     <div class="help-header">
       <div class="help-box-logo">OM35</div>
-      <div class="help-box-tag">Pipeline OS · v4.1.1</div>
+      <div class="help-box-tag">Pipeline OS · v5.0.0</div>
       <div class="help-tabs">
         <button class="help-tab active" onclick="helpTab('about')">About</button>
         <button class="help-tab" onclick="helpTab('handbook')">Handbook</button>
@@ -802,7 +812,7 @@ function dbSet(k,v){_idbCache[k]=v;_idbWrite(k,v);}
 function dbDel(k){delete _idbCache[k];_idbDel(k);}
 async function migrateFromLocalStorage(){const keys=Object.keys(localStorage).filter(k=>k.startsWith('pipeline_'));if(!keys.length)return;let migrated=0;for(const k of keys){try{const v=JSON.parse(localStorage.getItem(k));if(v!==null){dbSet(k,v);migrated++;}}catch(e){}}if(migrated>0){console.log(`Migrated ${migrated} keys from localStorage to IndexedDB`);keys.forEach(k=>localStorage.removeItem(k));}}
 // ═══ VERSION MIGRATION ═══════════════════════════════════
-const PPOS_VERSION='4.1.1';
+const PPOS_VERSION='5.0.0';
 function migrateVersion(){
   const prev=localStorage.getItem('ppos_version')||'0';
   if(prev!==PPOS_VERSION){
@@ -865,7 +875,7 @@ function showLockScreen(){
   // Show the Login button (same as initial splash)
   const btn=getEl('splash-start');if(btn){btn.style.display='';btn.onclick=function(){splashStartFromLock();};}
   const sub=getEl('splash-sub');
-  if(sub)sub.textContent='Pipeline OS · v4.1.1';
+  if(sub)sub.textContent='Pipeline OS · v5.0.0';
   fadeIn(splash);
 }
 function splashStartFromLock(){
@@ -975,7 +985,7 @@ document.addEventListener('visibilitychange',()=>{
         splash.classList.remove('gone');splash.classList.add('visible');
         getEl('splash-start').style.display='none';
         const sub=getEl('splash-sub');
-        if(sub)sub.innerHTML='Pipeline OS &middot; v4.1.1 &nbsp;·&nbsp; <span style="color:var(--muted)">locked</span>';
+        if(sub)sub.innerHTML='Pipeline OS &middot; v5.0.0 &nbsp;·&nbsp; <span style="color:var(--muted)">locked</span>';
       },10000);
     }
     return;
@@ -1130,7 +1140,9 @@ function _hideWorkspace(cb){
     cb&&cb();
   });
 }
+var _jinglePlayed=false;
 function playStartupJingle(){
+  if(_jinglePlayed)return;_jinglePlayed=true;
   try{
     const ctx=new(window.AudioContext||window.webkitAudioContext)();
     if(ctx.state==='suspended')ctx.resume();
@@ -1471,7 +1483,7 @@ function makePreConn(i){const w=document.createElement('div');w.className='conne
 function makePostConn(i){const w=document.createElement('div');w.className='connector';const isEnd=i===undefined||i===pipeline.length;if(!isEnd){w.innerHTML=`<div class="connector-btns"></div>`;w.style.height='16px';}else{w.innerHTML=`<div class="connector-btns"><button class="conn-btn" onclick="openPostPicker()">＋ module</button></div>`;}return w;}
 
 function openPrePicker(insertAt){const preIds=new Set(prePipeline.map(p=>p.defId));showPicker(MODULE_DEFS.filter(d=>d.preOnly&&!preIds.has(d.id)),d=>{prePipeline.splice(insertAt,0,makeEntry(d.id));prePipeline[insertAt].collapsed=false;render();});}
-function openPostPicker(){showPicker(MODULE_DEFS.filter(d=>!d.preOnly),d=>{pipeline.push(makeEntry(d.id));pipeline[pipeline.length-1].collapsed=false;render();showToast(MODULE_DEFS.find(x=>x.id===d.id)?.title+' added');});}
+function openPostPicker(){if(!LI.locked){showToast('Lock Lyric Input first to add modules');return;}showPicker(MODULE_DEFS.filter(d=>!d.preOnly),d=>{pipeline.push(makeEntry(d.id));pipeline[pipeline.length-1].collapsed=false;render();showToast(MODULE_DEFS.find(x=>x.id===d.id)?.title+' added');});}
 
 function showPicker(defs,onSelect) {
   document.querySelectorAll('.quick-picker').forEach(el=>el.remove());
@@ -1503,7 +1515,13 @@ function makeModule(idx) {
   return w;
 }
 
-function toggleMod(idx){const p=pipeline[idx];p.collapsed=!p.collapsed;getEl('module-'+idx)?.classList.toggle('collapsed',p.collapsed);}
+function toggleMod(idx){
+  const p=pipeline[idx];const el=getEl('module-'+idx);if(!el)return;
+  // Cycle: expanded → half → collapsed → expanded
+  if(!p.collapsed&&!p.half){p.half=true;el.classList.remove('collapsed');el.classList.add('half');}
+  else if(p.half){p.half=false;p.collapsed=true;el.classList.remove('half');el.classList.add('collapsed');}
+  else{p.collapsed=false;p.half=false;el.classList.remove('collapsed','half');}
+}
 function toggleModSettings(idx){const el=getEl('mod-settings-'+idx);if(el)el.style.display=el.style.display==='none'?'block':'none';}
 function removeMod(idx){openConfirm({title:'Remove module?',body:'Remove this module from the pipeline?',onOk:()=>{pipeline.splice(idx,1);render();}});}
 function wipeMod(idx){openConfirm({title:'Wipe module?',body:'Clear all content?',onOk:()=>{if(pipeline[idx])pipeline[idx].data={};render();showToast('Wiped');}});}
@@ -2570,6 +2588,13 @@ JSON only: {"overall_prompt":"clean style prompt max 20 words no artist names","
 let hmRes={};
 
 function bodyHitMaker(idx){
+  // Restore persisted analysis if available
+  const _hmData=pipeline[idx]?.data?.hmResult;
+  if(_hmData&&!hmRes[idx])hmRes[idx]=_hmData;
+  if(hmRes[idx]){
+    const r=hmRes[idx];
+    return`<div style="padding:12px 16px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:8px"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><div style="font-size:11px;color:var(--muted);flex:1">// Last analysis loaded — re-run to update</div><button class="m-btn m-btn-ai" id="hm-btn-${idx}" onclick="runHitMaker(${idx})" style="font-size:11px;padding:7px 20px;font-family:'Syne',sans-serif;font-weight:700">⚡ Re-run Hit Maker</button><button class="m-btn m-btn-ghost" onclick="wipeHMResult(${idx})" style="font-size:10px">⊘ Clear</button></div></div>`+renderHMResult(r.analysis,r.rewrite,idx);
+  }
   return`<div style="padding:12px 16px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:8px"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><div style="font-size:11px;color:var(--muted);flex:1">// Pass 1: full analysis — Pass 2: complete rewrite → object ready for Suno</div><label style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-family:'Syne',sans-serif;font-weight:700;white-space:nowrap">Target</label><input type="number" id="hm-target-${idx}" min="60" max="80" value="75" style="width:48px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--amber);font-family:'DM Mono',monospace;font-size:12px;font-weight:700;padding:4px 6px;outline:none;text-align:center"><span style="font-size:9px;color:var(--muted)">/100</span><button class="m-btn m-btn-ai" id="hm-btn-${idx}" onclick="runHitMaker(${idx})" style="font-size:11px;padding:7px 20px;font-family:'Syne',sans-serif;font-weight:700">⚡ Run Hit Maker</button></div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><label style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-family:'Syne',sans-serif;font-weight:700;white-space:nowrap">Creative direction</label><input id="hm-direction-${idx}" style="flex:1;min-width:160px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;padding:5px 10px;outline:none" placeholder="e.g: dark hazy, short chromatic harmonica riff on key moments..."><div id="hm-vibe-${idx}" style="display:none;align-items:center;gap:5px;flex-shrink:0"></div></div></div><div id="hm-out-${idx}" style="min-height:80px;padding:14px 16px;font-size:11px;color:var(--muted);font-style:italic">// analyzes lyrics · prompts · interaction → rewrites everything → accept to replace object</div>`;
 }
 
@@ -2606,6 +2631,8 @@ async function runHitMaker(idx){
     if(!r2.ok){const e=await r2.json();throw new Error(e.error?.message||'API error');}
     const rw=parseJSON((await r2.json()).content.map(c=>c.text||'').join(''));
     hmRes[idx]={analysis:ana,rewrite:rw,origObj:JSON.parse(JSON.stringify(pipelineObj))};
+    // Persist in module data so it survives re-render
+    if(pipeline[idx]){pipeline[idx].data=pipeline[idx].data||{};pipeline[idx].data.hmResult=hmRes[idx];}
     if(out)out.innerHTML=renderHMResult(ana,rw,idx);
     const pidx=pipeline.findIndex(p=>p.defId==='hitmaker');if(pidx>=0){pipeline[pidx].hasContent=true;pipeline.forEach((_,i)=>updateDivergenceBadge(i));}
   }catch(err){if(out)out.innerHTML=`<div style="padding:14px 16px;color:var(--red)">${esc(String(err.message||err))}</div>`;}
@@ -2661,9 +2688,27 @@ function renderHMResult(ana,rw,idx){
     });
   }
   if(rw.notes)h+=`<div style="font-size:10px;color:var(--muted);font-style:italic;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">${esc(rw.notes)}</div>`;
-  h+=`</div><div class="m-opts"><button class="m-btn m-btn-primary" onclick="acceptHMResult(${idx})" style="font-family:'Syne',sans-serif;font-size:11px;font-weight:700;padding:7px 20px">✓ Accept & Replace Object</button><button class="m-btn m-btn-ghost" onclick="runHitMaker(${idx})" style="font-size:11px">↺ Re-run</button></div>`;
+  h+=`</div><div class="m-opts"><button class="m-btn m-btn-primary" onclick="acceptHMResult(${idx})" style="font-family:'Syne',sans-serif;font-size:11px;font-weight:700;padding:7px 20px">✓ Accept & Replace Object</button><button class="m-btn m-btn-ghost" onclick="runHitMaker(${idx})" style="font-size:11px">↺ Re-run</button><button class="m-btn m-btn-ghost" onclick="hmToggleAB(${idx})" style="font-size:11px">A/B Full Compare</button></div>`;
+  // A/B full comparison panel (hidden by default)
+  h+=`<div id="hm-ab-${idx}" style="display:none;padding:14px 16px;border-top:1px solid var(--border);">`;
+  h+=`<div style="font-family:'Syne',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--amber);margin-bottom:10px">A/B Full Comparison</div>`;
+  if(rw.sections?.length){
+    rw.sections.forEach(sec=>{
+      const origSec=hmRes[idx]?.origObj?.lyrics?.sections?.find(s=>s.name===sec.name);
+      h+=`<div style="border:1px solid var(--border2);border-radius:5px;margin-bottom:10px;overflow:hidden;">`;
+      h+=`<div style="padding:6px 12px;background:var(--surface2);font-family:'Syne',sans-serif;font-size:10px;font-weight:700;color:var(--amber)">[${esc(sec.name)}]</div>`;
+      h+=`<div style="display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--border);">`;
+      h+=`<div style="padding:10px 12px;border-right:1px solid var(--border);"><div style="font-size:9px;color:var(--red);margin-bottom:4px;font-family:'Syne',sans-serif;font-weight:700">A — ORIGINAL</div><div style="font-size:11px;color:var(--text2);white-space:pre-wrap;line-height:1.6;opacity:.6">${esc(origSec?.content||'(empty)')}</div></div>`;
+      h+=`<div style="padding:10px 12px;"><div style="font-size:9px;color:var(--green);margin-bottom:4px;font-family:'Syne',sans-serif;font-weight:700">B — REWRITE</div><div style="font-size:11px;color:var(--text);white-space:pre-wrap;line-height:1.6">${esc(sec.content)}</div></div>`;
+      h+=`</div></div>`;
+    });
+  }
+  h+=`</div>`;
   return h;
 }
+
+function hmToggleAB(idx){const el=getEl('hm-ab-'+idx);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function wipeHMResult(idx){openConfirm({title:'Clear Hit Maker analysis?',body:'This will remove the saved analysis and A/B log.',onOk:()=>{delete hmRes[idx];if(pipeline[idx]?.data)delete pipeline[idx].data.hmResult;render();showToast('Hit Maker cleared');}});}
 
 const HM_DEFAULT_BARS={intro:4,verse:8,'verse 1':8,'verse 2':8,'verse 3':8,chorus:8,'pre-chorus':4,'post-chorus':4,bridge:4,break:2,outro:4,hook:4,drop:4,refrain:8,interlude:4};
 function hmDefaultBars(name){return HM_DEFAULT_BARS[name.toLowerCase()]||4;}
@@ -2849,11 +2894,32 @@ function renderToolbox(){
   const list=getEl('tb-list');if(!list)return;
   const inPipeline=new Set(pipeline.map(p=>p.defId));
   const available=MODULE_DEFS.filter(d=>!d.preOnly&&!inPipeline.has(d.id));
-  if(!available.length){list.innerHTML=`<div style="padding:16px;font-size:11px;color:var(--muted);text-align:center">All modules in use</div>`;return;}
-  list.innerHTML=available.map(d=>`<div class="tb-item"><div><div class="tb-item-name">${d.icon} ${d.title}</div><div class="tb-item-desc">${d.subtitle}</div></div><button class="tb-add" onclick="addFromToolbox('${d.id}')">＋</button></div>`).join('');
+  // Define folders
+  const folders=[
+    {name:'CajaSeca Collection',ids:['cleaner','wizard','generator','hitdetective','negativea','promptwiz','promptwiz_align','hitmaker','suno','feedloop','hitscore','sunobuilder','text2prompter']},
+    {name:'Soon Available',ids:['cover']},
+  ];
+  let h='';
+  folders.forEach(f=>{
+    const items=available.filter(d=>f.ids.includes(d.id));
+    if(!items.length)return;
+    h+=`<div class="tb-folder">`;
+    h+=`<div class="tb-folder-head" onclick="this.parentElement.classList.toggle('open')">`;
+    h+=`<span class="tb-folder-chevron">▸</span>`;
+    h+=`<span class="tb-folder-name">${f.name}</span>`;
+    h+=`<span style="font-size:9px;color:var(--muted);margin-left:auto">${items.length}</span>`;
+    h+=`</div><div class="tb-folder-body">`;
+    items.forEach(d=>{h+=`<div class="tb-item"><div><div class="tb-item-name">${d.icon} ${d.title}</div><div class="tb-item-desc">${d.subtitle}</div></div><button class="tb-add" onclick="addFromToolbox('${d.id}')">＋</button></div>`;});
+    h+=`</div></div>`;
+  });
+  // Any not in folders
+  const folderIds=new Set(folders.flatMap(f=>f.ids));
+  const uncategorized=available.filter(d=>!folderIds.has(d.id));
+  uncategorized.forEach(d=>{h+=`<div class="tb-item"><div><div class="tb-item-name">${d.icon} ${d.title}</div><div class="tb-item-desc">${d.subtitle}</div></div><button class="tb-add" onclick="addFromToolbox('${d.id}')">＋</button></div>`;});
+  list.innerHTML=h||`<div style="padding:16px;font-size:11px;color:var(--muted);text-align:center">All modules in use</div>`;
 }
 
-function addFromToolbox(defId){const def=MODULE_DEFS.find(d=>d.id===defId);if(!def)return;pipeline.push(makeEntry(defId));pipeline[pipeline.length-1].collapsed=false;render();toggleToolbox();showToast(def.title+' added');}
+function addFromToolbox(defId){if(!LI.locked){showToast('Lock Lyric Input first to add modules');return;}const def=MODULE_DEFS.find(d=>d.id===defId);if(!def)return;pipeline.push(makeEntry(defId));pipeline[pipeline.length-1].collapsed=false;render();toggleToolbox();showToast(def.title+' added');}
 
 // ═══ CONFIRM MODAL ═════════════════════════════════════
 function openConfirm({title,body,checkLabel,onOk}){
@@ -3121,7 +3187,19 @@ function sessGoTrack(artistId){
 function _sessRenderTracks(artistId){
   const list=getEl('sess-track-list');if(!list)return;
   const tracks=getProjects(artistId);
+  const artist=getArtists().find(a=>a.id===artistId);
+  const personas=artist?.personas||[];
   let h='';
+  // Persona selector (if artist has personas)
+  if(personas.length){
+    h+=`<div style="padding:8px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;">`;
+    h+=`<span style="font-family:'Syne',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)">Persona</span>`;
+    h+=`<select id="sess-persona" style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:4px 8px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;outline:none;">`;
+    h+=`<option value="">none</option>`;
+    personas.forEach(p=>{h+=`<option value="${esc(p.name||p)}">${esc(p.name||p)}</option>`;});
+    h+=`<option value="__new__">＋ New persona...</option>`;
+    h+=`</select></div>`;
+  }
   tracks.forEach((t,ti)=>{
     const nm=t.name||t.track||'(Unnamed)';
     const dt=t.savedAt||t.createdAt?new Date(t.savedAt||t.createdAt).toLocaleDateString():'';
@@ -3282,7 +3360,28 @@ function selCloseOpt(which){
   ['all','none'].forEach(o=>{const el=getEl('close-opt-'+o);if(el)el.classList.toggle('selected',o===which);const r=el?.querySelector('input[type=radio]');if(r)r.checked=o===which;});
 }
 
+function playCloseJingle(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    if(ctx.state==='suspended')ctx.resume();
+    const t=ctx.currentTime;
+    // Reverse of startup: G4 → C4 (high to low)
+    const osc1=ctx.createOscillator();const g1=ctx.createGain();
+    osc1.connect(g1);g1.connect(ctx.destination);
+    osc1.type='sine';osc1.frequency.setValueAtTime(392,t);
+    g1.gain.setValueAtTime(0,t);g1.gain.linearRampToValueAtTime(0.10,t+0.015);
+    g1.gain.exponentialRampToValueAtTime(0.001,t+0.1);
+    osc1.start(t);osc1.stop(t+0.12);
+    const osc2=ctx.createOscillator();const g2=ctx.createGain();
+    osc2.connect(g2);g2.connect(ctx.destination);
+    osc2.type='sine';osc2.frequency.setValueAtTime(261.63,t+0.1);
+    g2.gain.setValueAtTime(0,t+0.1);g2.gain.linearRampToValueAtTime(0.10,t+0.115);
+    g2.gain.exponentialRampToValueAtTime(0.001,t+0.22);
+    osc2.start(t+0.1);osc2.stop(t+0.24);
+  }catch(e){}
+}
 function doCloseSession(){
+  playCloseJingle();
   // Always persist before closing — state is reactive, no consolidation needed
   if(activeSession){
     if(typeof persistNow==='function')persistNow();
