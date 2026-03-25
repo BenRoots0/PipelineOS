@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pipeline OS v3.1.1</title>
+<title>Pipeline OS v4.1.0</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;600;700;800&display=swap');
 :root {
@@ -16,6 +16,8 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh;}
+/* GLOBAL FADE */
+#workspace-wrap{opacity:0;transition:opacity .5s ease-in-out;display:none;}
 #topbar,#pipeline,#toolbox-toggle,#toolbox-panel{display:none;}
 #topbar{position:sticky;top:0;z-index:200;background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;gap:12px;}
 #topbar h1{font-family:'Syne',sans-serif;font-weight:800;font-size:14px;letter-spacing:-.3px;color:var(--accent);white-space:nowrap;}
@@ -258,10 +260,11 @@ textarea.m-ta::placeholder{color:var(--muted);opacity:.45;}
 .rs-add-in{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;padding:6px 10px;outline:none;}
 .rs-add-in:focus{border-color:var(--purple);}
 .rs-add-btn{font-family:'Syne',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;background:var(--purple);color:#0b0b0e;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;}
-#session-modal{display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.0);align-items:center;justify-content:center;transition:background .25s ease;}
-#session-modal.open{display:flex;background:rgba(0,0,0,.88);}
-#session-modal .sess-box{opacity:0;transform:translateY(10px);transition:opacity .25s ease,transform .25s cubic-bezier(.4,0,.2,1);}
-#session-modal.open .sess-box{opacity:1;transform:translateY(0);}
+#session-modal{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .5s ease-in-out;pointer-events:none;}
+#session-modal.visible{opacity:1;pointer-events:auto;background:rgba(0,0,0,.88);}
+#session-modal.gone{display:none;}
+#session-modal .sess-box{opacity:0;transform:translateY(10px);transition:opacity .5s ease-in-out,transform .5s cubic-bezier(.4,0,.2,1);}
+#session-modal.visible .sess-box{opacity:1;transform:translateY(0);}
 .sess-box{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;width:260px;max-width:96vw;overflow:hidden;max-height:88vh;display:flex;flex-direction:column;transition:width .26s cubic-bezier(.4,0,.2,1);}
 .sess-head{padding:14px 16px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-shrink:0;}
 .sess-title{font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:var(--accent);letter-spacing:-.3px;flex-shrink:0;}
@@ -353,27 +356,45 @@ textarea.m-ta::placeholder{color:var(--muted);opacity:.45;}
 #toast.show{transform:translateX(-50%) translateY(0);}
 @media(max-width:860px){:root{--module-w:100%;}#pipeline{padding:0 10px;}.api-wrap label{display:none;}#global-key{width:140px;}}
 /* SPLASH / LOCK SCREEN */
-#splash{position:fixed;inset:0;z-index:1000;background:#000;display:flex;align-items:center;justify-content:flex-start;padding-left:12vw;transition:opacity .6s ease;}
-#splash.hiding{opacity:0;pointer-events:none;}
-#splash.hidden{display:none;}
+#splash{position:fixed;inset:0;z-index:1000;background:#000;display:flex;align-items:center;justify-content:flex-start;padding-left:12vw;opacity:0;transition:opacity .5s ease-in-out;}
+#splash.visible{opacity:1;}
+#splash.gone{display:none;}
 #splash-logo-svg{display:block;overflow:visible;}
 #splash-sub{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:#88889a;letter-spacing:.08em;text-transform:uppercase;margin-top:14px;}
 #splash-start{margin-top:32px;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;background:transparent;border:1px solid #333340;color:#88889a;padding:10px 28px;border-radius:4px;cursor:pointer;transition:all .2s;}
 #splash-start:hover{border-color:#e2e2f0;color:#e2e2f0;}
 /* HELP MODAL */
-#help-modal{display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.85);align-items:center;justify-content:center;}
+#help-modal{display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.88);align-items:center;justify-content:center;}
 #help-modal.open{display:flex;}
-.help-box{background:#131317;border:1px solid #28282f;border-radius:10px;padding:32px 36px;width:420px;max-width:94vw;text-align:center;display:flex;flex-direction:column;gap:14px;}
+.help-box{background:#131317;border:1px solid #28282f;border-radius:10px;width:640px;max-width:96vw;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;}
+.help-header{padding:24px 28px 0;text-align:center;}
 .help-box-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:36px;letter-spacing:-2px;color:#e2e2f0;}
-.help-box-tag{font-size:10px;color:#55556a;text-transform:uppercase;letter-spacing:.12em;}
-.help-box-soon{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#c8ff57;margin-top:4px;}
-.help-box-sub{font-size:11px;color:#88889a;line-height:1.6;}
-.help-close{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;background:transparent;border:1px solid #28282f;color:#55556a;padding:7px 20px;border-radius:4px;cursor:pointer;margin-top:4px;transition:all .15s;}
+.help-box-tag{font-size:10px;color:#55556a;text-transform:uppercase;letter-spacing:.12em;margin-top:2px;}
+.help-tabs{display:flex;gap:0;border-bottom:1px solid #28282f;margin-top:16px;padding:0 28px;}
+.help-tab{flex:1;text-align:center;font-family:'Syne',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:10px 0;cursor:pointer;color:#55556a;border-bottom:2px solid transparent;transition:all .15s;background:transparent;border-top:none;border-left:none;border-right:none;}
+.help-tab.active{color:#c8ff57;border-bottom-color:#c8ff57;}
+.help-tab:hover{color:#88889a;}
+.help-pane{display:none;padding:20px 28px 24px;overflow-y:auto;flex:1;}
+.help-pane.active{display:block;}
+.help-close{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;background:transparent;border:1px solid #28282f;color:#55556a;padding:7px 20px;border-radius:4px;cursor:pointer;transition:all .15s;align-self:center;margin:0 28px 20px;}
 .help-close:hover{border-color:#e2e2f0;color:#e2e2f0;}
+.hb-mod{border:1px solid #28282f;border-radius:6px;margin-bottom:8px;overflow:hidden;}
+.hb-mod-head{padding:10px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;background:#0f0f14;user-select:none;}
+.hb-mod-head:hover{background:#1a1a22;}
+.hb-mod-icon{font-size:16px;}
+.hb-mod-name{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;flex:1;}
+.hb-mod-arrow{font-size:9px;color:#55556a;transition:transform .2s;}
+.hb-mod-arrow.open{transform:rotate(180deg);}
+.hb-mod-body{padding:12px 14px;border-top:1px solid #28282f;font-size:11px;line-height:1.7;color:#88889a;}
+.hb-tag{display:inline-block;font-family:'DM Mono',monospace;font-size:9px;padding:1px 7px;border-radius:3px;margin:1px 2px;}
+.hb-tag-read{border:1px solid rgba(34,211,238,.2);color:#22d3ee;background:rgba(34,211,238,.06);}
+.hb-tag-write{border:1px solid rgba(200,255,87,.2);color:#c8ff57;background:rgba(200,255,87,.06);}
+.hb-tag-create{border:1px solid rgba(167,139,250,.2);color:#a78bfa;background:rgba(167,139,250,.06);}
+.hb-tag-req{border:1px solid rgba(245,158,11,.2);color:#f59e0b;background:rgba(245,158,11,.06);}
 /* PASSWORD LOCK */
-#pw-modal{position:fixed;inset:0;z-index:2000;background:#000;display:flex;align-items:center;justify-content:center;transition:opacity .3s;}
-#pw-modal.hidden{display:none;}
-#pw-modal.hiding{opacity:0;pointer-events:none;}
+#pw-modal{position:fixed;inset:0;z-index:2000;background:#000;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .5s ease-in-out;pointer-events:none;}
+#pw-modal.visible{opacity:1;pointer-events:auto;}
+#pw-modal.gone{display:none;}
 #pw-box{display:flex;flex-direction:column;align-items:center;gap:0;}
 #pw-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:42px;letter-spacing:-2px;color:#e2e2f0;margin-bottom:8px;}
 #pw-tag{font-family:'DM Mono',monospace;font-size:10px;color:#55556a;letter-spacing:.12em;text-transform:uppercase;margin-bottom:32px;}
@@ -396,26 +417,27 @@ textarea.m-ta::placeholder{color:var(--muted);opacity:.45;}
 </style>
 </head>
 <body>
-<div id="splash">
+<div id="splash" class="visible">
   <div>
     <canvas id="splash-logo-canvas" style="display:block;"></canvas>
-    <div id="splash-sub">Pipeline OS · v3.1.1</div>
+    <div id="splash-sub">Pipeline OS · v4.0.0</div>
     <button id="splash-start" onclick="splashStart()">▶ Login</button>
   </div>
 </div>
-<div id="pw-modal" class="hidden">
+<div id="pw-modal" class="gone">
   <div id="pw-box">
     <div id="pw-logo">OM35</div>
-    <div id="pw-tag">Pipeline OS · v3.1.1</div>
+    <div id="pw-tag">Pipeline OS · v4.0.0</div>
     <div id="pw-label">Enter password</div>
     <input id="pw-input" type="password" autocomplete="off" data-lpignore="true" placeholder="••••••••" onkeydown="if(event.key==='Enter')pwSubmit()">
     <div id="pw-err"></div>
     <button id="pw-submit" onclick="pwSubmit()">▶ Unlock</button>
   </div>
 </div>
+<div id="workspace-wrap">
 <div id="topbar">
   <button id="om35-logo" onclick="openHelp()" style="font-family:'Syne',sans-serif;font-weight:800;font-size:18px;letter-spacing:-.5px;color:#e2e2f0;background:transparent;border:none;cursor:pointer;padding:0;line-height:1;flex-shrink:0;">OM35</button>
-  <span class="v-badge">v3.1.1</span>
+  <span class="v-badge">v4.0.0</span>
   <div class="pipe-sep"></div>
   <button class="top-btn" onclick="collapseAll()">⊟ Collapse</button>
   <button class="top-btn" onclick="expandAll()">⊞ Expand</button>
@@ -442,8 +464,9 @@ textarea.m-ta::placeholder{color:var(--muted);opacity:.45;}
   <div class="tb-head"><span class="tb-title">Module Toolbox</span><button class="tb-close" onclick="toggleToolbox()">✕</button></div>
   <div class="tb-list" id="tb-list"></div>
 </div>
+</div><!-- /workspace-wrap -->
 <!-- SESSION MODAL -->
-<div id="session-modal">
+<div id="session-modal" class="gone">
   <div class="sess-box">
     <div class="sess-head">
       <div class="sess-title">⬡ Pipeline OS</div>
@@ -517,10 +540,81 @@ textarea.m-ta::placeholder{color:var(--muted);opacity:.45;}
 <!-- HELP MODAL -->
 <div id="help-modal">
   <div class="help-box">
-    <div class="help-box-logo">OM35</div>
-    <div class="help-box-tag">Pipeline OS · v3.1.1</div>
-    <div class="help-box-soon">Help & Support</div>
-    <div class="help-box-sub">Documentation and support portal coming soon.<br>For now, reach out directly to the team.</div>
+    <div class="help-header">
+      <div class="help-box-logo">OM35</div>
+      <div class="help-box-tag">Pipeline OS · v4.0.0</div>
+      <div class="help-tabs">
+        <button class="help-tab active" onclick="helpTab('about')">About</button>
+        <button class="help-tab" onclick="helpTab('handbook')">Handbook</button>
+        <button class="help-tab" onclick="helpTab('flow')">Object Flow</button>
+      </div>
+    </div>
+    <!-- ABOUT -->
+    <div class="help-pane active" id="help-about">
+      <div style="text-align:center;">
+        <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#c8ff57;margin-bottom:8px">Help & Support</div>
+        <div style="font-size:11px;color:#88889a;line-height:1.7;">Full documentation and support portal coming soon.<br>For now, reach out directly to the team.</div>
+        <div style="margin-top:16px;padding:14px;background:rgba(200,255,87,.04);border:1px solid rgba(200,255,87,.12);border-radius:6px;font-size:10px;color:#88889a;line-height:1.7;text-align:left;">
+          <strong style="color:#c8ff57">Quick Start:</strong><br>
+          1. Open or create a track in the Session Modal<br>
+          2. Paste lyrics in <strong style="color:#e2e2f0">Lyric Input</strong> (use [Section] tags)<br>
+          3. Add an overall style prompt<br>
+          4. <strong style="color:#e2e2f0">Lock</strong> the input and <strong style="color:#e2e2f0">Send ↓</strong> to pipeline<br>
+          5. Run modules in order: Wizard → Prompt Wizard → Hit Detective<br>
+          6. Export via <strong style="color:#e2e2f0">Suno Export</strong> when ready
+        </div>
+      </div>
+    </div>
+    <!-- HANDBOOK -->
+    <div class="help-pane" id="help-handbook"></div>
+    <!-- OBJECT FLOW -->
+    <div class="help-pane" id="help-flow">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;line-height:1.8;color:#88889a;white-space:pre;overflow-x:auto;">
+USER INPUT
+    │
+    ▼
+┌──────────────┐
+│ LYRIC INPUT  │ ← lyrics + prompts + meta (BPM, key)
+│ lock + send  │ → creates pipelineObj
+└──────┬───────┘
+       │ sendDown ↓
+       ▼
+┌──────────────┐     ┌───────────────┐
+│ LYRIC WIZARD │ ──→ │ PROMPT WIZARD │
+│ analyze      │     │ generate      │
+│ lyrics       │     │ prompts       │
+└──────┬───────┘     └───────┬───────┘
+       │                     │
+       └──────────┬──────────┘
+                  ▼
+         ┌────────────────┐
+         │ HIT DETECTIVE  │ ← reads all analyses
+         │ 4-layer score  │
+         └────────┬───────┘
+                  │
+    ┌─────────────┼──────────────┐
+    ▼             ▼              ▼
+┌─────────┐ ┌──────────┐ ┌───────────┐
+│NEGATIVE │ │SPOTLIGHT │ │ HIT MAKER │
+│ANALYZER │ │ section  │ │ 2-pass    │
+│ flags   │ │ editor   │ │ rewrite   │
+└─────────┘ └──────────┘ └─────┬─────┘
+                                │
+                          consolidate()
+                                │
+                                ▼
+                        ┌──────────────┐
+                        │ SUNO EXPORT  │
+                        │ final output │
+                        └──────────────┘
+
+AUXILIARY MODULES (any position):
+ ├─ Hit Score Checklist → manual 66-item scoring
+ ├─ Suno Prompt Builder → keyword picker
+ ├─ Text to Prompter   → AI reference analysis
+ ├─ Feed Loop          → iteration synthesis
+ └─ Lyric Cleaner      → paste cleanup</div>
+    </div>
     <button class="help-close" onclick="closeHelp()">✕ Close</button>
   </div>
 </div>
@@ -647,6 +741,8 @@ textarea.m-ta::placeholder{color:var(--muted);opacity:.45;}
   <div id="max-body" class="max-body"></div>
 </div>
 <div id="toast">Done!</div>
+
+<!-- Pipeline OS v4.1.0 — core + modules bundle (generated by build.sh) -->
 <script>
 'use strict';
 
@@ -665,10 +761,10 @@ function emptyObj() {
   };
 }
 
-let pipelineObj = null;
-let needsConsol = false;
+var pipelineObj = null;
+var needsConsol = false;
 
-const LI = {
+var LI = {
   rawLyrics:'', promptOverall:'', locked:false, collapsed:false,
   sectionPrompts:{}, sectionTechniques:{}, bpm:'', bpmBypass:false, featName:'',
   globalInstructions:'', negNobelting:false, negNoLongNotes:false, negCustom:'',
@@ -676,11 +772,11 @@ const LI = {
   checkpoint:null, autosave:null
 };
 
-let prePipeline=[], pipeline=[], activeSession=null, confirmCallback=null;
-let rhysLang='EN', toolboxOpen=false, sunoGenCount=0, allCollapsed=false;
-let autosaveTimer=null, detectedPending=null;
+var prePipeline=[], pipeline=[], activeSession=null, confirmCallback=null;
+var rhysLang='EN', toolboxOpen=false, sunoGenCount=0, allCollapsed=false;
+var autosaveTimer=null, detectedPending=null;
 
-const MODULE_DEFS = [
+var MODULE_DEFS = [
   { id:'generator',  icon:'✍', title:'Lyric Generator',   subtitle:'lyrics + prompt · pre-input',  color:'var(--accent)', preOnly:true },
   { id:'cleaner',    icon:'⊘', title:'Lyric Cleaner',     subtitle:'strips prompt noise',            color:'var(--accent)' },
   { id:'wizard',     icon:'✦', title:'Lyric Wizard',       subtitle:'full + sections · analysis',     color:'var(--purple)' },
@@ -707,40 +803,85 @@ function dbGet(k,def=null){const v=_idbCache[k];return v!==undefined?v:(def);}
 function dbSet(k,v){_idbCache[k]=v;_idbWrite(k,v);}
 function dbDel(k){delete _idbCache[k];_idbDel(k);}
 async function migrateFromLocalStorage(){const keys=Object.keys(localStorage).filter(k=>k.startsWith('pipeline_'));if(!keys.length)return;let migrated=0;for(const k of keys){try{const v=JSON.parse(localStorage.getItem(k));if(v!==null){dbSet(k,v);migrated++;}}catch(e){}}if(migrated>0){console.log(`Migrated ${migrated} keys from localStorage to IndexedDB`);keys.forEach(k=>localStorage.removeItem(k));}}
-// ═══ SPLASH / LOCK ══════════════════════════════════════
-function splashStart(){
-  playStartupJingle();
-  pwRequire(()=>{
-    const splash=getEl('splash');
-    splash.classList.add('hiding');
-    setTimeout(()=>splash.classList.add('hidden'),650);
-    setTimeout(()=>{
-      const last=localStorage.getItem('om35_last_session');
-      if(last){
-        try{
-          const s=JSON.parse(last);
-          if(s.artistId&&s.track){openTrack(s.artistId,s.track);return;}
-        }catch(e){}
-      }
-      openSessionModal();
-    },400);
+// ═══ VERSION MIGRATION ═══════════════════════════════════
+const PPOS_VERSION='4.1.0';
+function migrateVersion(){
+  const prev=localStorage.getItem('ppos_version')||'0';
+  if(prev!==PPOS_VERSION){
+    localStorage.removeItem('om35_last_session');
+    localStorage.setItem('ppos_version',PPOS_VERSION);
+  }
+}
+// ═══ FADE HELPERS ════════════════════════════════════════
+const FADE=500;
+function fadeIn(el,cb){if(!el)return cb&&cb();el.classList.remove('gone');requestAnimationFrame(()=>requestAnimationFrame(()=>{el.classList.add('visible');setTimeout(()=>cb&&cb(),FADE);}));}
+function fadeOut(el,cb){if(!el)return cb&&cb();el.classList.remove('visible');setTimeout(()=>{el.classList.add('gone');cb&&cb();},FADE);}
+function fadeInWrap(){
+  const w=getEl('workspace-wrap');if(!w)return;
+  w.style.display='block';
+  ['topbar','pipeline','toolbox-toggle','toolbox-panel'].forEach(id=>{
+    const el=getEl(id);if(!el)return;
+    el.style.display=id==='topbar'||id==='toolbox-toggle'?'flex':'block';
   });
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{w.style.opacity='1';}));
+}
+function fadeOutWrap(cb){
+  const w=getEl('workspace-wrap');if(!w)return cb&&cb();
+  w.style.opacity='0';
+  setTimeout(()=>{w.style.display='none';cb&&cb();},FADE);
+}
+
+// ═══ SPLASH / LOCK ══════════════════════════════════════
+let _splashStarted=false;
+function splashStart(){
+  if(_splashStarted)return;
+  _splashStarted=true;
+  migrateVersion();
+  playStartupJingle();
+  const splash=getEl('splash');
+  // Splash already visible → fade out after 1.5s
+  setTimeout(()=>{
+    fadeOut(splash,()=>{
+      // PW fade in
+      _pwShow(()=>{
+        // pw accepted → pw fades out inside pwHide
+        // Pause 400ms
+        setTimeout(()=>{
+          const last=localStorage.getItem('om35_last_session');
+          if(last){
+            try{
+              const s=JSON.parse(last);
+              const a=s.artistId?getArtists().find(x=>x.id===s.artistId):null;
+              if(a&&s.track){openTrack(s.artistId,s.track);return;}
+              else{localStorage.removeItem('om35_last_session');}
+            }catch(e){localStorage.removeItem('om35_last_session');}
+          }
+          _openSessionFade();
+        },400);
+      });
+    });
+  },1500);
 }
 
 function showLockScreen(){
   const splash=getEl('splash');
-  if(splash){splash.classList.remove('hidden','hiding');}
   getEl('splash-start').style.display='none';
   const sub=getEl('splash-sub');
-  if(sub)sub.innerHTML='Pipeline OS &middot; v3.1.1 &nbsp;·&nbsp; <span onclick="_splashReopen()" style="cursor:pointer;color:#c8ff57;text-decoration:underline;text-underline-offset:3px">Login</span>';
+  if(sub)sub.innerHTML='Pipeline OS &middot; v4.0.0 &nbsp;·&nbsp; <span onclick="_splashReopen()" style="cursor:pointer;color:#c8ff57;text-decoration:underline;text-underline-offset:3px">Login</span>';
+  fadeIn(splash);
 }
 function _splashReopen(){
-  pwRequire(()=>{
-    const splash=getEl('splash');
-    splash.classList.add('hiding');
-    setTimeout(()=>splash.classList.add('hidden'),650);
-    setTimeout(openSessionModal,400);
+  fadeOut(getEl('splash'),()=>{
+    _pwShow(()=>{
+      setTimeout(()=>_openSessionFade(),400);
+    });
   });
+}
+function _openSessionFade(){
+  const modal=getEl('session-modal');
+  modal.classList.remove('gone');
+  openSessionModal();
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{modal.classList.add('visible');}));
 }
 
 // ═══ PASSWORD LOCK ══════════════════════════════════════
@@ -748,13 +889,14 @@ let _pwCallback=null;
 function pwGet(){return localStorage.getItem('om35_pw');}
 function pwSet(pw){localStorage.setItem('om35_pw',pw.trim());}
 function pwCheck(pw){const stored=localStorage.getItem('om35_pw');return!!stored&&stored===pw.trim();}
-function pwRequire(cb){
+function _pwShow(cb){
   _pwCallback=cb;
   const modal=getEl('pw-modal');
   const lbl=getEl('pw-label');
   if(lbl)lbl.textContent=pwGet()?'Enter password':'Set a password';
-  if(modal){modal.classList.remove('hidden','hiding');getEl('pw-input').value='';getEl('pw-err').textContent='';setTimeout(()=>getEl('pw-input').focus(),80);}
+  if(modal){getEl('pw-input').value='';getEl('pw-err').textContent='';fadeIn(modal,()=>{getEl('pw-input').focus();});}
 }
+function pwRequire(cb){_pwShow(cb);}
 function pwSubmit(){
   const inp=getEl('pw-input');
   const val=(inp?inp.value:'').trim();
@@ -776,8 +918,25 @@ function pwSubmit(){
   if(_pwCallback){const cb=_pwCallback;_pwCallback=null;cb();}
 }
 function pwHide(){
-  const modal=getEl('pw-modal');
-  if(modal){modal.classList.add('hiding');setTimeout(()=>{modal.classList.add('hidden');modal.classList.remove('hiding');},300);}
+  playUnlockJingle();
+  fadeOut(getEl('pw-modal'));
+}
+function playUnlockJingle(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.connect(gain);gain.connect(ctx.destination);
+    osc.type='sine';
+    const t=ctx.currentTime;
+    // Glissando from note 1 (C4 ~261Hz) up 12 semitones to C5 (~523Hz), same duration as startup
+    osc.frequency.setValueAtTime(261.63,t);
+    osc.frequency.exponentialRampToValueAtTime(523.25,t+0.45);
+    gain.gain.setValueAtTime(0,t);
+    gain.gain.linearRampToValueAtTime(0.11,t+0.03);
+    gain.gain.exponentialRampToValueAtTime(0.001,t+0.50);
+    osc.start(t);osc.stop(t+0.55);
+  }catch(e){}
 }
 function pwChangeRequest(){
   // Show setup: clear stored pw and require new one
@@ -789,18 +948,35 @@ function pwChangeRequest(){
   if(!nw||nw.length<4){showToast('Too short');return;}
   pwSet(nw);showToast('Password updated ✓');
 }
-// Auto-lock on tab return (sleep/screensaver)
+// Auto-lock on tab return (sleep/screensaver/tab switch)
 let _wasVisible=false;
+let _lockTimer=null;
 document.addEventListener('visibilitychange',()=>{
-  if(document.hidden){_wasVisible=true;return;}
+  if(document.hidden){
+    _wasVisible=true;
+    if(activeSession&&pwGet()){
+      // Wait 10s before locking — user might just be switching tabs briefly
+      _lockTimer=setTimeout(()=>{
+        if(!document.hidden)return; // came back before timer fired
+        const splash=getEl('splash');
+        splash.classList.remove('gone');splash.classList.add('visible');
+        getEl('splash-start').style.display='none';
+        const sub=getEl('splash-sub');
+        if(sub)sub.innerHTML='Pipeline OS &middot; v4.0.0 &nbsp;·&nbsp; <span style="color:var(--muted)">locked</span>';
+      },10000);
+    }
+    return;
+  }
+  if(_lockTimer){clearTimeout(_lockTimer);_lockTimer=null;}
   if(!_wasVisible)return;
-  if(activeSession&&pwGet()){
-    // Show pw modal directly over current state; on success just resume
-    _pwCallback=()=>{};
-    const modal=getEl('pw-modal');
-    const lbl=getEl('pw-label');
-    if(lbl)lbl.textContent='Enter password';
-    if(modal){modal.classList.remove('hidden','hiding');getEl('pw-input').value='';getEl('pw-err').textContent='';setTimeout(()=>getEl('pw-input').focus(),80);}
+  _wasVisible=false;
+  if(activeSession&&pwGet()&&getEl('splash').classList.contains('visible')){
+    // Splash already visible → fade out splash, fade in pw
+    fadeOut(getEl('splash'),()=>{
+      _pwShow(()=>{
+        // pw accepted → resume workspace (already visible behind)
+      });
+    });
   }
 });
 function initKaleidoscope(){
@@ -855,6 +1031,11 @@ function initKaleidoscope(){
     mctx.fillText('OM35',CW/2,112);
     mctx.restore();
     maskReady=true;
+    // Fade in logo once mask is ready (font loaded + clipped)
+    requestAnimationFrame(()=>{
+      const c=getEl('splash-logo-canvas');
+      if(c)c.style.opacity='1';
+    });
   });
 
   // ── Mouse state ───────────────────────────────────────────────────────
@@ -885,6 +1066,9 @@ function initKaleidoscope(){
       const sat=78+(mySmooth/CH)*14;              // 78–92 %
       const litBase=50+(mySmooth/CH)*12;          // 50–62 %
 
+      // Only render once font mask is ready — triangles never appear unclipped
+      if(!maskReady){requestAnimationFrame(drawFrame);return;}
+
       tris.forEach(tri=>{
         const dx=tri.cx-mxSmooth, dy=tri.cy-mySmooth;
         const dist=Math.sqrt(dx*dx+dy*dy);
@@ -913,11 +1097,9 @@ function initKaleidoscope(){
       });
 
       // clip to OM35 text shape
-      if(maskReady){
-        ctx.globalCompositeOperation='destination-in';
-        ctx.drawImage(maskC,0,0,CW,CH);
-        ctx.globalCompositeOperation='source-over';
-      }
+      ctx.globalCompositeOperation='destination-in';
+      ctx.drawImage(maskC,0,0,CW,CH);
+      ctx.globalCompositeOperation='source-over';
     }
     requestAnimationFrame(drawFrame);
   }
@@ -926,33 +1108,98 @@ function initKaleidoscope(){
 
 function _showWorkspace(){
   const els=[['topbar','flex'],['pipeline','block'],['toolbox-toggle','flex'],['toolbox-panel','block']];
-  els.forEach(([id,d])=>{const el=getEl(id);if(el){el.style.display=d;el.style.opacity='0';el.style.transition='opacity .45s ease';}});
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    els.forEach(([id])=>{const el=getEl(id);if(el)el.style.opacity='1';});
-  }));
+  els.forEach(([id,d])=>{const el=getEl(id);if(el)el.style.display=d;});
+  fadeInWrap();
 }
-function _hideWorkspace(){
-  ['topbar','pipeline','toolbox-toggle','toolbox-panel'].forEach(id=>{const el=getEl(id);if(el)el.style.display='none';});
+function _hideWorkspace(cb){
+  fadeOutWrap(()=>{
+    ['topbar','pipeline','toolbox-toggle','toolbox-panel'].forEach(id=>{const el=getEl(id);if(el)el.style.display='none';});
+    cb&&cb();
+  });
 }
 function playStartupJingle(){
   try{
     const ctx=new(window.AudioContext||window.webkitAudioContext)();
-    const osc=ctx.createOscillator();
-    const gain=ctx.createGain();
-    osc.connect(gain);gain.connect(ctx.destination);
-    osc.type='sine';
+    if(ctx.state==='suspended')ctx.resume();
     const t=ctx.currentTime;
-    osc.frequency.setValueAtTime(220,t);
-    osc.frequency.exponentialRampToValueAtTime(523.25,t+0.38);
-    gain.gain.setValueAtTime(0,t);
-    gain.gain.linearRampToValueAtTime(0.13,t+0.04);
-    gain.gain.exponentialRampToValueAtTime(0.001,t+0.52);
-    osc.start(t);osc.stop(t+0.55);
+    // Beep 1: C4 (261.63 Hz)
+    const osc1=ctx.createOscillator();const g1=ctx.createGain();
+    osc1.connect(g1);g1.connect(ctx.destination);
+    osc1.type='sine';osc1.frequency.setValueAtTime(261.63,t);
+    g1.gain.setValueAtTime(0,t);g1.gain.linearRampToValueAtTime(0.12,t+0.015);
+    g1.gain.exponentialRampToValueAtTime(0.001,t+0.1);
+    osc1.start(t);osc1.stop(t+0.12);
+    // Beep 2: G4 (392 Hz) — perfect fifth, 7 semitones up
+    const osc2=ctx.createOscillator();const g2=ctx.createGain();
+    osc2.connect(g2);g2.connect(ctx.destination);
+    osc2.type='sine';osc2.frequency.setValueAtTime(392,t+0.1);
+    g2.gain.setValueAtTime(0,t+0.1);g2.gain.linearRampToValueAtTime(0.12,t+0.115);
+    g2.gain.exponentialRampToValueAtTime(0.001,t+0.22);
+    osc2.start(t+0.1);osc2.stop(t+0.24);
   }catch(e){}
 }
 
-function openHelp(){getEl('help-modal').classList.add('open');}
+function openHelp(){
+  getEl('help-modal').classList.add('open');
+  renderHandbook();
+}
 function closeHelp(){getEl('help-modal').classList.remove('open');}
+function helpTab(tab){
+  const tabs=document.querySelectorAll('.help-tab');
+  const panes=document.querySelectorAll('.help-pane');
+  const order=['about','handbook','flow'];
+  const ti=order.indexOf(tab);
+  tabs.forEach((t,i)=>t.classList.toggle('active',i===ti));
+  panes.forEach((p,i)=>p.classList.toggle('active',i===ti));
+}
+
+// ── Handbook data (auto-generated from module analysis) ──
+const HANDBOOK_DATA={
+  'lyric':{name:'Lyric Input',icon:'✍️',color:'var(--accent)',desc:'The source module. Enter lyrics with [Section] tags, overall style prompt, BPM, key, time signature. Lock to create the pipeline object.',reads:[],writes:['pipelineObj (creates via buildObj)'],creates:['lyrics.sections','prompt_overall','prompts_seccionais','meta'],requires:[]},
+  'cleaner':{name:'Lyric Cleaner',icon:'🧹',color:'var(--text2)',desc:'Paste cleanup utility. Removes extra whitespace, normalizes formatting, fixes common paste artifacts. Does not modify the pipeline object.',reads:['raw text input'],writes:[],creates:[],requires:[]},
+  'wizard':{name:'Lyric Wizard',icon:'🔮',color:'var(--purple)',desc:'AI-powered lyric analysis across 7 modes: poetic, rhythm, imagery, structure, hit score, metric, and free. Scores your lyrics and provides detailed suggestions per section.',reads:['lyrics.sections'],writes:['analysis.lyricWizard.full','analysis.lyricWizard.sections'],creates:['scores per mode','section suggestions','strengths/weaknesses'],requires:['Locked LI','lyrics in object']},
+  'pwizard':{name:'Prompt Wizard',icon:'🎯',color:'var(--cyan)',desc:'AI prompt generator and validator. Creates or evaluates section-level Suno prompts. Modes: Generator (from scratch), Validator (score existing), Artist Align (match style).',reads:['full pipelineObj','analysis.promptWizard'],writes:['prompt_overall.positive','prompts_seccionais[*].positive','analysis.promptWizard'],creates:['overall prompt','section prompts','validation scores'],requires:['Locked LI']},
+  'hitdet':{name:'Hit Detective',icon:'🕵️',color:'var(--amber)',desc:'4-layer analysis: lyrics, prompts, interaction, and negatives. Detects conflicts between lyrics and prompts, scores synergy, identifies risks. Best results when Wizard + Prompt Wizard ran first.',reads:['full pipelineObj','analysis.lyricWizard','analysis.promptWizard','prompt_overall.negative'],writes:['analysis.hitDetective.full','analysis.hitDetective.sections'],creates:['4-layer scores','conflict/synergy notes','fix suggestions'],requires:['Locked LI','Wizard + PW recommended']},
+  'neganalyzer':{name:'Negative Analyzer',icon:'⊘',color:'var(--red)',desc:'Scans lyrics and prompts for risks: belting triggers, long notes, cliches, filler, vague terms. Suggests negative prompt entries to prevent Suno from generating unwanted content.',reads:['lyrics.sections','prompt_overall','prompts_seccionais'],writes:['analysis.negativeAnalyzer','prompt_overall.negative'],creates:['risk flags','suggested negatives'],requires:['Locked LI']},
+  'spotlight':{name:'Spotlight',icon:'🔦',color:'var(--green)',desc:'Section-by-section editor. View lyrics and prompts per section with live analysis summaries from Wizard, Prompt Wizard, and Hit Detective. Edit inline.',reads:['lyrics.sections','prompts_seccionais','all analysis.*'],writes:['lyrics.sections[*].content','prompts_seccionais[*].positive'],creates:[],requires:['Locked LI']},
+  'hitmaker':{name:'Hit Maker',icon:'⚡',color:'var(--amber)',desc:'2-pass AI rewrite engine. Pass 1: analyzes issues across all lyrics and prompts. Pass 2: rewrites everything for maximum hit potential. Saves original for comparison.',reads:['full pipelineObj','artist style','creative direction'],writes:['lyrics.sections[*].content','prompts_seccionais[*].positive','prompt_overall.positive'],creates:['full rewrite','predicted score'],requires:['Locked LI','all analyses recommended']},
+  'suno':{name:'Suno Export',icon:'🎵',color:'var(--accent)',desc:'Formats the final object for Suno. Displays formatted lyrics with section prompts, overall style prompt, and negatives. Copy or generate directly.',reads:['full pipelineObj','analysis (summary cards)','meta'],writes:[],creates:['formatted Suno output'],requires:['Locked LI']},
+  'feedloop':{name:'Feed Loop',icon:'🔄',color:'var(--blue)',desc:'Post-generation iteration module. Rate the Suno output (1-5), note what worked and what to change. AI synthesizes an iteration plan with specific changes to lyrics, prompts, and structure.',reads:['pipelineObj (context)','user feedback'],writes:['analysis.feedloop'],creates:['iteration plan','change suggestions'],requires:['Locked LI']},
+  'hitscore':{name:'Hit Score Checklist',icon:'📊',color:'var(--purple)',desc:'66 criteria from Spotify 1M+ streams research across 9 categories. Manual checklist — check items as you verify them. Shows overall score and critical criteria score. Displays lyrics reference panel when available.',reads:['lyrics.sections','meta (bpm, key)'],writes:[],creates:['manual score (0-100)'],requires:['Object for lyrics reference']},
+  'sunobuilder':{name:'Suno Prompt Builder',icon:'🎛️',color:'var(--accent)',desc:'Visual keyword picker with all Suno-interpretable variables. 13 sections: genre, BPM, key, mood, vocal, instruments, structure, tempo feel, mix, energy, reference, texture, production, negatives. Auto-syncs BPM/key from object if available.',reads:['meta.bpm','meta.key','meta.timeSig'],writes:[],creates:['keyword prompt (≤1000 chars)'],requires:[]},
+  'text2prompter':{name:'Text to Prompter',icon:'🎯',color:'var(--cyan)',desc:'AI-assisted keyword analysis. Enter up to 3 reference songs — Claude API analyzes them and returns Suno-compatible keywords. Detects conflicts between contradictory tags. Results can be applied directly to Suno Prompt Builder.',reads:['reference song names (user input)'],writes:[],creates:['AI-generated keywords','conflict detection'],requires:['Claude API key']},
+};
+
+function renderHandbook(){
+  const el=getEl('help-handbook');if(!el)return;
+  let h='<div style="font-family:\'Syne\',sans-serif;font-size:12px;font-weight:700;color:#c8ff57;margin-bottom:12px">Module Handbook</div>';
+  h+='<div style="font-size:10px;color:#55556a;margin-bottom:14px;line-height:1.5">Click a module to see what it reads, writes, and creates in the pipeline object.</div>';
+  const order=['lyric','cleaner','wizard','pwizard','hitdet','neganalyzer','spotlight','hitmaker','suno','feedloop','hitscore','sunobuilder','text2prompter'];
+  order.forEach(id=>{
+    const m=HANDBOOK_DATA[id];if(!m)return;
+    h+=`<div class="hb-mod">`;
+    h+=`<div class="hb-mod-head" onclick="hbToggle(this)">`;
+    h+=`<span class="hb-mod-icon">${m.icon}</span>`;
+    h+=`<span class="hb-mod-name" style="color:${m.color}">${m.name}</span>`;
+    h+=`<span class="hb-mod-arrow">▼</span>`;
+    h+=`</div>`;
+    h+=`<div class="hb-mod-body" style="display:none;">`;
+    h+=`<div style="margin-bottom:8px">${m.desc}</div>`;
+    if(m.reads.length)h+=`<div style="margin-bottom:4px"><strong style="color:#22d3ee;font-size:9px;letter-spacing:.08em">READS:</strong> ${m.reads.map(r=>`<span class="hb-tag hb-tag-read">${r}</span>`).join(' ')}</div>`;
+    if(m.writes.length)h+=`<div style="margin-bottom:4px"><strong style="color:#c8ff57;font-size:9px;letter-spacing:.08em">WRITES:</strong> ${m.writes.map(w=>`<span class="hb-tag hb-tag-write">${w}</span>`).join(' ')}</div>`;
+    if(m.creates.length)h+=`<div style="margin-bottom:4px"><strong style="color:#a78bfa;font-size:9px;letter-spacing:.08em">CREATES:</strong> ${m.creates.map(c=>`<span class="hb-tag hb-tag-create">${c}</span>`).join(' ')}</div>`;
+    if(m.requires.length)h+=`<div><strong style="color:#f59e0b;font-size:9px;letter-spacing:.08em">REQUIRES:</strong> ${m.requires.map(r=>`<span class="hb-tag hb-tag-req">${r}</span>`).join(' ')}</div>`;
+    h+=`</div></div>`;
+  });
+  el.innerHTML=h;
+}
+function hbToggle(head){
+  const body=head.nextElementSibling;
+  const arrow=head.querySelector('.hb-mod-arrow');
+  const open=body.style.display!=='none';
+  body.style.display=open?'none':'block';
+  arrow.classList.toggle('open',!open);
+}
 
 // ═══ MAXIMIZE ═══════════════════════════════════════════
 let _maxPrevState=null;
@@ -1125,6 +1372,7 @@ function consolidate() {
     const state={lyricInput:captureLIState(),pipelineObj:JSON.parse(JSON.stringify(pipelineObj)),savedAt:new Date().toISOString()};
     dbSet('pipeline_track_state_'+activeSession.artistId+'_'+activeSession.track,state);
     logEntry(activeSession.artistId,activeSession.track,{event:'consolidate'});
+    localStorage.removeItem('om35_last_session');
   }
   showToast('Consolidated ✓');
 }
@@ -1140,6 +1388,7 @@ function saveCheckpoint(id) {
 
 function triggerAutosave(id) {
   clearTimeout(autosaveTimer);
+  if(typeof markDirty==='function')markDirty();
   autosaveTimer=setTimeout(()=>{
     if(id==='lyric'){LI.autosave={label:'⟳ auto',state:captureLIState(),ts:Date.now()};}
     else{const p=pipeline[id];if(p)p.autosave={label:'⟳ auto',state:JSON.parse(JSON.stringify(p.data)),ts:Date.now()};}
@@ -1280,6 +1529,7 @@ function injectObj(idx) {
   else if(def==='neganalyzer'){const el=getEl('na-info-'+idx);if(el){el.textContent=lyrics.split('\n').filter(l=>l.trim()).length+' lines · ready';el.style.color='var(--text2)';}}
   else if(def==='spotlight'){loadSpot(idx);}
   else if(def==='suno'){buildSuno(idx);}
+  else if(def==='hitscore'||def==='sunobuilder'){renderModules();}
 }
 
 function sendLyricDown() {
@@ -1546,7 +1796,7 @@ async function diceSection(name){
 
 // ═══ MODULE BODY ROUTER (registry-based) ═══════════════
 // Built-in modules registered below; external modules self-register via _mr['id']=fn
-const _mr={};
+var _mr={};
 function renderModBody(idx){
   const r=_mr[pipeline[idx]?.defId];
   return r?r(idx):`<div style="padding:14px;color:var(--muted);font-size:11px">Module not found: "${pipeline[idx]?.defId}"</div>`;
@@ -2718,7 +2968,8 @@ function saveLabels(l){dbSet('pipeline_labels',l);}
 
 function openSessionModal(){
   const modal=getEl('session-modal');if(!modal)return;
-  modal.classList.add('open');
+  modal.classList.remove('gone');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{modal.classList.add('visible');}));
   _sessStep=0;_sessLabelId=null;_sessArtistId=null;
   _sessSlideTo(0);
   _sessRenderLabels();
@@ -2743,19 +2994,29 @@ function _sessBreadcrumb(){
 }
 
 // ── Hold-to-rename (700ms press) ─────────────────────────────
-let _holdTimer=null,_holdFired=false;
+let _holdTimer=null,_holdFired=false,_holdTarget=null;
 function sessHoldStart(e,type,id){
   _holdFired=false;
-  _holdTimer=setTimeout(()=>{_holdFired=true;sessContextMenu(e,type,id);},700);
+  _holdTarget=e.currentTarget||e.target.closest('.sess-item');
+  _holdTimer=setTimeout(()=>{_holdFired=true;sessContextMenuEl(_holdTarget,type,id);},700);
 }
-function sessHoldEnd(){if(_holdTimer){clearTimeout(_holdTimer);_holdTimer=null;}}
+function sessHoldEnd(){if(_holdTimer){clearTimeout(_holdTimer);_holdTimer=null;}_holdTarget=null;}
 function sessModalClose(){
-  getEl('session-modal').classList.remove('open');
-  if(!activeSession)showLockScreen();
+  fadeOut(getEl('session-modal'),()=>{
+    if(!activeSession)showLockScreen();
+  });
+}
+function sessRenameBtn(btn,type,id){
+  const item=btn.closest('.sess-item');
+  if(!item){console.warn('sessRenameBtn: no .sess-item found for',type,id);return;}
+  sessContextMenuEl(item,type,id);
 }
 function sessContextMenu(e,type,id){
   e.preventDefault();e.stopPropagation();
   const item=e.currentTarget||e.target.closest('.sess-item');
+  sessContextMenuEl(item,type,id);
+}
+function sessContextMenuEl(item,type,id){
   if(!item)return;
   const infoEl=item.querySelector('.sess-item-info');
   if(!infoEl)return;
@@ -2798,7 +3059,7 @@ function _sessRenderLabels(){
     h+=`<div class="sess-item" oncontextmenu="sessContextMenu(event,'label','${l.id}')" onmousedown="sessHoldStart(event,'label','${l.id}')" onmouseup="sessHoldEnd()" onmouseleave="sessHoldEnd()" onclick="if(_holdFired){_holdFired=false;return;}sessGoArtist('${l.id}')">
       <div class="sess-item-avatar">${esc(l.name.charAt(0).toUpperCase())}</div>
       <div class="sess-item-info"><div class="sess-item-name">${esc(l.name)}</div><div class="sess-item-meta">${cnt} artist${cnt!==1?'s':''}</div></div>
-      <div class="sess-item-actions"><button class="sess-item-btn danger" title="Delete label" onclick="event.stopPropagation();sessDelLabel('${l.id}')">✕</button></div>
+      <div class="sess-item-actions"><button class="sess-item-btn" title="Rename label" onclick="event.stopPropagation();sessRenameBtn(this,'label','${l.id}')">✎</button><button class="sess-item-btn danger" title="Delete label" onclick="event.stopPropagation();sessDelLabel('${l.id}')">✕</button></div>
     </div>`;
   });
   if(defaultCount>0||!labels.length){
@@ -2828,7 +3089,7 @@ function _sessRenderArtists(labelId){
     h+=`<div class="sess-item" oncontextmenu="sessContextMenu(event,'artist','${a.id}')" onmousedown="sessHoldStart(event,'artist','${a.id}')" onmouseup="sessHoldEnd()" onmouseleave="sessHoldEnd()" onclick="if(_holdFired){_holdFired=false;return;}sessGoTrack('${a.id}')">
       <div class="sess-item-avatar">${esc(nm.charAt(0).toUpperCase())}</div>
       <div class="sess-item-info"><div class="sess-item-name">${esc(nm)}</div><div class="sess-item-meta">${tracks.length} track${tracks.length!==1?'s':''}${a.stylePrompt?' · style ✓':''}</div></div>
-      <div class="sess-item-actions"><button class="sess-item-btn" title="Edit" onclick="event.stopPropagation();editArtist('${a.id}')">✏</button><button class="sess-item-btn danger" onclick="event.stopPropagation();delArtist('${a.id}')">✕</button></div>
+      <div class="sess-item-actions"><button class="sess-item-btn" title="Rename" onclick="event.stopPropagation();sessRenameBtn(this,'artist','${a.id}')">✎</button><button class="sess-item-btn" title="Edit" onclick="event.stopPropagation();editArtist('${a.id}')">✏</button><button class="sess-item-btn danger" onclick="event.stopPropagation();delArtist('${a.id}')">✕</button></div>
     </div>`;
   });
   list.innerHTML=h||`<div style="padding:20px;font-size:11px;color:var(--muted);text-align:center">No artists in this label.<br>Add one below.</div>`;
@@ -2853,7 +3114,7 @@ function _sessRenderTracks(artistId){
     h+=`<div class="sess-item" oncontextmenu="sessContextMenu(event,'track','${esc(nm)}')" onmousedown="sessHoldStart(event,'track','${esc(nm)}')" onmouseup="sessHoldEnd()" onmouseleave="sessHoldEnd()" onclick="if(_holdFired){_holdFired=false;return;}openTrack('${artistId}','${esc(nm)}')">
       <div class="sess-item-avatar" style="font-size:8px${isSuno?';color:var(--accent)':''}">▶</div>
       <div class="sess-item-info"><div class="sess-item-name">${esc(nm)}</div><div class="sess-item-meta">${isSuno?'<span style="color:var(--accent)">✓ from suno</span>'+(dt?' · '+dt:''): dt}</div></div>
-      <div class="sess-item-actions"><button class="sess-item-btn${isSuno?' active':''}" title="Toggle from Suno (loads locked)" onclick="event.stopPropagation();sessToggleSuno('${artistId}',${ti})" style="${isSuno?'color:var(--accent);border-color:rgba(200,255,87,.35)':''}">suno</button><button class="sess-item-btn danger" onclick="event.stopPropagation();delTrack('${artistId}',${ti})">✕</button></div>
+      <div class="sess-item-actions"><button class="sess-item-btn" title="Rename" onclick="event.stopPropagation();sessRenameBtn(this,'track','${esc(nm)}')">✎</button><button class="sess-item-btn${isSuno?' active':''}" title="Toggle from Suno (loads locked)" onclick="event.stopPropagation();sessToggleSuno('${artistId}',${ti})" style="${isSuno?'color:var(--accent);border-color:rgba(200,255,87,.35)':''}">suno</button><button class="sess-item-btn danger" onclick="event.stopPropagation();delTrack('${artistId}',${ti})">✕</button></div>
     </div>`;
   });
   list.innerHTML=h||`<div style="padding:20px;font-size:11px;color:var(--muted);text-align:center">No tracks yet.<br>Add one below.</div>`;
@@ -2945,11 +3206,10 @@ function openSunoCopy(){
   showToast('⎘ Copy opened: '+newName);
 }
 function openTrack(artistId,trackName){
-  const artists=getArtists();const a=artists.find(x=>x.id===artistId);if(!a)return;
+  const artists=getArtists();const a=artists.find(x=>x.id===artistId);if(!a){localStorage.removeItem('om35_last_session');openSessionModal();return;}
   const tracks=getProjects(artistId);const trackMeta=tracks.find(t=>(t.name||t.track)===trackName);
   const saved=dbGet('pipeline_track_state_'+artistId+'_'+trackName);
-  getEl('session-modal').classList.remove('open');
-  _showWorkspace();
+  fadeOut(getEl('session-modal'),()=>{_showWorkspace();});
   activeSession={artistId,artistName:a.name,track:trackName,persona:'',fromSuno:trackMeta?.fromSuno||false};localStorage.setItem('om35_last_session',JSON.stringify({artistId,track:trackName}));
   if(saved){
     if(saved.lyricInput)Object.assign(LI,saved.lyricInput);
@@ -2977,7 +3237,7 @@ function startSession(){
   const tracks=getProjects(artistId);if(!tracks.find(t=>t.name===trk)){tracks.push({name:trk,createdAt:new Date().toISOString()});saveProjects(artistId,tracks);}
   if(feat)LI.featName=feat;
   activeSession={artistId,artistName:a.name,track:trk,persona:pers};
-  getEl('session-modal').classList.remove('open');
+  fadeOut(getEl('session-modal'),()=>{_showWorkspace();});
   updateTopbar();render();logEntry(artistId,trk,{event:'session_start'});showToast('Session started ✓');
 }
 
@@ -3013,6 +3273,7 @@ function doCloseSession(){
     logEntry(activeSession.artistId,activeSession.track,{event:'session_close'});
   }
   _hideWorkspace();
+  localStorage.removeItem('om35_last_session');
   activeSession=null;Object.assign(LI,{rawLyrics:'',promptOverall:'',locked:false,collapsed:false,sectionPrompts:{},sectionTechniques:{},bpm:'',bpmBypass:false,featName:'',globalInstructions:'',negNobelting:false,negNoLongNotes:false,negCustom:'',keyTonic:'',keyPolarity:'major',greekMode:'',timeSig:'',checkpoint:null,autosave:null});
   pipelineObj=null;pipeline=[];prePipeline=[];needsConsol=false;sunoGenCount=0;
   getEl('close-modal').classList.remove('open');updateTopbar();render();openSessionModal();showToast('Session closed');
@@ -3288,6 +3549,7 @@ function migrateLegacyData(){
   loadKey();
   render();
   initKaleidoscope();
+  if(typeof startAutosave==='function')startAutosave(3000);
   // Auto-dismiss splash if we have a saved session
   const savedSess = dbGet('pipeline_active_session');
   if (savedSess) {
@@ -3296,120 +3558,40 @@ function migrateLegacyData(){
   // If no saved session, splash stays visible until user clicks Start Engine
 })();
 
+// ── Module bundle ──
+(()=>{var Y="4.1.0";var X={intro:"Intro",v1:"Verse 1",verse1:"Verse 1","verse 1":"Verse 1",v2:"Verse 2",verse2:"Verse 2","verse 2":"Verse 2",v3:"Verse 3",verse3:"Verse 3",v4:"Verse 4",verse4:"Verse 4",verse:"Verse",cho:"Chorus",ch:"Chorus",chorus:"Chorus",cho1:"Chorus 1",ch1:"Chorus 1",chorus1:"Chorus 1","chorus 1":"Chorus 1",cho2:"Chorus 2",ch2:"Chorus 2","chorus 2":"Chorus 2",cho3:"Chorus 3",ch3:"Chorus 3",pc:"Pre-Chorus",pre:"Pre-Chorus",prechorus:"Pre-Chorus","pre-chorus":"Pre-Chorus","pre chorus":"Pre-Chorus",post:"Post-Chorus",postchorus:"Post-Chorus","post-chorus":"Post-Chorus","post chorus":"Post-Chorus",bridge:"Bridge",br:"Bridge",break:"Break",brk:"Break",outro:"Outro",out:"Outro",hook:"Hook",refrain:"Refrain",ref:"Refrain",inst:"Instrumental",instrumental:"Instrumental",drop:"Drop",build:"Build-Up",buildup:"Build-Up","build-up":"Build-Up",solo:"Solo",spoken:"Spoken",adlib:"Ad-lib","ad lib":"Ad-lib",interlude:"Interlude",inter:"Interlude"},Z={major:[{v:"ionian",l:"Ionian (Natural Major)"},{v:"lydian",l:"Lydian (raised \u266F4)"},{v:"mixolydian",l:"Mixolydian (dom. \u266D7)"}],minor:[{v:"aeolian",l:"Aeolian (Natural Minor)"},{v:"dorian",l:"Dorian (raised \u266E6)"},{v:"phrygian",l:"Phrygian (\u266D2 dark)"},{v:"phrygian_dom",l:"Phrygian Dominant (Spanish/Flamenco)"},{v:"locrian",l:"Locrian (dim. \u266D2\u266D5)"}]},j={intro:4,verse:8,chorus:8,"pre-chorus":4,"post-chorus":4,bridge:4,break:2,outro:4,hook:8,instrumental:8},Q={lyric:{name:"Lyric Input",icon:"\u270D\uFE0F",color:"var(--accent)",desc:"The source module. Enter lyrics with [Section] tags, overall style prompt, BPM, key, time signature. Lock to create the pipeline object.",reads:[],writes:["pipelineObj (creates via buildObj)"],creates:["lyrics.sections","prompt_overall","prompts_seccionais","meta"],requires:[]},cleaner:{name:"Lyric Cleaner",icon:"\u{1F9F9}",color:"var(--text2)",desc:"Paste cleanup utility. Removes extra whitespace, normalizes formatting, fixes common paste artifacts. Does not modify the pipeline object.",reads:["raw text input"],writes:[],creates:[],requires:[]},wizard:{name:"Lyric Wizard",icon:"\u{1F52E}",color:"var(--purple)",desc:"AI-powered lyric analysis across 7 modes: poetic, rhythm, imagery, structure, hit score, metric, and free. Scores your lyrics and provides detailed suggestions per section.",reads:["lyrics.sections"],writes:["analysis.lyricWizard.full","analysis.lyricWizard.sections"],creates:["scores per mode","section suggestions","strengths/weaknesses"],requires:["Locked LI","lyrics in object"]},pwizard:{name:"Prompt Wizard",icon:"\u{1F3AF}",color:"var(--cyan)",desc:"AI prompt generator and validator. Creates or evaluates section-level Suno prompts. Modes: Generator (from scratch), Validator (score existing), Artist Align (match style).",reads:["full pipelineObj","analysis.promptWizard"],writes:["prompt_overall.positive","prompts_seccionais[*].positive","analysis.promptWizard"],creates:["overall prompt","section prompts","validation scores"],requires:["Locked LI"]},hitdet:{name:"Hit Detective",icon:"\u{1F575}\uFE0F",color:"var(--amber)",desc:"4-layer analysis: lyrics, prompts, interaction, and negatives. Detects conflicts between lyrics and prompts, scores synergy, identifies risks. Best results when Wizard + Prompt Wizard ran first.",reads:["full pipelineObj","analysis.lyricWizard","analysis.promptWizard","prompt_overall.negative"],writes:["analysis.hitDetective.full","analysis.hitDetective.sections"],creates:["4-layer scores","conflict/synergy notes","fix suggestions"],requires:["Locked LI","Wizard + PW recommended"]},neganalyzer:{name:"Negative Analyzer",icon:"\u2298",color:"var(--red)",desc:"Scans lyrics and prompts for risks: belting triggers, long notes, cliches, filler, vague terms. Suggests negative prompt entries to prevent Suno from generating unwanted content.",reads:["lyrics.sections","prompt_overall","prompts_seccionais"],writes:["analysis.negativeAnalyzer","prompt_overall.negative"],creates:["risk flags","suggested negatives"],requires:["Locked LI"]},spotlight:{name:"Spotlight",icon:"\u{1F526}",color:"var(--green)",desc:"Section-by-section editor. View lyrics and prompts per section with live analysis summaries from Wizard, Prompt Wizard, and Hit Detective. Edit inline.",reads:["lyrics.sections","prompts_seccionais","all analysis.*"],writes:["lyrics.sections[*].content","prompts_seccionais[*].positive"],creates:[],requires:["Locked LI"]},hitmaker:{name:"Hit Maker",icon:"\u26A1",color:"var(--amber)",desc:"2-pass AI rewrite engine. Pass 1: analyzes issues across all lyrics and prompts. Pass 2: rewrites everything for maximum hit potential. Saves original for comparison.",reads:["full pipelineObj","artist style","creative direction"],writes:["lyrics.sections[*].content","prompts_seccionais[*].positive","prompt_overall.positive"],creates:["full rewrite","predicted score"],requires:["Locked LI","all analyses recommended"]},suno:{name:"Suno Export",icon:"\u{1F3B5}",color:"var(--accent)",desc:"Formats the final object for Suno. Displays formatted lyrics with section prompts, overall style prompt, and negatives. Copy or generate directly.",reads:["full pipelineObj","analysis (summary cards)","meta"],writes:[],creates:["formatted Suno output"],requires:["Locked LI"]},feedloop:{name:"Feed Loop",icon:"\u{1F504}",color:"var(--blue)",desc:"Post-generation iteration module. Rate the Suno output (1-5), note what worked and what to change. AI synthesizes an iteration plan with specific changes to lyrics, prompts, and structure.",reads:["pipelineObj (context)","user feedback"],writes:["analysis.feedloop"],creates:["iteration plan","change suggestions"],requires:["Locked LI"]},hitscore:{name:"Hit Score Checklist",icon:"\u{1F4CA}",color:"var(--purple)",desc:"66 criteria from Spotify 1M+ streams research across 9 categories. Manual checklist \u2014 check items as you verify them. Shows overall score and critical criteria score. Displays lyrics reference panel when available.",reads:["lyrics.sections","meta (bpm, key)"],writes:[],creates:["manual score (0-100)"],requires:["Object for lyrics reference"]},sunobuilder:{name:"Suno Prompt Builder",icon:"\u{1F39B}\uFE0F",color:"var(--accent)",desc:"Visual keyword picker with all Suno-interpretable variables. 13 sections: genre, BPM, key, mood, vocal, instruments, structure, tempo feel, mix, energy, reference, texture, production, negatives. Auto-syncs BPM/key from object if available.",reads:["meta.bpm","meta.key","meta.timeSig"],writes:[],creates:["keyword prompt (\u22641000 chars)"],requires:[]},text2prompter:{name:"Text to Prompter",icon:"\u{1F3AF}",color:"var(--cyan)",desc:"AI-assisted keyword analysis. Enter up to 3 reference songs \u2014 Claude API analyzes them and returns Suno-compatible keywords. Detects conflicts between contradictory tags. Results can be applied directly to Suno Prompt Builder.",reads:["reference song names (user input)"],writes:[],creates:["AI-generated keywords","conflict detection"],requires:["Claude API key"]}};window.PPOS_VERSION=Y;window.FADE=500;window.SECTION_SHORTCUTS=X;window.GREEK_MODES=Z;window.HM_DEFAULT_BARS=j;window.HANDBOOK_DATA=Q;function ee(){try{let t=new(window.AudioContext||window.webkitAudioContext);t.state==="suspended"&&t.resume();let o=t.currentTime,e=t.createOscillator(),i=t.createGain();e.connect(i),i.connect(t.destination),e.type="sine",e.frequency.setValueAtTime(261.63,o),i.gain.setValueAtTime(0,o),i.gain.linearRampToValueAtTime(.12,o+.015),i.gain.exponentialRampToValueAtTime(.001,o+.1),e.start(o),e.stop(o+.12);let r=t.createOscillator(),s=t.createGain();r.connect(s),s.connect(t.destination),r.type="sine",r.frequency.setValueAtTime(392,o+.1),s.gain.setValueAtTime(0,o+.1),s.gain.linearRampToValueAtTime(.12,o+.115),s.gain.exponentialRampToValueAtTime(.001,o+.22),r.start(o+.1),r.stop(o+.24)}catch{}}function te(){try{let t=new(window.AudioContext||window.webkitAudioContext),o=t.createOscillator(),e=t.createGain();o.connect(e),e.connect(t.destination),o.type="sine";let i=t.currentTime;o.frequency.setValueAtTime(261.63,i),o.frequency.exponentialRampToValueAtTime(523.25,i+.45),e.gain.setValueAtTime(0,i),e.gain.linearRampToValueAtTime(.11,i+.03),e.gain.exponentialRampToValueAtTime(.001,i+.5),o.start(i),o.stop(i+.55)}catch{}}window.playStartupJingle=ee;window.playUnlockJingle=te;function E(t){return String(t||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}function H(t){return document.getElementById(t)}function oe(t){let o=H("toast");o.textContent=t,o.classList.add("show"),setTimeout(()=>o.classList.remove("show"),1800)}function ie(t){try{return JSON.stringify(t).length+"|"+JSON.stringify(t).slice(0,100)}catch{return""}}function re(t){if(!t)return"// No object";let o=[];return t.prompt_overall?.positive&&o.push(`[OVERALL: ${t.prompt_overall.positive}]`),t.prompt_overall?.negative&&o.push(`[NEGATIVE: ${t.prompt_overall.negative}]`),t.lyrics.sections.forEach(e=>{let i=t.prompts_seccionais?.[e.name],r=i?.positive&&i.positive!=="__wizard__"?`: ${P(i.positive)}`:"";o.push(`[${e.name}${r}]`),e.content&&o.push(e.content),o.push("")}),o.join(`
+`).trim()}function U(t){let o=t.split(`
+`),e=[],i=null;return o.forEach(r=>{let s=r.trim().match(/^\[([^\]]+)\]/);if(s){i&&e.push(i);let l=s[1],c=l.indexOf(":");i={name:c>-1?l.slice(0,c).trim():l.trim(),content:""}}else i||(i={name:"",content:""}),i.content+=(i.content?`
+`:"")+r}),i&&e.push(i),e.filter(r=>r.name||r.content.trim())}function ne(t){return/\[[^\]]+\]/.test(t)}function P(t){return t&&t.replace(/^\[[A-Za-z0-9 \-]{1,30}\]\s*/,"").trim()}function se(t){return t&&t.replace(/,?\s*\d+\s*bars?\b/gi,"").replace(/,\s*,/g,",").replace(/^,\s*/,"").replace(/,\s*$/,"").trim()}function ae(t){let o=t.replace(/```json|```/g,"").trim();try{return JSON.parse(o)}catch(e){let i=o.match(/\{[\s\S]*\}/);if(i)return JSON.parse(i[0]);throw e}}function le(t){if(!t)return"";let o="";return t.lyrics.sections.forEach(e=>{let i=t.prompts_seccionais?.[e.name],s=[i?.positive&&i.positive!=="__wizard__"?P(i.positive):"",i?.techTranslated||""].filter(Boolean).join(", "),l=s?": "+s:"";e.name&&(o+=`[${e.name}${l}]
+`),o+=e.content+`
 
-/* ── module: feedloop.js ── */
-// ═══════════════════════════════════════════════════════════════
-// MODULE: Feedback Loop  |  feedloop.js
-// Pipeline OS · module file · loads via build.sh concatenation
-// ═══════════════════════════════════════════════════════════════
+`}),o.trim()}function G(t){return!t||t===0?"":t<=20?"subtle swing":t<=40?"laid-back swing":t<=60?"medium swing, swung hi-hats":t<=80?"hard swing":"shuffle feel"}function ce(t){if(!t)return"";let o=[];if(t.bars&&o.push(t.bars+" bars"),t.vocal?.length){let i={rap:"rap flow",sung:"sung vocals",spoken:"spoken word",adlibs:"ad libs",harmonies:"vocal harmonies",instrumental:"instrumental"};t.vocal.forEach(r=>o.push(i[r]||r))}t.timeFeel&&o.push(t.timeFeel+" feel");let e=G(t.swingFeel);if(e&&o.push(e),t.energy){let i={build:"building energy",sustained:"sustained energy",peak:"peak energy",drop:"energy drop",breakdown:"breakdown"};o.push(i[t.energy]||t.energy)}return t.feel?.length&&t.feel.forEach(i=>o.push(i)),o.join(", ")}function pe(t){return j[t.toLowerCase()]||4}function de(t){return t?t.split(`
+`).map(o=>{let e=o.trim(),i=e.match(/^\[([^\]]+)\]/);if(i){let r=i[1],s=r.indexOf(":");if(s>-1)return`<span style="color:var(--cyan)">[<span style="font-weight:500">${E(r.slice(0,s))}</span><span style="color:var(--muted);font-style:italic">${E(r.slice(s))}</span>]</span>`;let l=window.getSectionDisplayPrompt?window.getSectionDisplayPrompt(r):"";return l&&l!=="__wizard__"?`<span style="color:var(--cyan)">[<span style="font-weight:500">${E(r)}</span><span style="color:var(--muted);font-style:italic">: ${E(l)}</span>]</span>`:`<span style="color:var(--cyan);font-weight:500">[${E(r)}]</span>`}return e?`<span>${E(o)}</span>`:"<span>&nbsp;</span>"}).join(`
+`):`<span style="color:var(--muted);opacity:.4">Paste lyrics here...
 
-function bodyFeedLoop(idx){
-  const p=pipeline[idx];if(!p.data)p.data={};
-  const d=p.data;
-  const activeTab=d.flTab||'log';
-  let h=`<div class="mod-tabs"><button class="mod-tab${activeTab==='log'?' active':''}" onclick="flTab(${idx},'log')">📋 Listen Log</button><button class="mod-tab${activeTab==='synthesis'?' active':''}" onclick="flTab(${idx},'synthesis')">🔮 AI Synthesis</button><button class="mod-tab${activeTab==='history'?' active':''}" onclick="flTab(${idx},'history')">🕐 Run History</button></div>`;
-  // ── Listen Log tab ──
-  h+=`<div class="mod-tab-pane${activeTab==='log'?' active':''}">`;
-  const rating=d.rating||0;
-  h+=`<div style="padding:14px 16px 0">`;
-  h+=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;"><div style="font-family:'Syne',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)">Overall Feel</div><div style="display:flex;gap:2px;">${[1,2,3,4,5].map(n=>`<button onclick="flRate(${idx},${n})" style="font-size:18px;background:none;border:none;cursor:pointer;opacity:${rating>=n?1:.2};padding:0 2px;transition:opacity .15s">${rating>=n?'★':'☆'}</button>`).join('')}</div>${rating?`<span style="font-size:9px;color:var(--amber);font-family:'Syne',sans-serif;font-weight:700">${rating}/5</span>`:''}</div>`;
-  h+=`<div style="margin-bottom:10px"><label style="font-family:'Syne',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--green)">What worked 🟢</label><textarea class="li-input" style="height:72px;margin-top:4px" placeholder="Ex: chorus energy felt right, flow in Verse 1 was natural, overall vibe matched the brief…" oninput="flUpdate(${idx},'worked',this.value)">${esc(d.worked||'')}</textarea></div>`;
-  h+=`<div style="margin-bottom:10px"><label style="font-family:'Syne',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--red)">What to change 🔴</label><textarea class="li-input" style="height:72px;margin-top:4px" placeholder="Ex: bridge too long, pre-chorus vocals too complex, overall prompt too vague, missing the grit…" oninput="flUpdate(${idx},'tochange',this.value)">${esc(d.tochange||'')}</textarea></div>`;
-  h+=`<div style="margin-bottom:14px"><label style="font-family:'Syne',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)">Suno URL (optional)</label><input class="li-input" style="height:34px;margin-top:4px" type="text" placeholder="https://suno.com/song/..." value="${esc(d.sunoUrl||'')}" oninput="flUpdate(${idx},'sunoUrl',this.value)"></div>`;
-  h+=`</div>`;
-  h+=`<div style="padding:10px 16px 14px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:center;"><button class="m-btn m-btn-ai" onclick="runFeedLoop(${idx})" ${!pipelineObj?'disabled':''}>↺ Synthesize Iteration Plan</button>${!pipelineObj?'<span style="font-size:10px;color:var(--muted)">Lock pipeline first</span>':''}</div>`;
-  h+=`</div>`;
-  // ── Synthesis tab ──
-  h+=`<div class="mod-tab-pane${activeTab==='synthesis'?' active':''}">`;
-  if(d.flSynth){h+=renderFLSynth(d.flSynth,idx);}
-  else{h+=`<div style="padding:36px 16px;text-align:center;color:var(--muted);font-size:11px">Fill the Listen Log tab, then click <strong>Synthesize Iteration Plan</strong>.</div>`;}
-  h+=`</div>`;
-  // ── History tab ──
-  h+=`<div class="mod-tab-pane${activeTab==='history'?' active':''}">`;
-  const hist=d.flHistory||[];
-  if(hist.length){
-    h+=`<div style="padding:12px 16px;">`;
-    hist.slice().reverse().forEach((run,ri)=>{
-      const rn=hist.length-ri;
-      const stars=[1,2,3,4,5].map(n=>n<=(run.rating||0)?'★':'☆').join('');
-      h+=`<div style="border:1px solid var(--border);border-radius:5px;padding:10px 12px;margin-bottom:8px;">`;
-      h+=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;"><span style="font-family:'Syne',sans-serif;font-size:10px;font-weight:700;color:var(--text2)">Run ${rn}</span><span style="color:var(--amber);letter-spacing:1px;font-size:12px">${stars}</span><span style="font-size:9px;color:var(--muted);margin-left:auto">${esc(run.date||'')}</span></div>`;
-      if(run.worked)h+=`<div style="font-size:10px;color:var(--green);margin-bottom:3px;line-height:1.4">🟢 ${esc(run.worked.length>130?run.worked.substring(0,130)+'…':run.worked)}</div>`;
-      if(run.tochange)h+=`<div style="font-size:10px;color:var(--red);line-height:1.4">🔴 ${esc(run.tochange.length>130?run.tochange.substring(0,130)+'…':run.tochange)}</div>`;
-      h+=`</div>`;
-    });
-    h+=`</div>`;
-  }else{
-    h+=`<div style="padding:36px 16px;text-align:center;color:var(--muted);font-size:11px">No runs logged yet.<br>Synthesize your first iteration to build history.</div>`;
-  }
-  h+=`</div>`;
-  return h;
-}
+[Verse 1]
+line
 
-function flTab(idx,tab){
-  const p=pipeline[idx];if(!p)return;if(!p.data)p.data={};
-  p.data.flTab=tab;
-  const mod=getEl('module-'+idx);if(!mod)return;
-  const tabs=mod.querySelectorAll('.mod-tab');
-  const panes=mod.querySelectorAll('.mod-tab-pane');
-  const order=['log','synthesis','history'];
-  const ti=order.indexOf(tab);
-  tabs.forEach((t,i)=>t.classList.toggle('active',i===ti));
-  panes.forEach((pn,i)=>pn.classList.toggle('active',i===ti));
-}
-function flUpdate(idx,field,val){const p=pipeline[idx];if(!p)return;if(!p.data)p.data={};p.data[field]=val;}
-function flRate(idx,n){const p=pipeline[idx];if(!p)return;if(!p.data)p.data={};p.data.rating=n;renderModules();}
+[Chorus]
+line</span>`}function ue(t,o){let{doMerge:e=!0,maxLen:i=40}=o||{},r=U(t),s=new Map;return{sections:r.map(c=>{let p=c.content.trim().toLowerCase().replace(/\s+/g," ");if(s.has(p))return{...c,dupe:!0,dupeOf:s.get(p)};c.name&&s.set(p,c.name);let d=c.content.split(`
+`).map(v=>v.trim()).filter(v=>v);if(e){let v=[],g="";d.forEach(h=>{g&&(g+" "+h).length<=i?g+=`
+`+h:(g&&v.push(g),g=h)}),g&&v.push(g),d=v}return{...c,lines:d,dupe:!1}})}}function me(t){return t.filter(o=>!o.dupe).map(o=>`[${o.name}]
+${o.lines.join(`
+`)}`).join(`
 
-function renderFLSynth(synth,idx){
-  if(!synth)return'';
-  let h=`<div style="padding:14px 16px;">`;
-  if(synth._loading){h+=`<div style="text-align:center;padding:24px 0;color:var(--muted);font-size:11px">↺ Analyzing feedback…</div>`;h+=`</div>`;return h;}
-  if(synth.summary)h+=`<div style="font-size:12px;color:var(--text);line-height:1.6;margin-bottom:16px;padding:10px 14px;border:1px solid var(--border2);border-radius:6px;background:var(--surface2)">${esc(synth.summary)}</div>`;
-  const sections=[
-    {key:'lyric_changes',label:'Lyric Changes',color:'var(--accent)'},
-    {key:'prompt_changes',label:'Overall Prompt Changes',color:'var(--cyan)'},
-    {key:'section_changes',label:'Section Prompt Changes',color:'var(--amber)'},
-    {key:'structural_changes',label:'Structural Changes',color:'var(--purple)'}
-  ];
-  sections.forEach(sec=>{
-    const items=synth[sec.key];if(!items?.length)return;
-    h+=`<div style="margin-bottom:14px;"><div style="font-family:'Syne',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:${sec.color};margin-bottom:6px">${sec.label}</div>`;
-    items.forEach(item=>{h+=`<div style="font-size:11px;color:var(--text2);padding:5px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:flex-start;line-height:1.45"><span style="color:${sec.color};flex-shrink:0;margin-top:1px">→</span><span>${esc(item)}</span></div>`;});
-    h+=`</div>`;
-  });
-  if(synth.next_step)h+=`<div style="margin:8px 0 14px;padding:8px 12px;background:rgba(200,255,87,.06);border:1px solid rgba(200,255,87,.2);border-radius:5px;font-size:11px;color:var(--accent);line-height:1.5">🎯 <strong>Next step:</strong> ${esc(synth.next_step)}</div>`;
-  h+=`<div style="display:flex;gap:8px;border-top:1px solid var(--border);padding-top:12px;"><button class="m-btn m-btn-ghost" onclick="flCopySynth(${idx})">⎘ Copy as Note</button><button class="m-btn m-btn-ghost" onclick="runFeedLoop(${idx})" style="margin-left:auto">↺ Re-run</button></div>`;
-  h+=`</div>`;
-  return h;
-}
-
-async function runFeedLoop(idx){
-  const key=loadKey();if(!key){showToast('API key required');return;}
-  if(!pipelineObj){showToast('Lock pipeline first');return;}
-  const p=pipeline[idx];if(!p.data)p.data={};
-  const d=p.data;
-  if(!d.worked&&!d.tochange){showToast('Fill in what worked / what to change first');return;}
-  if(!d.flHistory)d.flHistory=[];
-  d.flHistory.push({date:new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}),rating:d.rating||0,worked:d.worked||'',tochange:d.tochange||''});
-  if(d.flHistory.length>12)d.flHistory.shift();
-  d.flTab='synthesis';d.flSynth={_loading:true};
-  renderModules();
-  const obj=pipelineObj;
-  const sections=(obj.lyrics?.sections||[]).map(s=>s.name).join(', ');
-  const overallPrompt=obj.prompt_overall?.positive||LI.promptOverall||'';
-  const sysPrompt=`You are a music production iteration analyst. Given post-generation listening feedback, produce a concrete actionable iteration plan for the next Suno AI generation attempt. Respond in English only. Return only valid JSON.`;
-  const userMsg=`Track: "${obj.meta?.name||'untitled'}"
-Style: ${obj.meta?.style||''}
-Sections: ${sections}
-Overall Prompt: ${overallPrompt}
-Rating: ${d.rating||0}/5
+`)}window.esc=E;window.getEl=H;window.showToast=oe;window.objHash=ie;window.objPreview=re;window.detectSections=U;window.hasSections=ne;window.stripSecTag=P;window.stripBarsText=se;window.parseJSON=ae;window.sunoFormat=le;window.swingLabel=G;window.translateTechniques=ce;window.hmDefaultBars=pe;window.syntaxHL=de;window.cleanLyrics=ue;window.buildPlain=me;var fe="https://api.anthropic.com/v1/messages",ge="2023-06-01",he="claude-sonnet-4-20250514";async function ye(t,o){let e={model:o.model||he,max_tokens:o.max_tokens||1024,messages:o.messages};o.system&&(e.system=o.system);let i=await fetch(fe,{method:"POST",headers:{"Content-Type":"application/json","x-api-key":t,"anthropic-version":ge,"anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify(e)});if(!i.ok){let r=await i.json().catch(()=>({}));throw new Error(r.error?.message||`HTTP ${i.status}`)}return i.json()}function ve(t){return(t.content||[]).map(o=>o.text||"").join("")}window.claudeCall=ye;window.extractText=ve;var be={PIPELINE_OBJ:"pipelineObj",LYRICS_SECTIONS:"lyrics.sections",PROMPT_OVERALL:"prompt_overall",PROMPTS_SECCIONAIS:"prompts_seccionais",META:"meta",LYRIC_WIZARD:"analysis.lyricWizard",PROMPT_WIZARD:"analysis.promptWizard",HIT_DETECTIVE:"analysis.hitDetective",NEG_ANALYZER:"analysis.negativeAnalyzer",FEEDLOOP:"analysis.feedloop"};function N(t,o){if(!t||!o?.length)return{};let e={};for(let i of o){let r=i.split("."),s=t;for(let l of r){if(s==null){s=void 0;break}s=s[l]}e[i]=s}return e}window.SLOTS=be;window.resolveContract=N;var L=window.MODULE_DEFS,D=window._mr;function w(t,o){L&&!L.find(e=>e.id===t.id)&&L.push(t),D&&o&&(D[t.id]=o)}function we(){return L||[]}function xe(t){return D?.[t]||null}var V=null;function ke(t){V=t}function Se(){V&&V()}window.registerModule=w;window.getModuleDefs=we;window.getModuleBody=xe;window.resolveContract=N;window.renderModules=Se;window.setRenderFn=ke;var J=null,M=!1;function K(){M=!0}function I(){let t=window.activeSession;if(!t)return;let o=window.captureLIState;if(!o)return;let e={lyricInput:o(),pipelineObj:window.pipelineObj?JSON.parse(JSON.stringify(window.pipelineObj)):null,moduleData:Te(),savedAt:new Date().toISOString()};window.dbSet("pipeline_track_state_"+t.artistId+"_"+t.track,e),M=!1}function Te(){let t=window.pipeline;if(!t?.length)return{};let o={};return t.forEach((e,i)=>{e.data&&Object.keys(e.data).length>0&&(o[e.defId||i]=JSON.parse(JSON.stringify(e.data)))}),o}function Ee(t,o){K(),clearTimeout(J),J=setTimeout(()=>{M&&I()},500)}var C=null;function Ae(t=3e3){C&&clearInterval(C),C=setInterval(()=>{M&&window.activeSession&&I()},t)}function Oe(){C&&(clearInterval(C),C=null)}function Ce(){I()}window.persistModule=Ee;window.persistNow=I;window.markDirty=K;window.startAutosave=Ae;window.stopAutosave=Oe;window.savePipelineSnapshot=Ce;var $e=[{id:"generator",icon:"\u270D",title:"Lyric Generator",subtitle:"lyrics + prompt \xB7 pre-input",color:"var(--accent)",preOnly:!0,contract:{needs:[],delivers:["lyrics.sections","prompt_overall"]}},{id:"cleaner",icon:"\u2298",title:"Lyric Cleaner",subtitle:"strips prompt noise",color:"var(--accent)",contract:{needs:["lyrics.sections"],delivers:[]}},{id:"wizard",icon:"\u2726",title:"Lyric Wizard",subtitle:"full + sections \xB7 analysis",color:"var(--purple)",contract:{needs:["lyrics.sections"],delivers:["analysis.lyricWizard"]}},{id:"pwizard",icon:"\u229B",title:"Prompt Wizard",subtitle:"overall + sections \xB7 generate",color:"var(--cyan)",contract:{needs:["pipelineObj"],delivers:["analysis.promptWizard","prompt_overall","prompts_seccionais"]}},{id:"hitdet",icon:"\u{1F50D}",title:"Hit Detective",subtitle:"3-layer interaction analysis",color:"var(--amber)",contract:{needs:["pipelineObj","analysis.lyricWizard","analysis.promptWizard"],delivers:["analysis.hitDetective"]}},{id:"neganalyzer",icon:"\u26A0",title:"Negative Analyzer",subtitle:"lyrics + prompts flags",color:"var(--red)",contract:{needs:["lyrics.sections","prompt_overall","prompts_seccionais"],delivers:["analysis.negativeAnalyzer","prompt_overall.negative"]}},{id:"spotlight",icon:"\u25C9",title:"Section Spotlight",subtitle:"section-by-section editor",color:"var(--amber)",contract:{needs:["lyrics.sections","prompts_seccionais"],delivers:["lyrics.sections","prompts_seccionais"]}},{id:"rhymestash",icon:"\u{1F48E}",title:"Rhyme Stash",subtitle:"EN \xB7 ES \xB7 PT",color:"var(--purple)",contract:{needs:[],delivers:[]}},{id:"hitmaker",icon:"\u26A1",title:"Hit Maker",subtitle:"one-click full optimization",color:"var(--green)",contract:{needs:["pipelineObj"],delivers:["lyrics.sections","prompts_seccionais","prompt_overall"]}},{id:"suno",icon:"\u25B6",title:"Send to Suno",subtitle:"consolidate \xB7 export \xB7 count",color:"var(--green)",contract:{needs:["pipelineObj"],delivers:[]}},{id:"distro",icon:"\u27D0",title:"Upload to Distro",subtitle:"organic crivo \xB7 metadata",color:"var(--blue)",contract:{needs:[],delivers:[]}}];$e.forEach(t=>w(t,null));var _e={id:"feedloop",icon:"\u21BA",title:"Feedback Loop",subtitle:"post-generation \xB7 iterate",color:"var(--cyan)",contract:{needs:["pipelineObj"],delivers:["analysis.feedloop"]}};function ze(t){let o=window.pipeline[t];o.data||(o.data={});let e=o.data,i=e.flTab||"log",r=`<div class="mod-tabs"><button class="mod-tab${i==="log"?" active":""}" onclick="flTab(${t},'log')">\u{1F4CB} Listen Log</button><button class="mod-tab${i==="synthesis"?" active":""}" onclick="flTab(${t},'synthesis')">\u{1F52E} AI Synthesis</button><button class="mod-tab${i==="history"?" active":""}" onclick="flTab(${t},'history')">\u{1F550} Run History</button></div>`;r+=`<div class="mod-tab-pane${i==="log"?" active":""}">`;let s=e.rating||0;r+='<div style="padding:14px 16px 0">',r+=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;"><div style="font-family:'Syne',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)">Overall Feel</div><div style="display:flex;gap:2px;">${[1,2,3,4,5].map(c=>`<button onclick="flRate(${t},${c})" style="font-size:18px;background:none;border:none;cursor:pointer;opacity:${s>=c?1:.2};padding:0 2px;transition:opacity .15s">${s>=c?"\u2605":"\u2606"}</button>`).join("")}</div>${s?`<span style="font-size:9px;color:var(--amber);font-family:'Syne',sans-serif;font-weight:700">${s}/5</span>`:""}</div>`,r+=`<div style="margin-bottom:10px"><label style="font-family:'Syne',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--green)">What worked \u{1F7E2}</label><textarea class="li-input" style="height:72px;margin-top:4px" placeholder="Ex: chorus energy felt right, flow in Verse 1 was natural, overall vibe matched the brief\u2026" oninput="flUpdate(${t},'worked',this.value)">${k(e.worked||"")}</textarea></div>`,r+=`<div style="margin-bottom:10px"><label style="font-family:'Syne',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--red)">What to change \u{1F534}</label><textarea class="li-input" style="height:72px;margin-top:4px" placeholder="Ex: bridge too long, pre-chorus vocals too complex, overall prompt too vague, missing the grit\u2026" oninput="flUpdate(${t},'tochange',this.value)">${k(e.tochange||"")}</textarea></div>`,r+=`<div style="margin-bottom:14px"><label style="font-family:'Syne',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)">Suno URL (optional)</label><input class="li-input" style="height:34px;margin-top:4px" type="text" placeholder="https://suno.com/song/..." value="${k(e.sunoUrl||"")}" oninput="flUpdate(${t},'sunoUrl',this.value)"></div>`,r+="</div>",r+=`<div style="padding:10px 16px 14px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:center;"><button class="m-btn m-btn-ai" onclick="runFeedLoop(${t})" ${window.pipelineObj?"":"disabled"}>\u21BA Synthesize Iteration Plan</button>${window.pipelineObj?"":'<span style="font-size:10px;color:var(--muted)">Lock pipeline first</span>'}</div>`,r+="</div>",r+=`<div class="mod-tab-pane${i==="synthesis"?" active":""}">`,e.flSynth?r+=Re(e.flSynth,t):r+='<div style="padding:36px 16px;text-align:center;color:var(--muted);font-size:11px">Fill the Listen Log tab, then click <strong>Synthesize Iteration Plan</strong>.</div>',r+="</div>",r+=`<div class="mod-tab-pane${i==="history"?" active":""}">`;let l=e.flHistory||[];return l.length?(r+='<div style="padding:12px 16px;">',l.slice().reverse().forEach((c,p)=>{let d=l.length-p,v=[1,2,3,4,5].map(g=>g<=(c.rating||0)?"\u2605":"\u2606").join("");r+='<div style="border:1px solid var(--border);border-radius:5px;padding:10px 12px;margin-bottom:8px;">',r+=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;"><span style="font-family:'Syne',sans-serif;font-size:10px;font-weight:700;color:var(--text2)">Run ${d}</span><span style="color:var(--amber);letter-spacing:1px;font-size:12px">${v}</span><span style="font-size:9px;color:var(--muted);margin-left:auto">${k(c.date||"")}</span></div>`,c.worked&&(r+=`<div style="font-size:10px;color:var(--green);margin-bottom:3px;line-height:1.4">\u{1F7E2} ${k(c.worked.length>130?c.worked.substring(0,130)+"\u2026":c.worked)}</div>`),c.tochange&&(r+=`<div style="font-size:10px;color:var(--red);line-height:1.4">\u{1F534} ${k(c.tochange.length>130?c.tochange.substring(0,130)+"\u2026":c.tochange)}</div>`),r+="</div>"}),r+="</div>"):r+='<div style="padding:36px 16px;text-align:center;color:var(--muted);font-size:11px">No runs logged yet.<br>Synthesize your first iteration to build history.</div>',r+="</div>",r}function Le(t,o){let e=window.pipeline[t];if(!e)return;e.data||(e.data={}),e.data.flTab=o;let i=window.getEl("module-"+t);if(!i)return;let r=i.querySelectorAll(".mod-tab"),s=i.querySelectorAll(".mod-tab-pane"),c=["log","synthesis","history"].indexOf(o);r.forEach((p,d)=>p.classList.toggle("active",d===c)),s.forEach((p,d)=>p.classList.toggle("active",d===c))}function Me(t,o,e){let i=window.pipeline[t];i&&(i.data||(i.data={}),i.data[o]=e)}function Ie(t,o){let e=window.pipeline[t];e&&(e.data||(e.data={}),e.data.rating=o,window.renderModules())}function Re(t,o){if(!t)return"";let e='<div style="padding:14px 16px;">';return t._loading?(e+='<div style="text-align:center;padding:24px 0;color:var(--muted);font-size:11px">\u21BA Analyzing feedback\u2026</div>',e+="</div>",e):(t.summary&&(e+=`<div style="font-size:12px;color:var(--text);line-height:1.6;margin-bottom:16px;padding:10px 14px;border:1px solid var(--border2);border-radius:6px;background:var(--surface2)">${k(t.summary)}</div>`),[{key:"lyric_changes",label:"Lyric Changes",color:"var(--accent)"},{key:"prompt_changes",label:"Overall Prompt Changes",color:"var(--cyan)"},{key:"section_changes",label:"Section Prompt Changes",color:"var(--amber)"},{key:"structural_changes",label:"Structural Changes",color:"var(--purple)"}].forEach(r=>{let s=t[r.key];s?.length&&(e+=`<div style="margin-bottom:14px;"><div style="font-family:'Syne',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:${r.color};margin-bottom:6px">${r.label}</div>`,s.forEach(l=>{e+=`<div style="font-size:11px;color:var(--text2);padding:5px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:flex-start;line-height:1.45"><span style="color:${r.color};flex-shrink:0;margin-top:1px">\u2192</span><span>${k(l)}</span></div>`}),e+="</div>")}),t.next_step&&(e+=`<div style="margin:8px 0 14px;padding:8px 12px;background:rgba(200,255,87,.06);border:1px solid rgba(200,255,87,.2);border-radius:5px;font-size:11px;color:var(--accent);line-height:1.5">\u{1F3AF} <strong>Next step:</strong> ${k(t.next_step)}</div>`),e+=`<div style="display:flex;gap:8px;border-top:1px solid var(--border);padding-top:12px;"><button class="m-btn m-btn-ghost" onclick="flCopySynth(${o})">\u2398 Copy as Note</button><button class="m-btn m-btn-ghost" onclick="runFeedLoop(${o})" style="margin-left:auto">\u21BA Re-run</button></div>`,e+="</div>",e)}async function je(t){let o=window.getKey();if(!o){window.showToast("API key required");return}if(!window.pipelineObj){window.showToast("Lock pipeline first");return}let e=window.pipeline[t];e.data||(e.data={});let i=e.data;if(!i.worked&&!i.tochange){window.showToast("Fill in what worked / what to change first");return}i.flHistory||(i.flHistory=[]),i.flHistory.push({date:new Date().toLocaleString("en-US",{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"}),rating:i.rating||0,worked:i.worked||"",tochange:i.tochange||""}),i.flHistory.length>12&&i.flHistory.shift(),i.flTab="synthesis",i.flSynth={_loading:!0},window.renderModules();let r=window.pipelineObj,s=(r.lyrics?.sections||[]).map(d=>d.name).join(", "),l=r.prompt_overall?.positive||window.LI.promptOverall||"",c="You are a music production iteration analyst. Given post-generation listening feedback, produce a concrete actionable iteration plan for the next Suno AI generation attempt. Respond in English only. Return only valid JSON.",p=`Track: "${r.meta?.name||"untitled"}"
+Style: ${r.meta?.style||""}
+Sections: ${s}
+Overall Prompt: ${l}
+Rating: ${i.rating||0}/5
 
 WHAT WORKED:
-${d.worked||(d.rating>=4?'(good generation overall)':'(nothing noted)')}
+${i.worked||(i.rating>=4?"(good generation overall)":"(nothing noted)")}
 
 WHAT TO CHANGE:
-${d.tochange||'(nothing noted)'}
-${d.sunoUrl?'\nReference: '+d.sunoUrl:''}
+${i.tochange||"(nothing noted)"}
+${i.sunoUrl?`
+Reference: `+i.sunoUrl:""}
 
 Return JSON with these fields (only include arrays that have items):
 {
@@ -3419,37 +3601,110 @@ Return JSON with these fields (only include arrays that have items):
   "section_changes": ["[SectionName]: specific change to that section prompt"],
   "structural_changes": ["any structural section order/length change"],
   "next_step": "the single highest-impact action to take"
-}`;
-  try{
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:900,system:sysPrompt,messages:[{role:'user',content:userMsg}]})});
-    const data=await resp.json();
-    const raw=data.content?.[0]?.text||'{}';
-    const jm=raw.match(/\{[\s\S]*\}/);
-    d.flSynth=jm?JSON.parse(jm[0]):{summary:'Could not parse AI response.',lyric_changes:[],prompt_changes:[],section_changes:[],structural_changes:[]};
-    if(pipelineObj){if(!pipelineObj.analysis)pipelineObj.analysis={};pipelineObj.analysis.feedloop=d.flSynth;}
-    showToast('↺ Iteration plan ready');
-  }catch(e){
-    d.flSynth={summary:'Error: '+(e.message||'unknown'),lyric_changes:[],prompt_changes:[],section_changes:[],structural_changes:[]};
-    showToast('Error running feedback synthesis');
-  }
-  renderModules();triggerAutosave('lyric');
+}`;try{let h=((await(await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":o,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:900,system:c,messages:[{role:"user",content:p}]})})).json()).content?.[0]?.text||"{}").match(/\{[\s\S]*\}/);i.flSynth=h?JSON.parse(h[0]):{summary:"Could not parse AI response.",lyric_changes:[],prompt_changes:[],section_changes:[],structural_changes:[]},window.pipelineObj&&(window.pipelineObj.analysis||(window.pipelineObj.analysis={}),window.pipelineObj.analysis.feedloop=i.flSynth),window.showToast("\u21BA Iteration plan ready")}catch(d){i.flSynth={summary:"Error: "+(d.message||"unknown"),lyric_changes:[],prompt_changes:[],section_changes:[],structural_changes:[]},window.showToast("Error running feedback synthesis")}window.renderModules(),window.triggerAutosave("lyric")}function Pe(t){let o=window.pipeline[t]?.data;if(!o?.flSynth)return;let e=o.flSynth,i=["=== FEEDBACK LOOP \u2014 ITERATION PLAN ===",""];e.summary&&i.push(e.summary,""),Object.entries({lyric_changes:"LYRIC CHANGES",prompt_changes:"PROMPT CHANGES",section_changes:"SECTION CHANGES",structural_changes:"STRUCTURAL CHANGES"}).forEach(([s,l])=>{e[s]?.length&&(i.push(l+":"),e[s].forEach(c=>i.push("  \u2192 "+c)),i.push(""))}),e.next_step&&i.push("NEXT STEP: "+e.next_step),navigator.clipboard.writeText(i.join(`
+`)).then(()=>window.showToast("Copied!")).catch(()=>window.showToast("Copy failed"))}w(_e,ze);window.flTab=Le;window.flUpdate=Me;window.flRate=Ie;window.runFeedLoop=je;window.flCopySynth=Pe;function k(t){return window.esc(t)}var Ne={id:"hitscore",icon:"\u{1F4CA}",title:"Hit Score Checklist",subtitle:"66 criteria \xB7 Spotify 1M+ research",color:"var(--purple)",contract:{needs:["lyrics.sections","meta"],delivers:[]}},A=[{id:"duration",emoji:"\u23F1\uFE0F",title:"DURATION & TIMING",color:"var(--amber)",items:[{id:"d1",text:"Duration between 2:30 and 3:30 min (ideal stream zone)",critical:!0},{id:"d2",text:"Never exceed 4:00 min (high skip risk)",critical:!0},{id:"d3",text:"Hook/chorus appears before 45 seconds",critical:!0},{id:"d4",text:"First 30 seconds are irresistible (Spotify royalty threshold)",critical:!0},{id:"d5",text:"Intro doesn't exceed 10-15 seconds",critical:!1},{id:"d6",text:"No long silence or skip-inviting sections",critical:!1}]},{id:"structure",emoji:"\u{1F3D7}\uFE0F",title:"SONG STRUCTURE",color:"var(--purple)",items:[{id:"s1",text:"Follows: Intro \u2192 Verse \u2192 Pre-Chorus \u2192 Chorus \u2192 Verse \u2192 Pre-Chorus \u2192 Chorus \u2192 Bridge \u2192 Final Chorus",critical:!0},{id:"s2",text:"Chorus appears at least 3 times",critical:!0},{id:"s3",text:"Each verse has different lyrics (same melody)",critical:!1},{id:"s4",text:"Pre-chorus (lift) creates tension and anticipation",critical:!1},{id:"s5",text:"Bridge exists and offers contrast (new lyrical and musical angle)",critical:!1},{id:"s6",text:"Final chorus has more energy than previous ones (build-up)",critical:!1},{id:"s7",text:"Outro is a chorus fade-out or condensed version",critical:!1}]},{id:"hook",emoji:"\u{1FA9D}",title:"HOOK & CHORUS",color:"var(--red)",items:[{id:"h1",text:"Hook has max 1-2 short, memorable phrases",critical:!0},{id:"h2",text:"Song title is in the chorus (1st or last line)",critical:!0},{id:"h3",text:"Can be hummed effortlessly after 1st listen",critical:!0},{id:"h4",text:"Chorus synthesizes the emotional theme in few words",critical:!0},{id:"h5",text:"Hook creates earworm (phrase that sticks in the head)",critical:!0},{id:"h6",text:"Simple, accessible vocabulary \u2014 no obscure jargon",critical:!1},{id:"h7",text:"Has a 'surprise phrase' or melodic twist in the chorus",critical:!1}]},{id:"lyrics",emoji:"\u270D\uFE0F",title:"LYRICS & CONTENT",color:"var(--green)",items:[{id:"l1",text:"Universal theme: love, loss, identity, overcoming, party or freedom",critical:!0},{id:"l2",text:"Lyrics evoke strong emotion (joy, pain, anger or euphoria)",critical:!0},{id:"l3",text:"Lyrics are specific in verse details but generic in chorus",critical:!1},{id:"l4",text:"Uses conversational language (how we actually talk)",critical:!1},{id:"l5",text:"Has strong visual and sensory imagery (not just abstractions)",critical:!1},{id:"l6",text:"Listener can IDENTIFY or PROJECT themselves into the story",critical:!0},{id:"l7",text:"Lyric rhythm fits naturally into the beat (not forced)",critical:!1},{id:"l8",text:"Verse 2 deepens or advances Verse 1 narrative",critical:!1},{id:"l9",text:"Bridge offers new perspective or emotional twist",critical:!1},{id:"l10",text:"Avoids worn-out clich\xE9s \u2014 or subverts them originally",critical:!1}]},{id:"audio",emoji:"\u{1F39B}\uFE0F",title:"AUDIO CHARACTERISTICS",color:"var(--amber)",items:[{id:"a1",text:"BPM between 90\u2013130 (highest danceability and energy zone)",critical:!0},{id:"a2",text:"High danceability (above 0.65 on Spotify scale)",critical:!1},{id:"a3",text:"High energy (above 0.65 on Spotify scale)",critical:!1},{id:"a4",text:"Major key for positive/energetic feeling",critical:!1},{id:"a5",text:"Loudness between -6 and -4 dB (ideal streaming compression)",critical:!1},{id:"a6",text:"Moderate speechiness: 4-10%",critical:!1},{id:"a7",text:"Low instrumentalness (vocal present and dominant)",critical:!0},{id:"a8",text:"Medium-high valence (mood between neutral and positive)",critical:!1},{id:"a9",text:"4/4 time signature (practically universal in hits)",critical:!0},{id:"a10",text:"Studio recorded (low liveness \u2014 doesn't sound live)",critical:!1}]},{id:"production",emoji:"\u{1F39A}\uFE0F",title:"MUSIC PRODUCTION",color:"var(--blue)",items:[{id:"p1",text:"Clean production, professionally mastered for streaming",critical:!0},{id:"p2",text:"Beat/rhythm is the first element that 'hooks' the listener",critical:!1},{id:"p3",text:"Arrangement grows progressively \u2014 doesn't give everything at once",critical:!1},{id:"p4",text:"Clear contrast between verse (restrained) and chorus (full)",critical:!0},{id:"p5",text:"Uses at least one distinctive/iconic sonic element",critical:!1},{id:"p6",text:"No frequencies that tire headphone listeners",critical:!1},{id:"p7",text:"Lead vocal is loud and clear in the mix",critical:!1},{id:"p8",text:"Drop or emotional 'release' moment well-marked",critical:!1},{id:"p9",text:"Sound aligned with target genre but with authorial difference",critical:!1}]},{id:"melody",emoji:"\u{1F3B5}",title:"MELODY & HARMONY",color:"var(--purple)",items:[{id:"m1",text:"Main melody is singable (fits average human voice)",critical:!0},{id:"m2",text:"Chorus is in a higher note than the verse (creates emotional lift)",critical:!0},{id:"m3",text:"Chord progression is familiar but not too obvious",critical:!1},{id:"m4",text:"Uses harmonic tension-resolution (creates and releases expectation)",critical:!1},{id:"m5",text:"Chorus melody can be easily hummed/whistled",critical:!0},{id:"m6",text:"Has at least one 'surprise note' that marks the song",critical:!1},{id:"m7",text:"No unintentional aggressive dissonances",critical:!1}]},{id:"virality",emoji:"\u{1F4F1}",title:"VIRAL & PLATFORM POTENTIAL",color:"var(--cyan)",items:[{id:"v1",text:"Has a perfect 15-second snippet for TikTok/Reels",critical:!0},{id:"v2",text:"Hook provokes emotional reaction that incentivizes sharing",critical:!0},{id:"v3",text:"Beat invites movement (danceable or head-bob)",critical:!1},{id:"v4",text:"Has challenge, choreography or meme potential",critical:!1},{id:"v5",text:"Title is short, memorable and easy to search",critical:!1},{id:"v6",text:"Song works well EVEN with screen off/no visual attention",critical:!1},{id:"v7",text:"Suitable for mood playlists (workout, sad, party, romance)",critical:!1}]},{id:"emotional",emoji:"\u{1F4A5}",title:"EMOTIONAL IMPACT",color:"var(--green)",items:[{id:"e1",text:"Song provokes a SPECIFIC and intense emotion, not generic",critical:!0},{id:"e2",text:"Has a 'goosebumps' moment \u2014 emotional peak that marks",critical:!0},{id:"e3",text:"Listener wants to replay immediately after it ends",critical:!0},{id:"e4",text:"Creates sense of belonging or community ('this song is mine')",critical:!1},{id:"e5",text:"Emotional narrative has arc: tension \u2192 climax \u2192 resolution",critical:!1},{id:"e6",text:"Lyrics have line(s) the listener will want to post/quote",critical:!1}]}],z=A.flatMap(t=>t.items).length,B=A.flatMap(t=>t.items).filter(t=>t.critical).length;function F(t){return t>=85?"var(--green)":t>=65?"var(--amber)":"var(--red)"}function De(t){return t>=90?"\u{1F525} READY FOR HIT":t>=75?"\u2705 GOOD PATH":t>=55?"\u26A0\uFE0F NEEDS ADJUSTMENT":"\u274C STILL A DRAFT"}function $(t){return window.esc(t)}function Ve(t){let o=window.pipeline[t];o.data||(o.data={});let e=o.data;e.hsChecked||(e.hsChecked={}),e.hsFilter||(e.hsFilter="all"),e.hsLyricsOpen||(e.hsLyricsOpen=!1),e.hsCatOpen||(e.hsCatOpen={});let i=e.hsChecked,r=e.hsFilter,s=e.obj||(typeof window.pipelineObj<"u"?window.pipelineObj:null),l=s?.lyrics?.sections||[],c=l.some(u=>u.content&&u.content.trim()),p=s?.meta||{},d=Object.values(i).filter(Boolean).length,v=A.flatMap(u=>u.items).filter(u=>u.critical&&i[u.id]).length,g=Math.round(d/z*100),h=Math.round(v/B*100),n="";if(c){if(n+='<div style="padding:10px 16px;background:rgba(167,139,250,.06);border-bottom:1px solid var(--border);">',n+=`<div onclick="hsTogLyrics(${t})" style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;">`,n+=`<span style="font-size:9px;color:var(--muted);transition:transform .2s;${e.hsLyricsOpen?"transform:rotate(180deg)":""}">\u25BC</span>`,n+=`<span style="font-family:'Syne',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--purple)">LYRICS REFERENCE</span>`,n+=`<span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted)">${l.filter(u=>u.name).length} sections</span>`,p.bpm&&(n+=`<span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);margin-left:auto">${p.bpm} BPM</span>`),p.key&&(n+=`<span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--green);margin-left:4px">${$(p.key)}</span>`),n+="</div>",e.hsLyricsOpen){let u=s?.prompts_seccionais||{};n+=`<div style="margin-top:8px;max-height:200px;overflow-y:auto;font-family:'DM Mono',monospace;font-size:10px;line-height:1.7;color:var(--text2);white-space:pre-wrap;">`,l.forEach(f=>{if(f.name){let y=u[f.name],b=y?.positive&&y.positive!=="__wizard__"?y.positive:"";n+=`<span style="color:var(--accent);font-weight:500">[${$(f.name)}${b?": "+$(b):""}]</span>
+`}f.content&&(n+=$(f.content)+`
+
+`)}),n+="</div>"}n+="</div>"}else n+='<div style="padding:10px 16px;background:rgba(255,85,85,.06);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;">',n+='<span style="font-size:11px;color:var(--red)">\u26A0</span>',n+=`<span style="font-family:'Syne',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--red)">NO LYRICS</span>`,n+='<span style="font-size:10px;color:var(--muted)">Lock Lyric Input &amp; send \u2193 to feed lyrics here</span>',n+="</div>";n+='<div style="padding:14px 16px;display:flex;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--border);">',n+='<div style="flex:1;min-width:120px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 14px;">',n+=`<div style="font-family:'Syne',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)">Overall Score</div>`,n+=`<div style="font-size:28px;font-weight:700;color:${F(g)};line-height:1.2">${g}%</div>`,n+=`<div style="font-size:10px;color:var(--text2)">${d}/${z} criteria</div></div>`,n+='<div style="flex:1;min-width:120px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 14px;">',n+=`<div style="font-family:'Syne',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)">Critical Criteria</div>`,n+=`<div style="font-size:28px;font-weight:700;color:${F(h)};line-height:1.2">${h}%</div>`,n+=`<div style="font-size:10px;color:var(--text2)">${v}/${B} essential</div></div>`,n+='<div style="flex:1;min-width:120px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 14px;">',n+=`<div style="font-family:'Syne',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)">Status</div>`,n+=`<div style="font-size:14px;font-weight:700;color:${F(h)};margin-top:4px">${De(h)}</div>`,n+='<div style="font-size:10px;color:var(--text2)">Target: critical &gt; 85%</div></div>',n+="</div>";let a=typeof window.getKey=="function"?window.getKey():"",m=e.hsRunning||!1;return n+='<div style="padding:10px 16px;display:flex;gap:8px;align-items:center;border-bottom:1px solid var(--border);flex-wrap:wrap;">',n+=`<button class="m-btn m-btn-ai" style="font-size:10px;padding:5px 14px;" onclick="hsAnalyze(${t})" ${!c||!a||m?"disabled":""}>`,n+=m?"\u23F3 Analyzing...":"\u{1F916} Analyze with AI",n+="</button>",a?c||(n+='<span style="font-size:9px;color:var(--muted)">Needs lyrics to analyze</span>'):n+='<span style="font-size:9px;color:var(--muted)">Enter API key at top to analyze</span>',e.hsAiNote&&(n+=`<span style="font-size:9px;color:var(--green);margin-left:auto">${$(e.hsAiNote)}</span>`),n+="</div>",n+='<div style="padding:10px 16px;display:flex;gap:8px;align-items:center;border-bottom:1px solid var(--border);">',n+=`<span style="font-family:'Syne',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)">Filter:</span>`,n+=`<button class="m-btn m-btn-ghost" style="font-size:9px;padding:3px 10px;${r==="all"?"border-color:var(--accent);color:var(--accent)":""}" onclick="hsFilter(${t},'all')">All</button>`,n+=`<button class="m-btn m-btn-ghost" style="font-size:9px;padding:3px 10px;${r==="critical"?"border-color:var(--red);color:var(--red)":""}" onclick="hsFilter(${t},'critical')">\u{1F534} Critical Only</button>`,n+=`<button class="m-btn m-btn-ghost" style="font-size:9px;padding:3px 10px;margin-left:auto;" onclick="hsReset(${t})">\u21BA Reset</button>`,n+="</div>",n+='<div style="padding:8px 16px 16px;max-height:60vh;overflow-y:auto;">',A.forEach(u=>{let f=r==="critical"?u.items.filter(S=>S.critical):u.items;if(!f.length)return;let y=u.items.filter(S=>i[S.id]).length,b=Math.round(y/u.items.length*100),R=e.hsCatOpen[u.id]===!0;n+=`<div style="border:1px solid ${y>0?u.color+"44":"var(--border)"};border-radius:6px;margin-bottom:8px;overflow:hidden;">`,n+=`<div onclick="hsCatToggle(${t},'${u.id}')" style="padding:10px 14px;display:flex;align-items:center;gap:10px;background:var(--surface2);cursor:pointer;user-select:none;${R?"border-bottom:1px solid var(--border)":""}">`,n+=`<span style="font-size:16px">${u.emoji}</span>`,n+=`<span style="font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;color:${u.color}">${u.title}</span>`,n+='<div style="margin-left:auto;display:flex;align-items:center;gap:8px;">',n+=`<div style="width:60px;height:3px;background:var(--border);border-radius:2px;overflow:hidden;"><div style="height:100%;width:${b}%;background:${u.color};border-radius:2px;transition:width .3s"></div></div>`,n+=`<span style="font-family:'DM Mono',monospace;font-size:10px;color:${b===100?u.color:"var(--muted)"}">${y}/${u.items.length}</span>`,n+=`<span style="font-size:9px;color:var(--muted);transition:transform .2s;${R?"transform:rotate(180deg)":""}">\u25BC</span>`,n+="</div></div>",R&&f.forEach(S=>{let T=!!i[S.id];n+=`<div onclick="hsToggle(${t},'${S.id}')" style="display:flex;align-items:flex-start;gap:10px;padding:8px 14px;cursor:pointer;transition:background .15s;${T?"background:"+u.color+"0a":""}" onmouseover="this.style.background=this.style.background||'var(--surface2)'" onmouseout="this.style.background='${T?u.color+"0a":""}'">`,n+=`<div style="width:16px;height:16px;border-radius:4px;border:2px solid ${T?u.color:"var(--border2)"};background:${T?u.color:"transparent"};flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;">`,T&&(n+='<svg width="9" height="7" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7L10 1" stroke="#0b0b0e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'),n+="</div>",n+=`<span style="font-size:12px;color:${T?"var(--text2)":"var(--text)"};line-height:1.5;flex:1;${T?"text-decoration:line-through":""}">${$(S.text)}</span>`,S.critical&&(n+=`<span style="font-size:9px;color:var(--red);border:1px solid rgba(255,85,85,.3);border-radius:3px;padding:1px 6px;font-family:'Syne',sans-serif;font-weight:700;letter-spacing:.06em;flex-shrink:0;margin-top:2px">CRITICAL</span>`),n+="</div>"}),n+="</div>"}),n+='<div style="margin-top:10px;padding:12px 14px;background:rgba(167,139,250,.06);border:1px solid rgba(167,139,250,.15);border-radius:6px;">',n+=`<div style="font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--purple);margin-bottom:6px">\u{1F4CC} HOW TO USE</div>`,n+='<div style="font-size:11px;color:var(--text2);line-height:1.6">Start with <strong style="color:var(--red)">CRITICAL criteria</strong> \u2014 they have the biggest impact on streams. A critical score <strong style="color:var(--green)">above 85%</strong> indicates strong performance potential. Non-critical criteria differentiate good songs from <em>great hits</em>.</div>',n+="</div>",n+="</div>",n}function Fe(t,o){let e=window.pipeline[t];e&&(e.data||(e.data={}),e.data.hsChecked||(e.data.hsChecked={}),e.data.hsChecked[o]=!e.data.hsChecked[o],window.renderModules(),window.triggerAutosave("lyric"))}function Be(t,o){let e=window.pipeline[t];e&&(e.data||(e.data={}),e.data.hsCatOpen||(e.data.hsCatOpen={}),e.data.hsCatOpen[o]=!e.data.hsCatOpen[o],window.renderModules())}function He(t){let o=window.pipeline[t];o&&(o.data||(o.data={}),o.data.hsLyricsOpen=!o.data.hsLyricsOpen,window.renderModules())}function Ue(t,o){let e=window.pipeline[t];e&&(e.data||(e.data={}),e.data.hsFilter=o,window.renderModules())}function Ge(t){let o=window.pipeline[t];o&&(o.data||(o.data={}),o.data.hsChecked={},window.renderModules(),window.triggerAutosave("lyric"))}async function Je(t){let o=window.pipeline[t];if(!o)return;o.data||(o.data={});let e=o.data,i=typeof window.getKey=="function"?window.getKey():"";if(!i){window.showToast("Enter API key at top first");return}let r=e.obj||window.pipelineObj,s=r?.lyrics?.sections||[];if(!s.some(a=>a.content?.trim())){window.showToast("No lyrics to analyze");return}e.hsRunning=!0,window.renderModules();let l="",c=r?.prompts_seccionais||{};s.forEach(a=>{if(a.name){let m=c[a.name],u=m?.positive&&m.positive!=="__wizard__"?m.positive:"";l+=`[${a.name}${u?": "+u:""}]
+`}a.content&&(l+=a.content+`
+
+`)});let p=r?.meta||{},d="";p.bpm&&(d+=`BPM: ${p.bpm}
+`),p.key&&(d+=`Key: ${p.key}
+`),p.timeSig&&(d+=`Time Signature: ${p.timeSig}
+`),p.style&&(d+=`Style: ${p.style}
+`),r?.prompt_overall?.positive&&(d+=`Overall Prompt: ${r.prompt_overall.positive}
+`);let v=A.flatMap(a=>a.items.map(m=>({id:m.id,category:a.title,text:m.text,critical:m.critical}))),g=JSON.stringify(v),h='You are a hit song analyst. You will analyze lyrics and metadata against a checklist of 66 criteria used by top Spotify producers. For each criterion, determine if the song meets it based on the available information. Be strict but fair. If you cannot determine a criterion from lyrics alone (e.g., audio production quality), mark it as unmet. Return ONLY a JSON object with this exact format: {"checked":["d1","s2",...],"summary":"One sentence overall assessment"}. The "checked" array should contain ONLY the IDs of criteria that are clearly met. No markdown, no explanation outside the JSON.',n=`Analyze this song:
+
+${d?`--- METADATA ---
+`+d+`
+`:""}--- LYRICS ---
+${l}
+--- CRITERIA ---
+${g}`;try{let a=await window.claudeCall(i,{max_tokens:2048,system:h,messages:[{role:"user",content:n}]}),u=window.extractText(a).replace(/```json?\n?/g,"").replace(/```/g,"").trim(),f=JSON.parse(u);f.checked&&Array.isArray(f.checked)&&(e.hsChecked={},f.checked.forEach(y=>{e.hsChecked[y]=!0}),e.hsCatOpen={},A.forEach(y=>{e.hsCatOpen[y.id]=!0}),e.hsAiNote=`AI: ${f.checked.length}/${z} criteria met`+(f.summary?" \xB7 "+f.summary:""),window.showToast(`Hit Score: ${Math.round(f.checked.length/z*100)}% \u2014 ${f.checked.length} criteria met`))}catch(a){window.showToast("Analysis failed: "+a.message),console.error("hsAnalyze error:",a)}finally{e.hsRunning=!1,window.renderModules(),window.triggerAutosave("lyric")}}w(Ne,Ve);window.HS_CATEGORIES=A;window.HS_TOTAL=z;window.HS_CRITICAL=B;window.hsToggle=Fe;window.hsCatToggle=Be;window.hsTogLyrics=He;window.hsFilter=Ue;window.hsReset=Ge;window.hsAnalyze=Je;var Ke={id:"sunobuilder",icon:"\u{1F39B}\uFE0F",title:"Suno Prompt Builder",subtitle:"all variables \xB7 compile \u22641000 chars",color:"var(--accent)",contract:{needs:["meta"],delivers:[]}},x=[{id:"genre",lbl:"GENRE",title:"Genre",c:"var(--purple)",type:"chips",multi:!0,groups:[{g:"Indie / Alternative",opts:["indie pop","indie rock","indie folk pop","indie folk","dream pop","shoegaze","lo-fi indie","bedroom pop","jangle pop","chamber pop","art pop","coastal pop"]},{g:"Electronic",opts:["synth pop","electro pop","new wave","darkwave","synthwave","chillwave","vaporwave","electro swing","ambient electronic","IDM","glitch pop","hyperpop"]},{g:"Rock",opts:["classic rock","soft rock","post punk","post punk revival","alternative rock","grunge","garage rock","dance rock","psychedelic rock","prog rock","math rock","emo","surf rock"]},{g:"Pop",opts:["pop","teen pop","power pop","tropical pop","bubblegum pop","baroque pop","folk pop","acoustic pop","cinematic pop"]},{g:"Folk / Acoustic",opts:["folk","indie folk","americana","country folk","celtic folk","singer-songwriter","acoustic indie","Mediterranean folk","bossa nova","tropic\xE1lia"]},{g:"Jazz / Soul",opts:["jazz","smooth jazz","nu jazz","acid jazz","neo soul","soul","R&B","funk","gospel","blues","swing","electro jazz"]},{g:"Hip Hop",opts:["hip hop","trap","lo-fi hip hop","boom bap","cloud rap","drill","afrobeat","afro pop"]},{g:"Dance / Electronic",opts:["house","deep house","tech house","progressive house","tropical house","disco","nu disco","funk soul","EDM","trance","drum and bass"]},{g:"Ambient / Cinematic",opts:["ambient","dark ambient","cinematic","orchestral","post rock","drone","space ambient","neoclassical","film score"]}]},{id:"bpm",lbl:"BPM",title:"Tempo",c:"var(--accent)",type:"bpm"},{id:"key",lbl:"KEY",title:"Key",c:"var(--green)",type:"chips",multi:!1,groups:[{g:"Major Keys",opts:["A major","B major","C major","D major","E major","F major","G major","Bb major","Eb major","Ab major"]},{g:"Minor Keys",opts:["A minor","B minor","C minor","D minor","E minor","F minor","G minor","F# minor","C# minor"]},{g:"Complex / Tension",opts:["E major, B minor tension","D major, B minor touches","A minor, C major resolution","D minor, F major resolution","G major, E minor touches","C major, A minor tension"]}]},{id:"mood",lbl:"MOOD",title:"Mood & Emotion",c:"var(--amber)",type:"chips",multi:!0,groups:[{g:"Positive",opts:["joyful","euphoric","celebratory","uplifting","triumphant","playful","carefree","cheerful","hopeful","warm","feel-good","nostalgic","bittersweet joy"]},{g:"Melancholic",opts:["melancholic","sad","longing","bittersweet","heartbroken","tender","wistful","somber","vulnerable","introspective","reflective","haunting"]},{g:"Energetic",opts:["energetic","intense","powerful","urgent","driving","aggressive","anthemic","epic","explosive","electrifying","unstoppable"]},{g:"Calm / Atmospheric",opts:["peaceful","serene","dreamy","ethereal","weightless","floating","meditative","hypnotic","mysterious","surreal","cinematic","cinematic without being dramatic"]},{g:"Context / Scene",opts:["late night","early morning","open road","coastal","Mediterranean","underwater","rainy day","golden hour","midnight city","campfire","rooftop"]}]},{id:"vocal",lbl:"VOCAL",title:"Vocal Style",c:"var(--purple)",type:"chips",multi:!0,groups:[{g:"Gender & Type",opts:["male vocals","female vocals","mixed vocals","duet","choir","no vocals (instrumental)"]},{g:"Tone & Character",opts:["smooth","raspy","breathy","airy","powerful","gritty","tender","warm","dark","bright","rich","thin","husky"]},{g:"Delivery Style",opts:["storytelling","conversational","intimate","theatrical","passionate","controlled","whispered","spoken word","melodic rap","belting"]},{g:"Range & Technique",opts:["falsetto","head voice","chest voice","wide vocal range","high tenor","baritone","soprano","layered harmonies","close harmonies","backing vocals","call and response"]},{g:"Effects",opts:["slight reverb on vocals","dry vocals upfront","tape delay on vocals","vocoder","auto-tune effect","double tracked vocals","lo-fi vocal texture","studio polish"]}]},{id:"inst",lbl:"INSTRUMENTS",title:"Instrumentation",c:"var(--cyan)",type:"chips",multi:!0,groups:[{g:"Guitar",opts:["acoustic guitar","classical guitar fingerpicking","nylon string guitar","electric guitar","clean electric guitar","overdriven guitar","slide guitar","12-string guitar","fingerpicking","strumming","arpeggios","wah-wah guitar","funk guitar","jangly guitar"]},{g:"Keys / Piano",opts:["grand piano","upright piano","electric piano","Rhodes piano","Wurlitzer","Hammond organ","harpsichord","honky-tonk piano","prepared piano"]},{g:"Synth",opts:["analog synth","modular synth","synth pads","synth arpeggios","lead synth","synth bass","synth strings","Moog","Jupiter-8 style","TB-303 bass"]},{g:"Bass",opts:["electric bass","upright bass","slap bass","walking bass","thumb bass","fretless bass","808 bass","synth bass","pulsing bass"]},{g:"Drums / Percussion",opts:["live drum kit","drum machine","brushed snare","featherlight drums","staccato drums","shuffling hi-hat","four-on-the-floor kick","808 drums","congas","bongos","tabla","cajon","hand claps","tambourine","marimba","xylophone","vibraphone","steel drums"]},{g:"Brass / Wind",opts:["trumpet","muted trumpet","trombone","saxophone","alto sax","tenor sax","flute","clarinet","French horn","brass section","horn stabs"]},{g:"Strings",opts:["violin","viola","cello","upright bass","string quartet","string section","pizzicato strings","orchestral strings"]},{g:"Other / World",opts:["harp","banjo","mandolin","ukulele","sitar","oud","bouzouki","accordion","harmonica","pedal steel","lap steel","dobro","pan flute","didgeridoo"]}]},{id:"struct",lbl:"STRUCTURE",title:"Song Structure",c:"var(--green)",type:"chips",multi:!1,groups:[{g:"Common Structures",opts:["intro, verse, chorus, verse, chorus, bridge, final chorus, outro","intro, verse, pre-chorus, chorus, verse, pre-chorus, chorus, bridge, final chorus, outro","intro, verse, chorus, verse, chorus, outro","intro, verse, verse, chorus, bridge, chorus, outro","verse, chorus, verse, chorus, bridge, chorus"]}]},{id:"tempo_feel",lbl:"TEMPO FEEL",title:"Tempo Feel & Groove",c:"var(--amber)",type:"chips",multi:!0,groups:[{g:"Groove Style",opts:["straight groove","swing feel","shuffle groove","syncopated","polyrhythmic","half-time feel","double-time feel","rubato","laid-back behind the beat","pushed ahead of the beat"]},{g:"Energy Movement",opts:["loose and organic","tight and driving","bouncy and forward","elastic rhythm","hypnotic and repetitive","building momentum","foot-stomping","head-nodding","danceable swagger","breathing between notes"]}]},{id:"mix",lbl:"MIX FOCUS",title:"Mix Focus",c:"var(--red)",type:"chips",multi:!0,groups:[{g:"Volume Balance",opts:["vocals loudest","vocals dry and upfront","instruments behind vocals","guitar leads mix","piano leads mix","bass-forward mix","drums prominent","bass felt not heard"]},{g:"Space & Width",opts:["wide stereo field","narrow mono feel","intimate close mix","spacious and open","deep reverb on everything","light reverb on vocals only","dry and direct","room reverb"]},{g:"Tone",opts:["warm analog tone","bright and crisp","dark and heavy","soft and smooth","punchy mid-range","bass-heavy","lo-fi texture","hi-fi polished","vintage tape warmth"]}]},{id:"energy",lbl:"ENERGY CURVE",title:"Energy Curve",c:"var(--green)",type:"chips",multi:!1,groups:[{g:"Arc",opts:["sparse intro, builds gradually, explodes on chorus","sparse intro, drum explosion on chorus downbeat","consistently energetic throughout","builds layer by layer each section","full from start, strips on bridge, returns full","calm and steady throughout","quiet verse, loud chorus contrast","maximum energy from start to finish","slow burn \u2014 builds over entire track"]}]},{id:"ref",lbl:"REFERENCE FEEL",title:"Reference Feel",c:"var(--purple)",type:"chips",multi:!0,groups:[{g:"Scene / Place",opts:["sunday morning on the coast","driving with windows down","sitting alone at 3am","walking through a city at night","sitting by a campfire","rainy afternoon at home","golden hour on the beach","last night of a long trip","early morning fog"]},{g:"Emotional Quality",opts:["melancholic but hopeful","cinematic without being dramatic","nostalgic without being sad","joyful but bittersweet","peaceful but alive","tender and honest","raw and vulnerable","confident and free","mysterious and alluring"]},{g:"Era / Aesthetic",opts:["retro yet modern","vintage 70s warmth","80s neon nostalgia","90s lo-fi bedroom","2000s indie aesthetic","timeless and classic","futuristic but warm","analog in a digital world"]}]},{id:"texture",lbl:"TEXTURE",title:"Texture & Effects",c:"var(--red)",type:"chips",multi:!0,groups:[{g:"Overall Texture",opts:["warm and analog","slightly lo-fi","highly polished","raw and unprocessed","organic imperfections","vintage tape saturation","clean digital clarity","sun-bleached warmth","cinematic depth"]},{g:"Effects & Processing",opts:["vinyl crackle","tape hiss","wide reverb","short reverb","delay echoes","tape echo","chorus effect","tremolo","phaser","flanger","heavy compression","sidechain pulse","spatial fx"]},{g:"Space",opts:["always space between notes","dense and layered","minimalist sparse","wall of sound","intimate bedroom feel","atmospheric and expansive","close and personal"]}]},{id:"prod",lbl:"PRODUCTION",title:"Production & Final Details",c:"var(--blue)",type:"chips",multi:!0,groups:[{g:"Duration",opts:["under 2 minutes","under 3 minutes","under 3 minutes 30 seconds","3 to 4 minutes","over 4 minutes"]},{g:"Intro / Outro",opts:["instrumental intro no vocals","cold start no intro","long intro 8+ bars","fade in intro","fade out ending","cold ending","outro instrumental only","no outro"]},{g:"Arrangement Details",opts:["sparse to full progressive build","one layer added per section","maximum density on final chorus","drops to minimal on bridge","drum break mid-song","key change on final chorus","half-time break","instrumental solo before final chorus","melancholic piano solo before final chorus","guitar solo"]},{g:"Recording Style",opts:["studio recording","live room feel","bedroom recording","lo-fi home recording","orchestral hall recording","intimate acoustic"]}]},{id:"neg",lbl:"NEGATIVE",title:"Exclude from Output",c:"var(--red)",type:"neg",groups:[{g:"Instruments",opts:["no violin","no strings","no cello","no orchestra","no choir","no harp","no brass","no horns","no flute","no banjo","no accordion","no electric guitar","no acoustic guitar","no piano","no synth"]},{g:"Vocals",opts:["no vocals","no female vocals","no male vocals","no auto-tune","no falsetto","no screaming","no rap","no choir","no harmonies"]},{g:"Drums / Rhythm",opts:["no heavy drums","no drums in verse","no drum machine","no trap beats","no 808","no electronic beats","no fast tempo","no slow tempo"]},{g:"Style / Feel",opts:["no distortion","no heavy metal","no EDM","no dark mood","no sad mood","no upbeat energy","no slow ballad","no generic sound","no filler","no noise","no glitch","no artifacts"]},{g:"Mix / Production",opts:["no loud mix","no buried vocals","no excessive reverb","no washy sound","no muddy bass","no harsh highs","no lo-fi texture","no polished pop sound"]}]}];function O(t){return window.esc(t)}function We(t){let o=window.pipeline[t];o.data||(o.data={});let e=o.data;if(e.sbVals||(e.sbVals={},x.forEach(a=>{e.sbVals[a.id]=a.type==="chips"||a.type==="neg"?[]:""}),e.sbVals.time_sig=""),e.sbOpen||(e.sbOpen={}),!e._synced&&window.pipelineObj?.meta){let a=window.pipelineObj.meta;if(a.bpm&&!e.sbVals.bpm){let m=String(a.bpm).replace(/[^\d]/g,"");m&&(e.sbVals.bpm=m)}if(a.timeSig&&!e.sbVals.time_sig){let m=String(a.timeSig).match(/\d+\/\d+/);m&&(e.sbVals.time_sig=m[0])}if(a.key&&!e.sbVals.key?.length){let m=String(a.key).toLowerCase(),f=(x.find(y=>y.id==="key")?.groups.flatMap(y=>y.opts)||[]).find(y=>m.includes(y.toLowerCase()));f&&(e.sbVals.key=[f])}e._synced=!0}let i=e.sbVals,r=["genre","bpm","key","mood","vocal","inst","struct","tempo_feel","mix","energy","ref","texture","prod"],s=[];r.forEach(a=>{let m=x.find(f=>f.id===a);if(!m)return;let u="";if(a==="bpm"){let f=[];if(i.bpm&&f.push(i.bpm+" BPM"),i.time_sig&&f.push(i.time_sig),!f.length)return;u=f.join(", ")}else{if(!i[a]||!i[a].length)return;u=i[a].join(", ")}s.push("["+m.lbl+`]
+`+u)});let l=s.join(`
+
+`),c=i.neg&&i.neg.length?i.neg.join(", "):"",p=l+(c?`
+
+[NEGATIVE]
+`+c:""),d=p.length,v=x.filter(a=>a.id!=="neg").length,g=x.filter(a=>a.id==="neg"?!1:a.id==="bpm"?i.bpm:Array.isArray(i[a.id])?i[a.id].length>0:i[a.id]).length,h=e.sbTab||"builder",n='<div class="mod-tabs">';return n+=`<button class="mod-tab${h==="builder"?" active":""}" onclick="sbTab(${t},'builder')">\u{1F39B}\uFE0F Builder</button>`,n+=`<button class="mod-tab${h==="output"?" active":""}" onclick="sbTab(${t},'output')">\u{1F4CB} Output <span style="font-size:9px;color:${d>1e3?"var(--red)":"var(--muted)"}">${d}/1000</span></button>`,n+="</div>",n+=`<div class="mod-tab-pane${h==="builder"?" active":""}">`,n+='<div style="padding:10px 16px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">',n+=`<span style="font-family:'Syne',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)">Sections</span>`,n+=`<div style="flex:1;height:2px;background:var(--border);border-radius:2px;overflow:hidden;"><div style="height:100%;width:${g/v*100}%;background:linear-gradient(90deg,var(--purple),var(--accent));transition:width .3s"></div></div>`,n+=`<span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)">${g}/${v}</span>`,n+="</div>",n+='<div style="padding:8px 16px 16px;max-height:60vh;overflow-y:auto;">',x.forEach(a=>{let m=Array.isArray(i[a.id])?i[a.id].length:i[a.id]?1:0,u=e.sbOpen[a.id]===!0;n+=`<div style="border:1px solid ${m>0?a.c+"44":"var(--border)"};border-radius:6px;margin-bottom:6px;overflow:hidden;">`,n+=`<div onclick="sbTogSec(${t},'${a.id}')" style="padding:8px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--surface2);user-select:none;">`,n+=`<span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:1px 6px;border-radius:3px;border:1px solid ${a.c}44;background:${a.c}18;color:${a.c}">${a.lbl}</span>`,n+=`<span style="font-family:'Syne',sans-serif;font-size:11px;font-weight:700;flex:1">${a.title}</span>`,m>0&&(n+=`<span style="font-family:'DM Mono',monospace;font-size:10px;color:${a.c}">${m} \u2713</span>`),n+=`<span style="font-size:9px;color:var(--muted);transition:transform .2s;${u?"transform:rotate(180deg)":""}">\u25BC</span>`,n+="</div>",u&&(n+='<div style="padding:10px 14px;border-top:1px solid var(--border);">',a.type==="bpm"?(n+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">',n+=`<div><label style="display:block;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px">BPM</label>`,n+=`<input type="number" min="40" max="220" placeholder="ex: 92" value="${O(i.bpm||"")}" oninput="sbUpd(${t},'bpm',this.value)" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:6px 10px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;outline:none;"></div>`,n+=`<div><label style="display:block;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Time Signature</label>`,n+=`<select onchange="sbUpd(${t},'time_sig',this.value)" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:6px 10px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;outline:none;">`,n+='<option value="">\u2014 none \u2014</option>',["4/4 (standard)","3/4 (waltz)","6/8 (fluid)","5/4 (irregular)","7/8 (complex)"].forEach(f=>{let y=f.split(" ")[0];n+=`<option value="${y}" ${i.time_sig===y?"selected":""}>${f}</option>`}),n+="</select></div></div>"):a.groups.forEach(f=>{n+='<div style="margin-bottom:10px;">',n+=`<span style="display:block;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px">${O(f.g)}</span>`,n+='<div style="display:flex;flex-wrap:wrap;gap:5px;">',f.opts.forEach(y=>{let b=Array.isArray(i[a.id])&&i[a.id].includes(y);a.type==="neg"?n+=`<span onclick="sbChip(${t},'${a.id}',\`${y.replace(/`/g,"\\`")}\`,true,${a.multi!==!1})" style="padding:3px 9px;border-radius:12px;font-size:11px;cursor:pointer;border:1px solid ${b?"var(--red)":"rgba(255,85,85,.2)"};background:${b?"rgba(255,85,85,.18)":"rgba(255,85,85,.04)"};color:${b?"var(--red)":"#ff9090"};${b?"text-decoration:line-through;":""}user-select:none;transition:all .13s">${O(y)}</span>`:n+=`<span onclick="sbChip(${t},'${a.id}',\`${y.replace(/`/g,"\\`")}\`,false,${a.multi!==!1})" style="padding:4px 10px;border-radius:12px;font-size:11px;cursor:pointer;border:1px solid ${b?a.c:"var(--border)"};background:${b?a.c:"var(--surface)"};color:${b?"#0b0b0e":"var(--muted)"};${b?"font-weight:500;":""}user-select:none;transition:all .13s">${O(y)}</span>`}),n+="</div></div>"}),n+="</div>"),n+="</div>"}),n+="</div></div>",n+=`<div class="mod-tab-pane${h==="output"?" active":""}">`,n+='<div style="padding:10px 16px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">',n+=`<span style="font-family:'Syne',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)">Chars</span>`,n+=`<div style="flex:1;height:2px;background:var(--border);border-radius:2px;overflow:hidden;"><div style="height:100%;width:${Math.min(d/1e3*100,100)}%;background:${d>1e3?"var(--red)":"linear-gradient(90deg,var(--purple),var(--accent))"};transition:width .3s"></div></div>`,n+=`<span style="font-family:'DM Mono',monospace;font-size:10px;color:${d>1e3?"var(--red)":"var(--muted)"}">${d}/1000</span>`,n+="</div>",p.trim()?(n+='<div style="padding:14px 16px;max-height:50vh;overflow-y:auto;">',n+=`<div style="font-family:'DM Mono',monospace;font-size:11px;line-height:1.9;white-space:pre-wrap;word-break:break-word;">`,p.split(`
+
+`).forEach(a=>{let m=a.split(`
+`);m[0].startsWith("[")?n+=`<span style="color:var(--accent);font-weight:500">${O(m[0])}</span>
+${O(m.slice(1).join(`
+`))}
+
+`:n+=O(a)+`
+
+`}),n+="</div></div>"):n+='<div style="padding:36px 16px;text-align:center;color:var(--muted);font-size:12px;font-style:italic">\u2190 Select options in the Builder tab</div>',n+='<div style="padding:10px 16px;border-top:1px solid var(--border);display:flex;gap:6px;">',n+=`<button class="m-btn m-btn-primary" style="flex:1" onclick="sbApply(${t})">\u2713 APPLY TO PIPELINE</button>`,n+=`<button class="m-btn m-btn-ghost" style="padding:7px 12px" onclick="sbCopy(${t})">\u2398</button>`,n+=`<button class="m-btn m-btn-danger" style="padding:7px 12px" onclick="sbCopyNeg(${t})">\u2298</button>`,n+=`<button class="m-btn m-btn-ghost" style="padding:7px 12px" onclick="sbReset(${t})">\u21BA</button>`,n+="</div></div>",n}function qe(t,o){let e=window.pipeline[t];if(!e)return;e.data||(e.data={}),e.data.sbTab=o;let i=window.getEl("module-"+t);if(!i)return;let r=i.querySelectorAll(".mod-tab"),s=i.querySelectorAll(".mod-tab-pane"),c=["builder","output"].indexOf(o);r.forEach((p,d)=>p.classList.toggle("active",d===c)),s.forEach((p,d)=>p.classList.toggle("active",d===c))}function Ye(t,o){let e=window.pipeline[t];e&&(e.data||(e.data={}),e.data.sbOpen||(e.data.sbOpen={}),e.data.sbOpen[o]=!e.data.sbOpen[o],window.renderModules())}function Xe(t,o,e,i,r){let s=window.pipeline[t];if(!s||(s.data||(s.data={}),!s.data.sbVals))return;let l=s.data.sbVals[o];if(!Array.isArray(l))return;let c=l.indexOf(e);r?c>=0?l.splice(c,1):l.push(e):s.data.sbVals[o]=c>=0?[]:[e],window.renderModules(),window.triggerAutosave("lyric")}function Ze(t,o,e){let i=window.pipeline[t];i&&(i.data||(i.data={}),i.data.sbVals&&(i.data.sbVals[o]=e,window.renderModules(),window.triggerAutosave("lyric")))}function Qe(t){let o=window.pipeline[t];if(!o?.data?.sbVals)return;let e=o.data.sbVals,i=["genre","bpm","key","mood","vocal","inst","struct","tempo_feel","mix","energy","ref","texture","prod"],r=[];i.forEach(p=>{let d=x.find(g=>g.id===p);if(!d)return;let v="";if(p==="bpm"){let g=[];if(e.bpm&&g.push(e.bpm+" BPM"),e.time_sig&&g.push(e.time_sig),!g.length)return;v=g.join(", ")}else{if(!e[p]||!e[p].length)return;v=e[p].join(", ")}r.push("["+d.lbl+`]
+`+v)});let s=r.join(`
+
+`),l=e.neg&&e.neg.length?e.neg.join(", "):"",c=s+(l?`
+
+[NEGATIVE]
+`+l:"");navigator.clipboard.writeText(c).then(()=>window.showToast("Prompt copied! ("+c.length+" chars)")).catch(()=>window.showToast("Copy failed"))}function et(t){let o=window.pipeline[t];if(!o?.data?.sbVals?.neg?.length){window.showToast("No negatives selected");return}navigator.clipboard.writeText(o.data.sbVals.neg.join(", ")).then(()=>window.showToast("Negatives copied!")).catch(()=>window.showToast("Copy failed"))}function tt(t){let o=window.pipeline[t];o&&(o.data||(o.data={}),o.data.sbVals={},x.forEach(e=>{o.data.sbVals[e.id]=e.type==="chips"||e.type==="neg"?[]:""}),o.data.sbVals.time_sig="",window.renderModules(),window.triggerAutosave("lyric"),window.showToast("Builder reset"))}w(Ke,We);async function ot(t){let o=window.pipeline[t];if(!o?.data?.sbVals)return;let e=o.data.sbVals;if(!window.LI){window.showToast("Lyric Input required");return}if(!window.LI.locked){window.showToast("Lock Lyric Input first");return}if(!window.pipelineObj){window.showToast("Lock Lyric Input first");return}let r=["genre","bpm","key","mood","vocal","inst","struct","tempo_feel","mix","energy","ref","texture","prod"].map(l=>{let c=x.find(d=>d.id===l);if(!c)return"";let p="";if(l==="bpm"){let d=[];if(e.bpm&&d.push(e.bpm+" BPM"),e.time_sig&&d.push(e.time_sig),!d.length)return"";p=d.join(", ")}else{if(!e[l]||!e[l].length)return"";p=e[l].join(", ")}return`${c.title}: ${p}`}).filter(Boolean).join(`
+`);if(!r.trim()){window.showToast("Select options first");return}let s=typeof window.getKey=="function"?window.getKey():"";if(!s){window.showToast("API key required");return}o.data.sbApplying=!0,window.renderModules();try{let l=window.pipelineObj,c=l.lyrics?.sections?.map(m=>m.content).join(`
+
+`)||"",p=l.lyrics?.sections?.length||0,d=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":s,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:2e3,system:`You are a Suno AI prompt expert. Given song characteristics and lyrics, generate PERFECT Suno prompts.
+
+RULES:
+1. Generate ONE overall prompt (max 50 words) covering the entire song vibe
+2. Generate ${p} section prompts (max 30 words each) \u2014 ONE for each section
+3. Be specific, Suno-interpretable, and optimized
+4. Use keywords from the provided characteristics
+5. Format:
+[OVERALL]
+<prompt>
+
+[SECTION 1]
+<prompt>
+
+[SECTION 2]
+<prompt>
+...etc`,messages:[{role:"user",content:`Song characteristics:
+${r}
+
+Lyrics:
+${c}
+
+Generate optimized Suno prompts. Be creative and specific.`}]})});if(!d.ok){let m=await d.json();throw new Error(m.error?.message||"API error")}let g=(await d.json()).content[0]?.text||"",h=g.split(/\[SECTION \d+\]/i),n=g.match(/\[OVERALL\]([\s\S]*?)(?=\[SECTION|$)/i),a=n?n[1].trim():"";window.LI.promptOverall=a,window.LI.sectionPrompts={},l.lyrics?.sections?.forEach((m,u)=>{let f=g.match(new RegExp(`\\[SECTION ${u+1}\\]([\\s\\S]*?)(?=\\[SECTION|$)`,"i")),y=f?f[1].trim():"";m.name&&(window.LI.sectionPrompts[m.name]=y)}),window.pipelineObj.prompt_overall={positive:a},window.pipelineObj.prompts_seccionais={},Object.entries(window.LI.sectionPrompts).forEach(([m,u])=>{window.pipelineObj.prompts_seccionais[m]={positive:u}}),window.showToast("\u2713 Prompts applied"),o.data.sbApplying=!1,window.renderModules()}catch(l){window.showToast("Error: "+l.message),o.data.sbApplying=!1,window.renderModules()}}window.SB_SECTIONS=x;window.sbTab=qe;window.sbTogSec=Ye;window.sbChip=Xe;window.sbUpd=Ze;window.sbApply=ot;window.sbCopy=Qe;window.sbCopyNeg=et;window.sbReset=tt;var it={id:"text2prompter",icon:"\u{1F3AF}",title:"Text to Prompter",subtitle:"AI reference analysis \xB7 beta",color:"var(--cyan)",contract:{needs:[],delivers:[]}},W=3,q=[[["calm","peaceful","serene","meditative"],["explosive","aggressive","intense","energetic","driving"]],[["no vocals","instrumental"],["male vocals","female vocals","duet","choir","belting","falsetto"]],[["slow tempo","rubato"],["fast tempo","driving","double-time feel"]],[["lo-fi texture","lo-fi home recording","bedroom recording"],["hi-fi polished","studio recording","clean digital clarity"]],[["dark and heavy","dark ambient","somber"],["joyful","euphoric","celebratory","cheerful","feel-good"]],[["sparse and minimalist","minimalist sparse"],["wall of sound","dense and layered","maximum density on final chorus"]],[["no drums","no heavy drums"],["drum machine","live drum kit","808 drums","four-on-the-floor kick"]],[["acoustic guitar","acoustic indie","acoustic pop"],["no acoustic guitar"]],[["electric guitar","overdriven guitar"],["no electric guitar"]],[["piano","grand piano","upright piano"],["no piano"]],[["no synth"],["synth pads","analog synth","synth arpeggios","lead synth"]],[["dry vocals upfront","dry and direct"],["wide reverb","heavy reverb","deep reverb on everything"]],[["cold ending","no outro"],["fade out ending"]],[["under 2 minutes"],["over 4 minutes"]]];function _(t){return window.esc(t)}function rt(t){let o=[],e=t.map(i=>i.toLowerCase());return q.forEach(([i,r])=>{let s=i.filter(c=>e.some(p=>p.includes(c.toLowerCase()))),l=r.filter(c=>e.some(p=>p.includes(c.toLowerCase())));s.length&&l.length&&o.push({a:s,b:l})}),o}function nt(){return`You are a music analysis expert specializing in Suno AI prompt engineering.
+
+Given reference songs/artists, analyze their musical characteristics and return Suno-compatible keywords.
+
+Return ONLY valid JSON with this exact structure:
+{
+  "genre": ["keyword1", "keyword2"],
+  "bpm": "number",
+  "time_sig": "4/4",
+  "key": ["key description"],
+  "mood": ["mood1", "mood2"],
+  "vocal": ["vocal style1"],
+  "inst": ["instrument1", "instrument2"],
+  "struct": ["full structure string"],
+  "tempo_feel": ["feel1"],
+  "mix": ["mix characteristic1"],
+  "energy": ["energy curve description"],
+  "ref": ["reference feel1"],
+  "texture": ["texture1"],
+  "prod": ["production detail1"],
+  "neg": ["things to exclude"]
 }
 
-function flCopySynth(idx){
-  const d=pipeline[idx]?.data;if(!d?.flSynth)return;
-  const s=d.flSynth;
-  const lines=['=== FEEDBACK LOOP — ITERATION PLAN ===',''];
-  if(s.summary)lines.push(s.summary,'');
-  const map={lyric_changes:'LYRIC CHANGES',prompt_changes:'PROMPT CHANGES',section_changes:'SECTION CHANGES',structural_changes:'STRUCTURAL CHANGES'};
-  Object.entries(map).forEach(([k,lbl])=>{if(s[k]?.length){lines.push(lbl+':');s[k].forEach(i=>lines.push('  → '+i));lines.push('');}});
-  if(s.next_step)lines.push('NEXT STEP: '+s.next_step);
-  navigator.clipboard.writeText(lines.join('\n')).then(()=>showToast('Copied!')).catch(()=>showToast('Copy failed'));
+Rules:
+- Use ONLY keywords that Suno AI can interpret
+- Be specific and descriptive
+- For multiple references, merge characteristics intelligently
+- Include negative prompts for things that should be avoided
+- Keep total output under 800 characters when joined
+- If songs have contrasting styles, note this in your analysis`}function st(t){let o=`Analyze these reference songs and return Suno-compatible keywords:
+
+`;return t.forEach((e,i)=>{o+=`Reference ${i+1}: ${e}
+`}),o+=`
+Return ONLY the JSON object, no explanation.`,o}function at(t){let o=window.pipeline[t];o.data||(o.data={});let e=o.data;e.t2pRefs||(e.t2pRefs=["","",""]),e.t2pResult||(e.t2pResult=null),e.t2pConflicts||(e.t2pConflicts=[]),e.t2pLoading||(e.t2pLoading=!1),e.t2pError||(e.t2pError=""),e.t2pApplied===void 0&&(e.t2pApplied=!1);let i=localStorage.getItem("ppos_claude_api_key")||"",r="";if(!i)return r+='<div style="padding:20px 16px;">',r+='<div style="background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.2);border-radius:8px;padding:16px;">',r+=`<div style="font-family:'Syne',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--purple);margin-bottom:8px">\u{1F511} CLAUDE API KEY REQUIRED</div>`,r+='<div style="font-size:11px;color:var(--text2);line-height:1.6;margin-bottom:12px">This module uses Claude to analyze reference songs and generate Suno-compatible keywords. Your key is stored locally and never shared.</div>',r+='<div style="display:flex;gap:6px;">',r+=`<input type="password" id="t2p-apikey-${t}" placeholder="sk-ant-..." style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:8px 10px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;outline:none;">`,r+=`<button class="m-btn m-btn-primary" onclick="t2pSaveKey(${t})">Save</button>`,r+="</div></div></div>",r;r+='<div style="padding:14px 16px;border-bottom:1px solid var(--border);">',r+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">',r+=`<span style="font-family:'Syne',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--purple)">REFERENCE SONGS</span>`,r+=`<button class="m-btn m-btn-ghost" style="font-size:8px;padding:2px 8px;" onclick="t2pClearKey(${t})">\u{1F511} Change Key</button>`,r+="</div>";for(let l=0;l<W;l++)r+='<div style="display:flex;gap:6px;margin-bottom:6px;align-items:center;">',r+=`<span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);width:14px;text-align:right">${l+1}.</span>`,r+=`<input id="t2p-ref-${t}-${l}" value="${_(e.t2pRefs[l]||"")}" placeholder="${l===0?"e.g. Live and Let Die - Paul McCartney":"optional reference "+(l+1)}" oninput="t2pRefUpd(${t},${l},this.value)" style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:7px 10px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;outline:none;">`,r+="</div>";let s=e.t2pRefs.some(l=>l.trim());if(r+='<div style="margin-top:10px;display:flex;gap:6px;">',r+=`<button class="m-btn m-btn-primary" style="flex:1" onclick="t2pAnalyze(${t})" ${!s||e.t2pLoading?"disabled":""}>${e.t2pLoading?"\u23F3 Analyzing...":"\u{1F50D} Analyze References"}</button>`,e.t2pResult&&(r+=`<button class="m-btn m-btn-ghost" onclick="t2pReset(${t})">\u21BA</button>`),r+="</div></div>",e.t2pError&&(r+='<div style="padding:10px 16px;background:rgba(255,85,85,.08);border-bottom:1px solid var(--border);">',r+=`<span style="font-size:11px;color:var(--red)">${_(e.t2pError)}</span></div>`),e.t2pResult){let l=e.t2pResult,c=Object.entries(l).flatMap(([g,h])=>Array.isArray(h)?h:[h]).filter(Boolean),p=rt(c);p.length>0&&(r+='<div style="padding:12px 16px;background:rgba(245,158,11,.08);border-bottom:1px solid rgba(245,158,11,.2);">',r+=`<div style="font-family:'Syne',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--amber);margin-bottom:8px">\u26A0\uFE0F POTENTIAL CONFLICTS DETECTED</div>`,r+='<div style="font-size:11px;color:var(--text2);line-height:1.7;margin-bottom:8px">These keywords may produce unpredictable results in Suno. You can proceed anyway \u2014 sometimes contradictions create magic.</div>',p.forEach(g=>{r+='<div style="background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.15);border-radius:4px;padding:6px 10px;margin-bottom:4px;font-size:10px;">',r+='<span style="color:var(--amber)">\u26A1</span> ',r+=`<span style="color:var(--cyan)">${_(g.a.join(", "))}</span>`,r+=' <span style="color:var(--muted)">vs</span> ',r+=`<span style="color:var(--red)">${_(g.b.join(", "))}</span>`,r+="</div>"}),r+="</div>"),r+='<div style="padding:10px 16px;max-height:40vh;overflow-y:auto;">';let d={genre:"Genre",bpm:"BPM",time_sig:"Time Sig",key:"Key",mood:"Mood",vocal:"Vocal",inst:"Instruments",struct:"Structure",tempo_feel:"Tempo Feel",mix:"Mix",energy:"Energy",ref:"Reference Feel",texture:"Texture",prod:"Production",neg:"Negative"},v={genre:"var(--purple)",bpm:"var(--accent)",key:"var(--green)",mood:"var(--amber)",vocal:"var(--purple)",inst:"var(--cyan)",struct:"var(--green)",tempo_feel:"var(--amber)",mix:"var(--red)",energy:"var(--green)",ref:"var(--purple)",texture:"var(--red)",prod:"var(--blue)",neg:"var(--red)"};Object.entries(l).forEach(([g,h])=>{if(!h||Array.isArray(h)&&!h.length)return;let n=d[g]||g,a=v[g]||"var(--muted)",m=Array.isArray(h)?h:[String(h)];r+='<div style="margin-bottom:8px;">',r+=`<span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:${a}">${_(n)}</span>`,r+='<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">',m.forEach(u=>{let f=g==="neg";r+=`<span style="padding:3px 9px;border-radius:12px;font-size:10px;border:1px solid ${f?"rgba(255,85,85,.3)":a+"44"};background:${f?"rgba(255,85,85,.1)":a+"12"};color:${f?"var(--red)":a}">${_(String(u))}</span>`}),r+="</div></div>"}),r+="</div>",r+='<div style="padding:10px 16px;border-top:1px solid var(--border);display:flex;gap:6px;">',e.t2pApplied?r+='<button class="m-btn m-btn-ghost" style="flex:1" disabled>\u2713 Applied to Suno Prompter</button>':r+=`<button class="m-btn m-btn-primary" style="flex:1" onclick="t2pApply(${t})">\u2728 Apply to Suno Prompter</button>`,r+=`<button class="m-btn m-btn-ghost" onclick="t2pCopyJSON(${t})">\u2398 JSON</button>`,r+="</div>"}return r}function lt(t){let e=window.getEl("t2p-apikey-"+t)?.value?.trim();if(!e||!e.startsWith("sk-ant-")){window.showToast("Invalid API key format");return}localStorage.setItem("ppos_claude_api_key",e),window.renderModules(),window.showToast("API key saved")}function ct(t){localStorage.removeItem("ppos_claude_api_key"),window.renderModules()}function pt(t,o,e){let i=window.pipeline[t];i?.data&&(i.data.t2pRefs||(i.data.t2pRefs=["","",""]),i.data.t2pRefs[o]=e)}async function dt(t){let o=window.pipeline[t];if(!o?.data)return;let e=o.data,i=(e.t2pRefs||[]).filter(s=>s.trim());if(!i.length){window.showToast("Add at least one reference");return}let r=localStorage.getItem("ppos_claude_api_key");if(!r){window.showToast("API key not set");return}e.t2pLoading=!0,e.t2pError="",e.t2pResult=null,e.t2pApplied=!1,window.renderModules();try{let s=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":r,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1024,system:nt(),messages:[{role:"user",content:st(i)}]})});if(!s.ok){let d=await s.json().catch(()=>({}));throw new Error(d.error?.message||`API error ${s.status}`)}let p=((await s.json()).content?.[0]?.text||"").match(/\{[\s\S]*\}/);if(!p)throw new Error("No JSON in response");e.t2pResult=JSON.parse(p[0]),e.t2pLoading=!1,window.renderModules(),window.showToast("Analysis complete")}catch(s){e.t2pLoading=!1,e.t2pError=s.message||"Unknown error",window.renderModules()}}function ut(t){let o=window.pipeline[t];if(!o?.data?.t2pResult)return;let e=o.data.t2pResult,i=window.pipeline.findIndex(c=>c.defId==="sunobuilder");if(i<0){window.showToast("Add Suno Prompt Builder to pipeline first");return}let r=window.pipeline[i];r.data||(r.data={}),r.data.sbVals||(r.data.sbVals={},x.forEach(c=>{r.data.sbVals[c.id]=c.type==="chips"||c.type==="neg"?[]:""}),r.data.sbVals.time_sig="");let s=r.data.sbVals;Object.entries(e).forEach(([c,p])=>{if(p){if(c==="bpm"){s.bpm=String(p).replace(/[^\d]/g,"");return}if(c==="time_sig"){s.time_sig=String(p);return}Array.isArray(p)&&p.length&&s[c]!==void 0&&(s[c]=p.map(d=>String(d)))}}),r.data._synced=!0,o.data.t2pApplied=!0,window.renderModules(),window.showToast("Applied to Suno Prompter \u2713");let l=window.getEl("module-"+i);l&&(window.pipeline[i].collapsed=!1,l.classList.remove("collapsed"),l.scrollIntoView({behavior:"smooth",block:"start"}))}function mt(t){let o=window.pipeline[t];o?.data?.t2pResult&&navigator.clipboard.writeText(JSON.stringify(o.data.t2pResult,null,2)).then(()=>window.showToast("JSON copied")).catch(()=>window.showToast("Copy failed"))}function ft(t){let o=window.pipeline[t];o?.data&&(o.data.t2pResult=null,o.data.t2pConflicts=[],o.data.t2pError="",o.data.t2pApplied=!1,window.renderModules())}w(it,at);window.T2P_MAX_REFS=W;window.T2P_CONFLICTS=q;window.t2pSaveKey=lt;window.t2pClearKey=ct;window.t2pRefUpd=pt;window.t2pAnalyze=dt;window.t2pApply=ut;window.t2pCopyJSON=mt;window.t2pReset=ft;var gt={id:"cover",icon:"\u{1F5BC}",title:"Cover Art",subtitle:"generate \xB7 upload \xB7 preview",color:"var(--purple)",contract:{needs:[],delivers:[]}};function ht(){return`<div class="distro-body"><div class="distro-icon">\u{1F5BC}</div><div style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:var(--text2)">Cover Art</div><div style="font-family:'Syne',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);border:1px solid var(--border2);padding:3px 12px;border-radius:20px">coming soon</div></div>`}w(gt,ht);})();
+
+// ── Wire renderModules to shell render() ──
+if (typeof setRenderFn === "function" && typeof render === "function") {
+  setRenderFn(render);
 }
-
-// ── Self-registration ────────────────────────────────────────
-_mr['feedloop'] = bodyFeedLoop;
-MODULE_DEFS.push({ id:'feedloop', icon:'↺', title:'Feedback Loop', subtitle:'post-generation · iterate', color:'var(--cyan)' });
-
 </script>
 </body>
 </html>
